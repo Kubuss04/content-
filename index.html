@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pl" class="no-js">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Everson — Technika próżniowa klasy premium | Przyssawki i chwytaki podciśnieniowe</title>
+  <meta name="description" content="Everson — oryginalne przyssawki próżniowe, generatory podciśnienia, chwytaki do butelek i maty ssące od renomowanych europejskich producentów. Dobór z doradcą AI, szybka wysyłka z Torunia.">
+  <meta name="theme-color" content="#09090b">
+  <meta property="og:title" content="Everson — Technika próżniowa klasy premium">
+  <meta property="og:description" content="Przyssawki i komponenty próżniowe, które trzymają Twoją produkcję w ruchu.">
+  <meta property="og:locale" content="pl_PL">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2309090b'/%3E%3Cpath d='M9 22c0-4 14-4 14 0' stroke='%23e9b893' stroke-width='2' fill='none'/%3E%3Crect x='14' y='7' width='4' height='11' rx='1' fill='%23e9b893'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS — skompilowany (npm run build), bez zależności od CDN -->
+  <link rel="stylesheet" href="assets/css/tailwind.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>document.documentElement.classList.remove("no-js");</script>
+</head>
+
+<body class="bg-ink-950 font-sans text-bone-100 antialiased selection:bg-copper-500/30">
+
+  <!-- Globalne definicje SVG (pół-gwiazdka w ocenach) -->
+  <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="half-star"><stop offset="50%" stop-color="currentColor"/><stop offset="50%" stop-color="transparent"/></linearGradient>
+    </defs>
+  </svg>
+
+  <a href="#main" class="sr-only-focusable fixed left-4 top-4 z-[100] rounded-full bg-copper-400 px-5 py-3 font-medium text-ink-950">Przejdź do treści</a>
+
+  <!-- =====================================================================
+       A. NAGŁÓWEK
+       ===================================================================== -->
+  <header id="site-header" class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
+    <div class="header-shell mx-auto flex max-w-site items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 backdrop-blur-xl transition-all duration-500 sm:px-5 lg:gap-6">
+      <!-- Logo -->
+      <a href="#top" class="group flex shrink-0 items-center gap-2.5" aria-label="Everson — strona główna">
+        <span class="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-copper-300 via-copper-500 to-copper-700 shadow-lg shadow-copper-500/20">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-950" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="M12 3v8" stroke-linecap="round"/><path d="M9 11h6"/><path d="M4.5 18c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" stroke-linecap="round"/><path d="M3 20h18" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="font-serif text-xl font-medium tracking-[0.18em] text-bone-50">EVERSON</span>
+      </a>
+
+      <!-- Nawigacja desktop -->
+      <nav class="ml-4 hidden lg:block" aria-label="Główna nawigacja">
+        <ul class="flex items-center gap-1 text-sm text-bone-300">
+          <li><a href="#kolekcje" class="rounded-full px-4 py-2 transition hover:bg-white/5 hover:text-bone-50">Kolekcje</a></li>
+          <li><a href="#bestsellery" class="rounded-full px-4 py-2 transition hover:bg-white/5 hover:text-bone-50">Bestsellery</a></li>
+          <li><a href="#o-marce" class="rounded-full px-4 py-2 transition hover:bg-white/5 hover:text-bone-50">O marce</a></li>
+          <li><a href="#kontakt" class="rounded-full px-4 py-2 transition hover:bg-white/5 hover:text-bone-50">Kontakt</a></li>
+        </ul>
+      </nav>
+
+      <!-- Wyszukiwarka z autouzupełnianiem -->
+      <div id="search-wrap" class="relative ml-auto hidden w-full max-w-xs md:block xl:max-w-sm">
+        <label for="search-input" class="sr-only">Szukaj produktów</label>
+        <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+        <input id="search-input" type="search" autocomplete="off" placeholder="Szukaj: szkło, butelki, generator…"
+               role="combobox" aria-expanded="false" aria-controls="search-suggest" aria-autocomplete="list"
+               class="w-full rounded-full border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:bg-white/[0.07] focus:outline-none">
+        <ul id="search-suggest" role="listbox" aria-label="Podpowiedzi wyszukiwania"
+            class="glass-strong absolute left-0 right-0 top-[calc(100%+8px)] hidden max-h-96 overflow-auto rounded-2xl p-2 shadow-2xl"></ul>
+      </div>
+
+      <!-- Akcje -->
+      <div class="ml-auto flex items-center gap-1 md:ml-0">
+        <button id="search-toggle" type="button" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50 md:hidden" aria-label="Otwórz wyszukiwarkę" aria-expanded="false" aria-controls="mobile-search">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+        </button>
+        <button id="account-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Konto klienta B2B">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" stroke-linecap="round"/></svg>
+        </button>
+        <button id="cart-btn" type="button" class="relative grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Koszyk, 0 produktów" aria-controls="cart-drawer" aria-expanded="false">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8Z" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round"/></svg>
+          <span id="cart-count" class="absolute -right-0.5 -top-0.5 hidden h-5 min-w-5 place-items-center rounded-full bg-copper-400 px-1 text-[10px] font-semibold text-ink-950">0</span>
+        </button>
+        <button id="menu-toggle" type="button" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50 lg:hidden" aria-label="Otwórz menu" aria-expanded="false" aria-controls="mobile-menu">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Wyszukiwarka mobile -->
+    <div id="mobile-search" class="glass-strong mx-auto mt-2 hidden max-w-site rounded-2xl p-3 md:hidden">
+      <label for="search-input-m" class="sr-only">Szukaj produktów</label>
+      <input id="search-input-m" type="search" autocomplete="off" placeholder="Czego szukasz?"
+             role="combobox" aria-expanded="false" aria-controls="search-suggest-m" aria-autocomplete="list"
+             class="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:outline-none">
+      <ul id="search-suggest-m" role="listbox" aria-label="Podpowiedzi wyszukiwania" class="mt-2 hidden max-h-80 overflow-auto"></ul>
+    </div>
+
+    <!-- Menu mobile -->
+    <nav id="mobile-menu" class="glass-strong mx-auto mt-2 hidden max-w-site rounded-2xl p-3 lg:hidden" aria-label="Menu mobilne">
+      <ul class="grid gap-1 text-base">
+        <li><a href="#kolekcje" class="block rounded-xl px-4 py-3 hover:bg-white/5">Kolekcje</a></li>
+        <li><a href="#bestsellery" class="block rounded-xl px-4 py-3 hover:bg-white/5">Bestsellery</a></li>
+        <li><a href="#doradca" class="block rounded-xl px-4 py-3 hover:bg-white/5">Doradca AI</a></li>
+        <li><a href="#o-marce" class="block rounded-xl px-4 py-3 hover:bg-white/5">O marce</a></li>
+        <li><a href="#kontakt" class="block rounded-xl px-4 py-3 hover:bg-white/5">Kontakt</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- =====================================================================
+         B. HERO — kinowa pętla
+         ===================================================================== -->
+    <section id="top" class="hero-stage film-grain letterbox relative flex min-h-[100svh] items-center overflow-hidden pt-28 pb-20 sm:pt-32" aria-labelledby="hero-title">
+      <!-- Warstwa wideo (opcjonalna): wgraj pętlę do assets/video/hero-loop.mp4 i ustaw data-src="assets/video/hero-loop.mp4" -->
+      <video id="hero-video" class="absolute inset-0 -z-20 h-full w-full object-cover opacity-0 transition-opacity duration-1000" autoplay muted loop playsinline preload="none" aria-hidden="true" data-src=""></video>
+      <!-- Proceduralna pętla kinowa: pole podciśnienia (canvas) + światła -->
+      <canvas id="hero-canvas" class="absolute inset-0 -z-10 h-full w-full" aria-hidden="true"></canvas>
+      <div class="hero-beam b1 -z-10" aria-hidden="true"></div>
+      <div class="hero-beam b2 -z-10" aria-hidden="true"></div>
+      <div class="hero-beam b3 -z-10" aria-hidden="true"></div>
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,transparent_30%,#09090b_85%)]" aria-hidden="true"></div>
+
+      <div class="relative z-10 mx-auto grid w-full max-w-site items-center gap-12 px-4 sm:px-6 lg:grid-cols-12 lg:px-8">
+        <div class="lg:col-span-7">
+          <p class="eyebrow reveal">Technika próżniowa · Toruń · Od lat w polskim przemyśle</p>
+          <h1 id="hero-title" class="reveal mt-6 font-serif text-[2.6rem] font-light leading-[1.02] tracking-tight text-bone-50 sm:text-6xl lg:text-7xl xl:text-[5.4rem]">
+            Siła, której <em class="text-brushed not-italic font-normal">nie widać.</em><br class="hidden sm:block">
+            Precyzja, którą <em class="font-normal italic text-copper-200">czuć.</em>
+          </h1>
+          <p class="reveal mt-7 max-w-xl text-base leading-relaxed text-bone-300 sm:text-lg">
+            Oryginalne przyssawki i komponenty próżniowe od renomowanych europejskich producentów — dobrane do Twojej aplikacji, dostarczone wtedy, gdy linia tego potrzebuje. Mniej przestojów. Więcej cykli. Zero kompromisów.
+          </p>
+          <div class="reveal mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a href="#kolekcje" class="btn-copper inline-flex items-center justify-center gap-2 rounded-full px-7 py-4 text-sm font-semibold tracking-wide">
+              Odkryj kolekcję
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+            <button type="button" data-open-advisor class="btn-ghost inline-flex items-center justify-center gap-2.5 rounded-full border border-white/15 px-7 py-4 text-sm font-medium text-bone-50">
+              <svg class="h-4 w-4 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" stroke-linejoin="round"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z" stroke-linejoin="round"/></svg>
+              Skonsultuj z AI
+            </button>
+          </div>
+
+          <dl class="reveal mt-14 grid max-w-lg grid-cols-3 gap-6 border-t border-white/10 pt-8">
+            <div><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Indeksów</dt><dd class="mt-2 font-serif text-3xl text-bone-50">2 500<span class="text-copper-300">+</span></dd></div>
+            <div><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Wysyłka</dt><dd class="mt-2 font-serif text-3xl text-bone-50">24<span class="text-copper-300">h</span></dd></div>
+            <div><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Oryginał</dt><dd class="mt-2 font-serif text-3xl text-bone-50">100<span class="text-copper-300">%</span></dd></div>
+          </dl>
+        </div>
+
+        <!-- Produkt bohater -->
+        <div class="relative mx-auto w-full max-w-md lg:col-span-5 lg:max-w-none">
+          <div class="reveal relative aspect-square">
+            <div class="absolute inset-[8%] rounded-full border border-copper-300/15"></div>
+            <div class="absolute inset-[18%] rounded-full border border-white/5"></div>
+            <div id="hero-product" class="hero-product absolute inset-[10%]"></div>
+
+            <div class="glass absolute left-0 top-[14%] rounded-2xl px-4 py-3 text-xs shadow-xl sm:-left-4">
+              <p class="text-bone-400">Podciśnienie robocze</p>
+              <p class="mt-1 font-serif text-lg text-bone-50">-0,9 <span class="text-sm text-copper-300">bar</span></p>
+            </div>
+            <div class="glass absolute bottom-[12%] right-0 rounded-2xl px-4 py-3 text-xs shadow-xl sm:-right-2">
+              <p class="text-bone-400">Żywotność testowana</p>
+              <p class="mt-1 font-serif text-lg text-bone-50">1 mln <span class="text-sm text-copper-300">cykli</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="#branze" class="scroll-cue absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-bone-400 sm:flex">
+        Przewiń
+        <span class="block h-8 w-px bg-gradient-to-b from-copper-300 to-transparent"></span>
+      </a>
+    </section>
+
+    <!-- Pasek branż (zamiast logotypów partnerów — patrz README) -->
+    <section id="branze" class="border-y border-white/5 bg-ink-900/60 py-8" aria-label="Branże, którym dostarczamy">
+      <div class="marquee overflow-hidden">
+        <ul class="marquee-track flex w-max items-center gap-14 whitespace-nowrap font-serif text-xl text-bone-400 sm:text-2xl" id="marquee-list"></ul>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         BESTSELLERY
+         ===================================================================== -->
+    <section id="bestsellery" class="relative py-24 sm:py-32" aria-labelledby="best-title">
+      <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
+        <div class="reveal flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <p class="eyebrow">Wybór inżynierów utrzymania ruchu</p>
+            <h2 id="best-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Bestsellery, które <em class="italic text-copper-200">pracują</em> za Ciebie</h2>
+          </div>
+          <p class="max-w-md text-bone-300">Sprawdzone w tysiącach aplikacji — od linii pakujących po roboty delta. Najczęściej wybierane, najrzadziej wymieniane.</p>
+        </div>
+        <div id="bestseller-grid" class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         C. PREZENTACJA PRODUKTÓW — kolekcje z filtrowaniem
+         ===================================================================== -->
+    <section id="kolekcje" class="relative border-t border-white/5 bg-gradient-to-b from-ink-900 to-ink-950 py-24 sm:py-32" aria-labelledby="coll-title">
+      <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
+        <div class="reveal max-w-3xl">
+          <p class="eyebrow">Kolekcje Everson</p>
+          <h2 id="coll-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Każdy detal. Każda powierzchnia. <span class="text-brushed">Jeden partner.</span></h2>
+          <p class="mt-5 text-bone-300">Filtruj po rodzaju komponentu i branży, porównuj parametry w szybkim podglądzie i kompletuj zamówienie w kilka sekund.</p>
+        </div>
+
+        <!-- Panel filtrów -->
+        <div class="reveal mt-12 flex flex-col gap-5">
+          <div class="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+            <div id="category-chips" class="flex w-max gap-2 sm:w-auto sm:flex-wrap" role="group" aria-label="Filtruj według kategorii"></div>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <label class="relative">
+                <span class="sr-only">Branża</span>
+                <select id="industry-filter" class="w-full appearance-none rounded-full border border-white/10 bg-ink-800 py-2.5 pl-4 pr-10 text-sm text-bone-100 focus:border-copper-400/60 focus:outline-none sm:w-60">
+                  <option value="all">Wszystkie branże</option>
+                </select>
+                <svg class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </label>
+              <label class="relative">
+                <span class="sr-only">Sortowanie</span>
+                <select id="sort-select" class="w-full appearance-none rounded-full border border-white/10 bg-ink-800 py-2.5 pl-4 pr-10 text-sm text-bone-100 focus:border-copper-400/60 focus:outline-none sm:w-56">
+                  <option value="popular">Najpopularniejsze</option>
+                  <option value="rating">Najwyżej oceniane</option>
+                  <option value="price-asc">Cena: od najniższej</option>
+                  <option value="price-desc">Cena: od najwyższej</option>
+                  <option value="name">Nazwa A–Z</option>
+                </select>
+                <svg class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </label>
+            </div>
+            <p id="results-count" class="text-sm text-bone-400" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div id="product-grid" class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+        <div id="empty-state" class="hidden rounded-3xl border border-dashed border-white/10 p-12 text-center">
+          <p class="font-serif text-2xl text-bone-50">Brak produktów dla tych kryteriów</p>
+          <p class="mt-2 text-bone-400">Zmień filtry lub zapytaj doradcę AI — dobierzemy zamiennik.</p>
+          <button type="button" data-open-advisor class="btn-ghost mt-6 rounded-full border border-white/15 px-6 py-3 text-sm">Zapytaj doradcę</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         D. EVERSON AI ADVISOR — sekcja dedykowana
+         ===================================================================== -->
+    <section id="doradca" class="relative overflow-hidden py-24 sm:py-32" aria-labelledby="advisor-title">
+      <div class="hero-beam b1 opacity-30" aria-hidden="true"></div>
+      <div class="relative mx-auto grid max-w-site items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div class="reveal">
+          <p class="eyebrow">Everson AI Advisor</p>
+          <h2 id="advisor-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Dobór przyssawki w <em class="italic text-copper-200">60 sekund.</em></h2>
+          <p class="mt-6 max-w-lg text-lg leading-relaxed text-bone-300">Opowiedz nam o swojej aplikacji — materiale, powierzchni, temperaturze i skali produkcji. Doradca przeanalizuje parametry i zaproponuje komponenty, które sprawdzą się u Ciebie od pierwszego cyklu.</p>
+          <ul class="mt-10 grid gap-5 sm:grid-cols-2">
+            <li class="flex gap-4">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-copper-300/25 bg-copper-500/10 text-copper-300">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
+              </span>
+              <div><p class="font-medium text-bone-50">Mikro-wywiad techniczny</p><p class="mt-1 text-sm text-bone-400">4 krótkie pytania zamiast długich formularzy.</p></div>
+            </li>
+            <li class="flex gap-4">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-copper-300/25 bg-copper-500/10 text-copper-300">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13v7M13 16.5h7" stroke-linecap="round"/></svg>
+              </span>
+              <div><p class="font-medium text-bone-50">Rekomendacje z katalogu</p><p class="mt-1 text-sm text-bone-400">Klikalne karty produktów prosto w rozmowie.</p></div>
+            </li>
+            <li class="flex gap-4">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-copper-300/25 bg-copper-500/10 text-copper-300">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3Z" stroke-linejoin="round"/><path d="M9.5 19.5h5M10.5 22h3" stroke-linecap="round"/></svg>
+              </span>
+              <div><p class="font-medium text-bone-50">Wiedza aplikacyjna</p><p class="mt-1 text-sm text-bone-400">Materiały, temperatury, siły trzymania.</p></div>
+            </li>
+            <li class="flex gap-4">
+              <span class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-copper-300/25 bg-copper-500/10 text-copper-300">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 5h14v10H9l-4 4V5Z" stroke-linejoin="round"/><path d="M9 10h6" stroke-linecap="round"/></svg>
+              </span>
+              <div><p class="font-medium text-bone-50">Przekazanie do inżyniera</p><p class="mt-1 text-sm text-bone-400">Nietypowa aplikacja? Łączymy z ekspertem.</p></div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Osadzony chat -->
+        <div class="reveal">
+          <div class="glass hairline relative flex h-[620px] max-h-[80svh] flex-col overflow-hidden rounded-[28px] shadow-2xl shadow-black/60" data-advisor-root="inline"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         E. DLACZEGO EVERSON
+         ===================================================================== -->
+    <section id="dlaczego" class="border-t border-white/5 bg-ink-900/60 py-24 sm:py-32" aria-labelledby="why-title">
+      <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
+        <div class="reveal mx-auto max-w-2xl text-center">
+          <p class="eyebrow">Dlaczego Everson</p>
+          <h2 id="why-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Standard, na którym <em class="italic text-copper-200">możesz polegać</em></h2>
+        </div>
+        <ul class="mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="reveal glass group rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/30">
+            <svg class="h-10 w-10 text-copper-300 transition duration-500 group-hover:scale-110" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 4 34 10v9c0 8.5-6 14.5-14 17-8-2.5-14-8.5-14-17v-9L20 4Z" stroke-linejoin="round"/><path d="m14 20 4.5 4.5L27 16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3 class="mt-6 font-serif text-xl text-bone-50">Najwyższa jakość materiałów</h3>
+            <p class="mt-3 text-sm leading-relaxed text-bone-400">Wyłącznie oryginalne komponenty od renomowanych europejskich producentów oraz linia Everson o zweryfikowanej powtarzalności mieszanek.</p>
+          </li>
+          <li class="reveal glass group rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/30">
+            <svg class="h-10 w-10 text-copper-300 transition duration-500 group-hover:scale-110" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 11h20v16H3zM23 16h8l5 6v5H23" stroke-linejoin="round"/><circle cx="10" cy="30" r="3"/><circle cx="29" cy="30" r="3"/><path d="M8 17h8" stroke-linecap="round"/></svg>
+            <h3 class="mt-6 font-serif text-xl text-bone-50">Szybka i bezpieczna dostawa</h3>
+            <p class="mt-3 text-sm leading-relaxed text-bone-400">Magazyn w Toruniu i wysyłka w 24 h dla produktów dostępnych od ręki. Starannie zabezpieczone przesyłki trafiają prosto na Twój dział utrzymania ruchu.</p>
+          </li>
+          <li class="reveal glass group rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/30">
+            <svg class="h-10 w-10 text-copper-300 transition duration-500 group-hover:scale-110" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="20" cy="16" r="10"/><path d="m13 24-3 12 10-4 10 4-3-12" stroke-linejoin="round"/><path d="m16 16 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h3 class="mt-6 font-serif text-xl text-bone-50">Gwarancja satysfakcji</h3>
+            <p class="mt-3 text-sm leading-relaxed text-bone-400">Jeśli dobrany komponent nie sprawdzi się w Twojej aplikacji, pomożemy znaleźć właściwy zamiennik. Liczy się działająca linia, nie sama sprzedaż.</p>
+          </li>
+          <li class="reveal glass group rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/30">
+            <svg class="h-10 w-10 text-copper-300 transition duration-500 group-hover:scale-110" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 22v-3a12 12 0 0 1 24 0v3" stroke-linecap="round"/><rect x="5" y="21" width="6" height="10" rx="2"/><rect x="29" y="21" width="6" height="10" rx="2"/><path d="M32 31c0 3-3 5-8 5h-3" stroke-linecap="round"/></svg>
+            <h3 class="mt-6 font-serif text-xl text-bone-50">Dedykowane wsparcie</h3>
+            <p class="mt-3 text-sm leading-relaxed text-bone-400">Doradztwo w automatyzacji linii, redukcji kosztów utrzymania ruchu i optymalizacji chwytaków. Rozmawiasz z praktykami, nie z infolinią.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         O MARCE
+         ===================================================================== -->
+    <section id="o-marce" class="relative overflow-hidden py-24 sm:py-32" aria-labelledby="about-title">
+      <div class="mx-auto grid max-w-site items-center gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+        <div class="reveal relative order-2 lg:order-1">
+          <div class="studio relative aspect-[4/5] overflow-hidden rounded-[32px] border border-white/10">
+            <div id="about-visual" class="absolute inset-[12%]"></div>
+            <div class="glass absolute inset-x-5 bottom-5 rounded-2xl p-5">
+              <p class="font-serif text-lg italic text-bone-50">„Każda przyssawka to setki tysięcy cykli. Dlatego dobieramy ją tak, jakby to był jedyny element Twojej linii.”</p>
+              <p class="mt-3 text-xs uppercase tracking-[0.2em] text-copper-300">Zespół aplikacyjny Everson</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal order-1 lg:order-2">
+          <p class="eyebrow">O marce</p>
+          <h2 id="about-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Specjaliści od chwytu. <em class="italic text-copper-200">Partnerzy od wydajności.</em></h2>
+          <div class="mt-7 space-y-5 text-bone-300">
+            <p>Everson jest częścią Accurate Group — producenta i dystrybutora części oraz komponentów do maszyn przemysłowych. Specjalizujemy się w technice próżniowej: od pojedynczej przyssawki po kompletne układy chwytające.</p>
+            <p>Wieloletnia współpraca z czołowymi europejskimi producentami podzespołów próżniowych daje naszym klientom wyjątkowe warunki cenowe, dostęp do szkoleń technicznych i specjalistycznego wsparcia serwisowego. Uzupełnieniem oferty jest nasza własna linia produktów Everson.</p>
+          </div>
+          <dl class="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-3">
+            <div class="border-l border-copper-300/30 pl-4"><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Branż</dt><dd class="mt-1 font-serif text-3xl text-bone-50">9+</dd></div>
+            <div class="border-l border-copper-300/30 pl-4"><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Kategorii</dt><dd class="mt-1 font-serif text-3xl text-bone-50">6</dd></div>
+            <div class="border-l border-copper-300/30 pl-4"><dt class="text-xs uppercase tracking-[0.2em] text-bone-400">Siedziba</dt><dd class="mt-1 font-serif text-3xl text-bone-50">Toruń</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         F. SOCIAL PROOF
+         PRZYKŁADOWE opinie — przed publikacją zastąp prawdziwymi,
+         zweryfikowanymi opiniami klientów (za ich zgodą).
+         ===================================================================== -->
+    <section id="opinie" class="border-t border-white/5 bg-ink-900/60 py-24 sm:py-32" aria-labelledby="reviews-title">
+      <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
+        <div class="reveal flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <p class="eyebrow">Opinie klientów</p>
+            <h2 id="reviews-title" class="mt-4 font-serif text-4xl font-light tracking-tight text-bone-50 sm:text-5xl">Zaufanie budowane <em class="italic text-copper-200">cyklami</em></h2>
+          </div>
+          <div class="glass flex items-center gap-4 rounded-2xl px-5 py-4">
+            <p class="font-serif text-4xl text-bone-50">4,9</p>
+            <div><div id="avg-stars"></div><p class="mt-1 text-xs text-bone-400">Średnia ocen produktów w sklepie</p></div>
+          </div>
+        </div>
+        <div id="reviews-grid" class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"></div>
+
+        <!-- Galeria „Z linii produkcyjnych” (sekcja Instagram) -->
+        <div class="reveal mt-24 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <p class="eyebrow">@everson.vacuum</p>
+            <h3 class="mt-3 font-serif text-3xl font-light text-bone-50">Z linii produkcyjnych</h3>
+          </div>
+          <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm text-copper-300 hover:text-copper-200">
+            Obserwuj nas na Instagramie
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <ul id="insta-grid" class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"></ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       G. STOPKA
+       ===================================================================== -->
+  <footer id="kontakt" class="relative overflow-hidden border-t border-white/5 pt-24" aria-labelledby="footer-title">
+    <h2 id="footer-title" class="sr-only">Kontakt i informacje</h2>
+    <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
+      <!-- Newsletter -->
+      <div class="reveal glass hairline relative overflow-hidden rounded-[32px] p-8 sm:p-12 lg:p-16">
+        <div class="hero-beam b3 opacity-40" aria-hidden="true"></div>
+        <div class="relative grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <p class="eyebrow">Klub Everson</p>
+            <p class="mt-4 font-serif text-3xl font-light leading-tight text-bone-50 sm:text-4xl">-10% na pierwsze zamówienie<br><span class="text-brushed">i wiedza, która oszczędza.</span></p>
+            <p class="mt-4 text-bone-300">Raz w miesiącu: nowości w ofercie, porady aplikacyjne i sposoby na niższe koszty utrzymania ruchu. Bez spamu.</p>
+          </div>
+          <form id="newsletter-form" class="flex flex-col gap-3" novalidate>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <label for="nl-email" class="sr-only">Adres e-mail</label>
+              <input id="nl-email" type="email" required placeholder="Twój firmowy e-mail" autocomplete="email"
+                     class="w-full flex-1 rounded-full border border-white/15 bg-ink-950/60 px-6 py-4 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:outline-none">
+              <button type="submit" class="btn-copper rounded-full px-7 py-4 text-sm font-semibold">Odbierz bon</button>
+            </div>
+            <label class="flex items-start gap-3 text-xs text-bone-400">
+              <input id="nl-consent" type="checkbox" required class="mt-0.5 h-4 w-4 rounded border-white/20 bg-transparent accent-copper-500">
+              <span>Wyrażam zgodę na otrzymywanie informacji handlowych od Everson. Szczegóły w <a href="#polityka" class="underline decoration-copper-400/60 underline-offset-2 hover:text-bone-100">Polityce prywatności</a>.</span>
+            </label>
+            <p id="nl-msg" class="min-h-[1.5rem] text-sm" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+
+      <div class="grid gap-12 py-20 sm:grid-cols-2 lg:grid-cols-12">
+        <div class="lg:col-span-4">
+          <a href="#top" class="flex items-center gap-2.5" aria-label="Everson — powrót na górę">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-copper-300 via-copper-500 to-copper-700">
+              <svg viewBox="0 0 24 24" class="h-5 w-5 text-ink-950" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v8" stroke-linecap="round"/><path d="M9 11h6"/><path d="M4.5 18c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" stroke-linecap="round"/><path d="M3 20h18" stroke-linecap="round"/></svg>
+            </span>
+            <span class="font-serif text-xl tracking-[0.18em] text-bone-50">EVERSON</span>
+          </a>
+          <p class="mt-5 max-w-sm text-sm leading-relaxed text-bone-400">Technika próżniowa klasy premium dla przemysłu. Część Accurate Group — producenta i dystrybutora części do maszyn przemysłowych.</p>
+          <ul class="mt-6 flex gap-2" aria-label="Media społecznościowe">
+            <li><a href="https://www.linkedin.com/" target="_blank" rel="noopener" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-bone-300 transition hover:border-copper-300/50 hover:text-copper-200" aria-label="LinkedIn"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2.5 2.5 0 0 1 5 0v4M12 10v7" stroke-linecap="round"/></svg></a></li>
+            <li><a href="https://www.facebook.com/" target="_blank" rel="noopener" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-bone-300 transition hover:border-copper-300/50 hover:text-copper-200" aria-label="Facebook"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8Z" stroke-linejoin="round"/></svg></a></li>
+            <li><a href="https://www.instagram.com/" target="_blank" rel="noopener" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-bone-300 transition hover:border-copper-300/50 hover:text-copper-200" aria-label="Instagram"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01" stroke-linecap="round"/></svg></a></li>
+            <li><a href="https://www.youtube.com/" target="_blank" rel="noopener" class="grid h-10 w-10 place-items-center rounded-full border border-white/10 text-bone-300 transition hover:border-copper-300/50 hover:text-copper-200" aria-label="YouTube"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="m10 9 5 3-5 3V9Z" stroke-linejoin="round"/></svg></a></li>
+          </ul>
+        </div>
+
+        <nav class="lg:col-span-2" aria-label="Oferta">
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-copper-300">Oferta</h3>
+          <ul class="mt-5 space-y-3 text-sm text-bone-300">
+            <li><a href="#kolekcje" data-filter-link="przyssawki" class="hover:text-bone-50">Przyssawki próżniowe</a></li>
+            <li><a href="#kolekcje" data-filter-link="chwytaki" class="hover:text-bone-50">Chwytaki do butelek</a></li>
+            <li><a href="#kolekcje" data-filter-link="generatory" class="hover:text-bone-50">Generatory podciśnienia</a></li>
+            <li><a href="#kolekcje" data-filter-link="bloki" class="hover:text-bone-50">Bloki podciśnieniowe</a></li>
+            <li><a href="#kolekcje" data-filter-link="weze" class="hover:text-bone-50">Węże próżniowe</a></li>
+            <li><a href="#kolekcje" data-filter-link="maty" class="hover:text-bone-50">Maty ssące</a></li>
+          </ul>
+        </nav>
+
+        <nav class="lg:col-span-2" aria-label="Informacje">
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-copper-300">Informacje</h3>
+          <ul class="mt-5 space-y-3 text-sm text-bone-300">
+            <li><a href="#o-marce" class="hover:text-bone-50">O marce</a></li>
+            <li><a href="#doradca" class="hover:text-bone-50">Doradca AI</a></li>
+            <li><a href="#polityka" id="polityka" class="hover:text-bone-50">Polityka prywatności</a></li>
+            <li><a href="#regulamin" id="regulamin" class="hover:text-bone-50">Regulamin sklepu</a></li>
+            <li><a href="#dostawa" id="dostawa" class="hover:text-bone-50">Dostawa i płatności</a></li>
+            <li><a href="#reklamacje" id="reklamacje" class="hover:text-bone-50">Zwroty i reklamacje</a></li>
+          </ul>
+        </nav>
+
+        <address class="not-italic sm:col-span-2 lg:col-span-4">
+          <h3 class="text-xs font-medium uppercase tracking-[0.2em] text-copper-300">Kontakt</h3>
+          <ul class="mt-5 space-y-4 text-sm text-bone-300">
+            <li class="flex gap-3">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21Z" stroke-linejoin="round"/><circle cx="12" cy="9.5" r="2.5"/></svg>
+              <span>Everson (Accurate Group)<br>ul. Towarowa 5, 87-100 Toruń</span>
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" stroke-linejoin="round"/></svg>
+              <a href="tel:+48566566171" class="hover:text-bone-50">+48 56 656 61 71</a>
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6" stroke-linejoin="round"/></svg>
+              <a href="mailto:kontakt@everson.com.pl" class="hover:text-bone-50">kontakt@everson.com.pl</a>
+            </li>
+            <li class="flex gap-3">
+              <svg class="mt-0.5 h-5 w-5 shrink-0 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
+              <span>Pon.–Pt. 7:00–15:00</span>
+            </li>
+          </ul>
+        </address>
+      </div>
+
+      <div class="flex flex-col items-start justify-between gap-4 border-t border-white/5 py-8 text-xs text-bone-400 sm:flex-row sm:items-center">
+        <p>© <span id="year">2026</span> Everson · Accurate Group. Wszelkie prawa zastrzeżone.</p>
+        <p class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg>
+          Bezpieczne płatności · Faktura VAT · Szyfrowanie SSL
+        </p>
+      </div>
+    </div>
+    <p class="pointer-events-none select-none text-center font-serif text-[22vw] font-light leading-[0.8] tracking-tight text-white/[0.025]" aria-hidden="true">EVERSON</p>
+  </footer>
+
+  <!-- =====================================================================
+       Pływający widget Everson AI Advisor
+       ===================================================================== -->
+  <div id="advisor-widget" class="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
+    <div id="advisor-panel" data-open="false" role="dialog" aria-modal="false" aria-label="Everson AI Advisor"
+         class="glass-strong hairline flex h-[min(640px,calc(100svh-7rem))] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[26px] shadow-2xl shadow-black/70 sm:w-[400px]"
+         data-advisor-root="floating"></div>
+    <button id="advisor-fab" type="button" aria-controls="advisor-panel" aria-expanded="false"
+            class="group relative flex items-center gap-3 rounded-full bg-gradient-to-br from-copper-300 via-copper-500 to-copper-700 py-3 pl-3 pr-5 text-sm font-semibold text-ink-950 shadow-2xl shadow-copper-700/40 transition hover:-translate-y-0.5">
+      <span class="pulse grid h-9 w-9 place-items-center rounded-full bg-ink-950 text-copper-300">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" stroke-linejoin="round"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="fab-label">Doradca AI</span>
+    </button>
+  </div>
+
+  <!-- Koszyk (szuflada) -->
+  <div id="cart-overlay" data-open="false" class="overlay fixed inset-0 z-[70] bg-ink-950/70 backdrop-blur-sm"></div>
+  <aside id="cart-drawer" data-open="false" aria-label="Koszyk" aria-hidden="true"
+         class="drawer glass-strong fixed bottom-0 right-0 top-0 z-[80] flex w-full max-w-md flex-col border-l border-white/10">
+    <div class="flex items-center justify-between border-b border-white/10 px-6 py-5">
+      <h2 class="font-serif text-2xl text-bone-50">Twój koszyk</h2>
+      <button type="button" id="cart-close" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 hover:bg-white/5 hover:text-bone-50" aria-label="Zamknij koszyk">
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="cart-items" class="chat-scroll flex-1 overflow-y-auto px-6 py-4"></div>
+    <div class="border-t border-white/10 px-6 py-6">
+      <div class="flex items-center justify-between text-sm text-bone-300"><span>Wartość netto</span><span id="cart-net">0,00 zł</span></div>
+      <div class="mt-2 flex items-center justify-between text-sm text-bone-300"><span>VAT 23%</span><span id="cart-vat">0,00 zł</span></div>
+      <div class="mt-4 flex items-center justify-between font-serif text-xl text-bone-50"><span>Razem brutto</span><span id="cart-total">0,00 zł</span></div>
+      <button type="button" id="checkout-btn" class="btn-copper mt-6 w-full rounded-full py-4 text-sm font-semibold">Przejdź do zamówienia</button>
+      <p class="mt-3 text-center text-xs text-bone-400">Darmowa dostawa od 500 zł netto · Faktura VAT</p>
+    </div>
+  </aside>
+
+  <!-- Szybki podgląd -->
+  <dialog id="quickview" class="m-auto w-[calc(100vw-2rem)] max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-ink-900 p-0 text-bone-100 shadow-2xl" aria-labelledby="qv-title">
+    <div id="quickview-body"></div>
+  </dialog>
+
+  <!-- Powiadomienia -->
+  <div id="toast-region" class="pointer-events-none fixed bottom-24 left-1/2 z-[90] flex w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col gap-2" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="assets/js/products.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script src="assets/js/advisor.js"></script>
+</body>
+</html>

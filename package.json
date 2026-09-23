@@ -1,0 +1,13 @@
+{
+  "name": "everson-premium",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Everson — premium e-commerce front-end (HTML + Tailwind CSS + vanilla JS)",
+  "scripts": {
+    "build": "tailwindcss -i ./src/tailwind.css -o ./assets/css/tailwind.css --minify",
+    "dev": "tailwindcss -i ./src/tailwind.css -o ./assets/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}
