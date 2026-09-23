@@ -22,16 +22,23 @@ python3 -m http.server 8000   # lub dowolny serwer statyczny → http://localhos
 | `assets/js/products.js` | Katalog produktów z copywritingiem + renderer makiet studyjnych SVG |
 | `assets/js/app.js` | Nagłówek, autouzupełnianie, filtry/sortowanie, koszyk, szybki podgląd, animacja hero |
 | `assets/js/advisor.js` | **Everson AI Advisor** — symulacja czatu (wywiad techniczny + rekomendacje w formie kart) |
+| `assets/js/cinema.js` | Film „Jak powstaje przyssawka” (5 animowanych scen), kalkulator siły trzymania, paralaksa hero |
+| `assets/img/products/manifest.js` | Lista zdjęć produktów — wpisz plik, a zdjęcie zastąpi makietę w całym serwisie |
 | `tailwind.config.js` | Paleta `ink` / `copper` / `bone`, fonty Fraunces + Inter |
 
 ## Przed publikacją — do uzupełnienia
 
-- **Zdjęcia produktów:** wgraj oryginalne zdjęcia Everson (najlepiej PNG/WebP z przezroczystym tłem) do `assets/img/products/` i dodaj pole `image` do produktu w `products.js`. Karta automatycznie umieści zdjęcie w tym samym studyjnym kadrze (tło, światło, cień) co makiety.
+- **Zdjęcia produktów:** wgraj oryginalne zdjęcia Everson (najlepiej PNG/WebP z przezroczystym tłem) do `assets/img/products/` i odkomentuj odpowiednią linię w `assets/img/products/manifest.js`. Zdjęcie pojawi się w kartach, wyszukiwarce, koszyku, szybkim podglądzie i czacie — w tym samym studyjnym kadrze co makiety. Brakujący plik automatycznie wraca do makiety. Używaj zdjęć własnych lub takich, do których Everson ma licencję (np. materiały od producentów za ich zgodą).
 - **Ceny, oceny, parametry** w `products.js` są przykładowe — zastąp je danymi z systemu sprzedażowego.
 - **Opinie klientów** w `app.js` są przykładowe — zastąp prawdziwymi, zweryfikowanymi opiniami (za zgodą autorów).
 - **Wideo w hero (opcjonalnie):** wgraj pętlę do `assets/video/hero-loop.mp4` i ustaw `data-src` w `<video id="hero-video">`. Bez wideo działa proceduralna pętla kinowa (canvas).
 - **Linki social media**, polityka prywatności i regulamin — podmień adresy w stopce.
 - **Pasek branż** zastępuje logotypy partnerów — logotypy producentów dodaj tylko za ich zgodą.
+
+## Film i kalkulator
+
+- **„Jak powstaje przyssawka”** (`#proces`) — pięć scen: mieszanka, formowanie, wulkanizacja, kontrola, praca na linii. Sceny zmieniają się podczas przewijania; przycisk ▶ odtwarza całość jak film (oś czasu, timecode, napisy). Animacja zatrzymuje się poza ekranem.
+- **Kalkulator siły trzymania** (`#kalkulator`) — trzy przypadki obciążenia (wzory w sekcji „Jak liczymy?”), wynik w N, minimalna średnica i pasujące przyssawki z katalogu; wynik można przekazać doradcy AI. Średnice czynne przyssawek: `CUP_D` w `cinema.js`.
 
 ## Podłączenie prawdziwego modelu AI
 

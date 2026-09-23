@@ -365,6 +365,20 @@
       // 3) Pytania ogólne
       const faq = FAQ.find((f) => f.re.test(t));
 
+      // 0) Wynik z kalkulatora siły trzymania
+      const calcD = /kalkulator/.test(t) && t.match(/min\.?\s*(\d+)\s*mm/);
+      if (calcD) {
+        const dMin = Number(calcD[1]);
+        const fits = Object.entries(EVERSON.cupDiameters || {}).filter(([, d]) => d >= dMin).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([id]) => getProduct(id));
+        await this.typing(900);
+        if (fits.length) {
+          this.addBot(`Dziękuję za dane z kalkulatora. Przy minimalnej średnicy <strong>Ø ${dMin} mm</strong> te modele mają wystarczający zapas siły. Aby wybrać właściwy materiał, powiedz jeszcze, jaka jest powierzchnia detalu.`, this.cards(fits));
+          return this.setQuick(STEPS.surface.options);
+        }
+        this.addBot(`Wymagana średnica <strong>Ø ${dMin} mm</strong> przekracza przyssawki dostępne w sklepie online. To zadanie dla naszego zespołu aplikacyjnego — dobierzemy większe średnice, przyssawki wielowargowe lub chwytak z matą ssącą.`, this.cards([getProduct("ev-mat-sm600")]));
+        return this.setQuick([{ label: "Rozmowa z inżynierem", action: "human" }, { label: "Zacznij od nowa", action: "restart" }]);
+      }
+
       if (named && /sprawdzi|pasuje|nada|czy /.test(t)) {
         await this.typing(800);
         this.addBot(`<strong>${escapeHtml(named.name)}</strong> — ${escapeHtml(named.benefit)}<br><br>Aby potwierdzić dopasowanie, odpowiedz na kilka pytań o Twoją aplikację.`, this.cards([named]));

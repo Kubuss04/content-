@@ -216,3 +216,92 @@ dialog[open] { animation: dialogIn .5s var(--ease-out-expo); }
 @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } }
 
 .sr-only-focusable:not(:focus) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ==========================================================================
+   Zdjęcia produktów (manifest)
+   ========================================================================== */
+.product-photo { filter: drop-shadow(0 30px 35px rgba(0, 0, 0, .6)) contrast(1.04); }
+
+/* ==========================================================================
+   Film „Jak powstaje przyssawka”
+   ========================================================================== */
+.cinema-stage { background: radial-gradient(120% 90% at 50% 10%, #1f1c1b, #0b0b0d 70%); }
+.cinema-stage .bar { position: absolute; left: 0; right: 0; height: 7%; background: #000; z-index: 3; pointer-events: none; }
+.cinema-stage .bar.top { top: 0; } .cinema-stage .bar.bottom { bottom: 0; }
+.cinema-stage.is-paused * { animation-play-state: paused !important; }
+
+.scene { opacity: 0; transform: scale(1.06); filter: blur(6px); transition: opacity 1s var(--ease-out-expo), transform 1.6s var(--ease-out-expo), filter 1s; transform-origin: 50% 50%; transform-box: view-box; }
+.scene.is-active { opacity: 1; transform: none; filter: none; }
+
+.cin-spin { transform-box: fill-box; transform-origin: center; animation: cinSpin 3.2s linear infinite; }
+.cin-spin-rev { transform-box: fill-box; transform-origin: center; animation: cinSpin 3.2s linear infinite reverse; }
+@keyframes cinSpin { to { transform: rotate(360deg); } }
+.cin-flow { stroke-dasharray: 14 10; animation: cinFlow 1.2s linear infinite; }
+@keyframes cinFlow { to { stroke-dashoffset: -48; } }
+.cin-fall { animation: cinFall 1.8s cubic-bezier(.5, 0, .9, .5) infinite; }
+@keyframes cinFall { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(70px); opacity: 0; } }
+
+.cin-press { animation: cinPress 4.5s var(--ease-out-expo) infinite; }
+@keyframes cinPress { 0%, 8% { transform: translateY(0); } 28%, 72% { transform: translateY(50px); } 90%, 100% { transform: translateY(0); } }
+.cin-plunger { animation: cinPlunger 4.5s ease-in-out infinite; }
+@keyframes cinPlunger { 0%, 30% { transform: translateX(0); } 55%, 72% { transform: translateX(34px); } 88%, 100% { transform: translateX(0); } }
+.cin-fill { transform-box: fill-box; transform-origin: left center; animation: cinFill 4.5s ease-in-out infinite; }
+@keyframes cinFill { 0%, 30% { transform: scaleX(0); } 58%, 86% { transform: scaleX(1); } 92%, 100% { transform: scaleX(0); } }
+.cin-part { animation: cinPart 4.5s ease-in-out infinite; }
+@keyframes cinPart { 0%, 84% { opacity: 0; transform: translateY(0); } 90% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-18px); } }
+
+.cin-heat { animation: cinHeat 3.6s ease-in-out infinite; }
+@keyframes cinHeat { 0%, 100% { fill: #3a2018; } 50% { fill: #b4502a; } }
+.cin-wave { animation: cinWave 2.6s ease-in infinite; }
+@keyframes cinWave { 0% { transform: translateY(12px); opacity: 0; } 30% { opacity: .9; } 100% { transform: translateY(-50px); opacity: 0; } }
+.cin-coil { animation: cinCoil 1.6s ease-in-out infinite alternate; }
+@keyframes cinCoil { from { stroke: #7a2d12; filter: none; } to { stroke: #ff8a3d; filter: drop-shadow(0 0 6px #ff6a1f); } }
+
+.cin-scan { animation: cinScan 2.8s ease-in-out infinite alternate; }
+@keyframes cinScan { from { transform: translateY(-58px); } to { transform: translateY(40px); } }
+.cin-needle { transform-box: view-box; animation: cinNeedle 4s var(--ease-out-expo) infinite; }
+@keyframes cinNeedle { 0%, 10% { transform: rotate(-120deg); } 55%, 90% { transform: rotate(80deg); } 100% { transform: rotate(-120deg); } }
+.cin-ok { transform-box: fill-box; transform-origin: center; animation: cinOk 4s var(--ease-out-expo) infinite; }
+@keyframes cinOk { 0%, 55% { transform: scale(0); opacity: 0; } 62%, 90% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; } }
+
+.cin-carriage { animation: cinCarriage 6s cubic-bezier(.65, 0, .35, 1) infinite; }
+@keyframes cinCarriage { 0%, 25% { transform: translateX(0); } 50%, 75% { transform: translateX(200px); } 95%, 100% { transform: translateX(0); } }
+.cin-tool { animation: cinTool 6s cubic-bezier(.65, 0, .35, 1) infinite; }
+@keyframes cinTool { 0% { transform: translateY(0); } 10%, 13% { transform: translateY(58px); } 23%, 52% { transform: translateY(0); } 62%, 65% { transform: translateY(58px); } 75%, 100% { transform: translateY(0); } }
+.cin-box { animation: cinBox 6s cubic-bezier(.65, 0, .35, 1) infinite; }
+@keyframes cinBox {
+  0%, 13% { transform: translate(0, 0); opacity: 1; }
+  23% { transform: translate(0, -58px); }
+  25% { transform: translate(0, -58px); }
+  50%, 52% { transform: translate(200px, -58px); }
+  62%, 84% { transform: translate(200px, 0); opacity: 1; }
+  90% { transform: translate(260px, 0); opacity: 0; }
+  91% { transform: translate(0, 0); opacity: 0; }
+  100% { transform: translate(0, 0); opacity: 1; }
+}
+.cin-led { animation: cinLed 6s steps(1) infinite; }
+@keyframes cinLed { 0%, 12% { fill: #c8875a; } 13%, 63% { fill: #6ee7a8; } 64%, 100% { fill: #c8875a; } }
+.cin-belt { stroke-dasharray: 10 14; animation: cinFlow 1s linear infinite; }
+
+.seg-fill { transform-origin: left; transform: scaleX(0); }
+.seg.is-done .seg-fill { transform: scaleX(1); }
+.seg.is-active .seg-fill { transform: scaleX(1); transition: transform .6s var(--ease-out-expo); }
+.cinema-stage.is-playing .seg.is-active .seg-fill { transform: scaleX(0); animation: segRun var(--scene-ms, 5200ms) linear forwards; }
+@keyframes segRun { to { transform: scaleX(1); } }
+.rec-dot { animation: rec 1.4s steps(1) infinite; }
+@keyframes rec { 50% { opacity: 0; } }
+.step-card { transition: opacity .6s var(--ease-out-expo), transform .6s var(--ease-out-expo), border-color .6s; }
+.step-card:not(.is-current) { opacity: .45; }
+.step-card.is-current { border-color: rgba(233, 184, 147, .35); }
+
+/* ==========================================================================
+   Kalkulator siły trzymania
+   ========================================================================== */
+input[type="range"].range { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 99px; background: linear-gradient(90deg, var(--copper-400) var(--fill, 50%), rgba(255, 255, 255, .12) var(--fill, 50%)); }
+input[type="range"].range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f6dcc4, #c8875a 60%, #7d4c2c); border: 2px solid #0f0f12; box-shadow: 0 0 0 4px rgba(200, 135, 90, .25); cursor: pointer; }
+input[type="range"].range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #c8875a; border: 2px solid #0f0f12; cursor: pointer; }
+.seg-opt input:checked + span { background: linear-gradient(135deg, #f0c7a4, #c8875a); color: #140d08; border-color: transparent; }
+.seg-opt input:focus-visible + span { outline: 2px solid var(--copper-300); outline-offset: 2px; }
+.case-opt input:checked + span { border-color: rgba(233, 184, 147, .6); background: rgba(200, 135, 90, .12); }
+.case-opt input:focus-visible + span { outline: 2px solid var(--copper-300); outline-offset: 2px; }
+.gauge-arc { transition: stroke-dashoffset 1s var(--ease-out-expo), stroke .6s; }

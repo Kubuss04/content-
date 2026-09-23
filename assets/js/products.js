@@ -486,14 +486,19 @@ EVERSON.renderVisual = (() => {
 
   return (product, { hero = false } = {}) => {
     const id = `v${++uid}`;
-    if (product.image) {
-      return `<img src="${product.image}" alt="${product.name} — zdjęcie produktowe" loading="lazy" class="h-full w-full object-contain drop-shadow-[0_30px_40px_rgba(0,0,0,.6)]">`;
-    }
     const draw = shapes[product.shape] || shapes.flat;
-    return `<svg viewBox="0 0 200 200" class="h-full w-full drop-shadow-[0_30px_35px_rgba(0,0,0,.65)]" role="img" aria-label="Makieta produktu ${product.name}">
+    const photo = product.image || (EVERSON.photoManifest || {})[product.id];
+    const svg = (hidden) => `<svg viewBox="0 0 200 200" class="h-full w-full drop-shadow-[0_30px_35px_rgba(0,0,0,.65)]"${hidden ? ' style="display:none"' : ""} role="img" aria-label="Makieta produktu ${product.name}">
       ${defs(id, product.rubber || "#1f1f24")}
       ${hero ? `<circle cx="100" cy="100" r="96" fill="url(#glow-${id})"/>` : ""}
       ${draw(id, product)}
     </svg>`;
+    if (photo) {
+      // Zdjęcie z manifestu; gdy pliku brakuje, wraca makieta wektorowa.
+      const src = photo.includes("/") ? photo : `assets/img/products/${photo}`;
+      return `<img src="${src}" alt="${product.name} — zdjęcie produktowe" loading="lazy" decoding="async" class="product-photo h-full w-full object-contain"
+        onerror="this.nextElementSibling.style.display='';this.remove()">${svg(true)}`;
+    }
+    return svg(false);
   };
 })();
