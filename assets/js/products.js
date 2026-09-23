@@ -307,7 +307,19 @@ EVERSON.products = [
 
 /* ---------------- Formatowanie ---------------- */
 EVERSON.formatPrice = (value) =>
-  new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN", minimumFractionDigits: 2 }).format(value);
+  new Intl.NumberFormat(EVERSON.i18n?.locale || "pl-PL", { style: "currency", currency: "PLN", minimumFractionDigits: 2 }).format(value);
+
+/* ---------------- Tłumaczenia ---------------- */
+const tr = (key, vars) => (EVERSON.i18n ? EVERSON.i18n.t(key, vars) : key);
+/** Pole produktu w bieżącym języku (PL = dane źródłowe powyżej). */
+EVERSON.pf = (p, field) => {
+  const lang = EVERSON.i18n?.lang || "pl";
+  return (lang !== "pl" && EVERSON.content?.products?.[p.id]?.[lang]?.[field]) || p[field];
+};
+EVERSON.catLabel = (id) => tr(`cat.${id}`);
+EVERSON.indLabel = (id) => tr(`ind.${id}`);
+EVERSON.fmtNum = (n, d = 1) =>
+  new Intl.NumberFormat(EVERSON.i18n?.locale || "pl-PL", { minimumFractionDigits: d, maximumFractionDigits: d }).format(n);
 
 EVERSON.getProduct = (id) => EVERSON.products.find((p) => p.id === id);
 
@@ -318,7 +330,7 @@ EVERSON.starsSvg = (rating, size = 14) => {
     const fill = i <= full ? "currentColor" : i - 0.5 === full ? "url(#half-star)" : "none";
     out += `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill}" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path stroke-linejoin="round" d="M12 3.5l2.6 5.3 5.9.9-4.25 4.1 1 5.8L12 16.9l-5.25 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5z"/></svg>`;
   }
-  return `<span class="inline-flex items-center gap-0.5 text-copper-300" role="img" aria-label="Ocena ${rating.toString().replace(".", ",")} na 5">${out}</span>`;
+  return `<span class="inline-flex items-center gap-0.5 text-copper-300" role="img" aria-label="${tr("stars.aria", { r: EVERSON.fmtNum(rating) })}">${out}</span>`;
 };
 
 /* ==========================================================================
@@ -488,7 +500,7 @@ EVERSON.renderVisual = (() => {
     const id = `v${++uid}`;
     const draw = shapes[product.shape] || shapes.flat;
     const photo = product.image || (EVERSON.photoManifest || {})[product.id];
-    const svg = (hidden) => `<svg viewBox="0 0 200 200" class="h-full w-full drop-shadow-[0_30px_35px_rgba(0,0,0,.65)]"${hidden ? ' style="display:none"' : ""} role="img" aria-label="Makieta produktu ${product.name}">
+    const svg = (hidden) => `<svg viewBox="0 0 200 200" class="h-full w-full drop-shadow-[0_30px_35px_rgba(0,0,0,.65)]"${hidden ? ' style="display:none"' : ""} role="img" aria-label="${tr("visual.mock", { name: product.name })}">
       ${defs(id, product.rubber || "#1f1f24")}
       ${hero ? `<circle cx="100" cy="100" r="96" fill="url(#glow-${id})"/>` : ""}
       ${draw(id, product)}
@@ -496,7 +508,7 @@ EVERSON.renderVisual = (() => {
     if (photo) {
       // Zdjęcie z manifestu; gdy pliku brakuje, wraca makieta wektorowa.
       const src = photo.includes("/") ? photo : `assets/img/products/${photo}`;
-      return `<img src="${src}" alt="${product.name} — zdjęcie produktowe" loading="lazy" decoding="async" class="product-photo h-full w-full object-contain"
+      return `<img src="${src}" alt="${tr("visual.photo", { name: product.name })}" loading="lazy" decoding="async" class="product-photo h-full w-full object-contain"
         onerror="this.nextElementSibling.style.display='';this.remove()">${svg(true)}`;
     }
     return svg(false);

@@ -9,6 +9,9 @@
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
   const { getProduct, renderVisual, formatPrice } = EVERSON;
   const { openQuickView, escapeHtml } = EVERSON.ui;
+  const I18N = EVERSON.i18n;
+  const t = (key, vars) => I18N.t(key, vars);
+  const L = () => I18N.pick(EVERSON.content.cinema);
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ==========================================================================
@@ -54,7 +57,7 @@
       <path class="${cls}" d="M-52 6 C-48 -14 48 -14 52 6 C52 14 -52 14 -52 6Z" fill="${fill}"/>
     </g>`;
 
-  const SCENES = [
+  const SCENES = (L) => [
     /* 01 — Mieszanka: walce mieszające */
     `${floor}
      <g transform="translate(200 18)">
@@ -77,7 +80,7 @@
      </g>
      <path d="M242 196 V250" stroke="#2a2a30" stroke-width="10"/>
      <path d="M242 196 V250" class="cin-flow" stroke="#55555e" stroke-width="2"/>
-     <text x="40" y="236" font-family="Inter,sans-serif" font-size="9" letter-spacing="2.5" fill="#c9c2ba">WALCE · 60 °C</text>`,
+     <text x="40" y="236" font-family="Inter,sans-serif" font-size="9" letter-spacing="2.5" fill="#c9c2ba">${L.rolls}</text>`,
 
     /* 02 — Formowanie wtryskowe */
     `${floor}
@@ -98,10 +101,10 @@
      <g class="cin-plunger"><rect x="12" y="182" width="40" height="24" rx="3" fill="url(#c-copper)"/></g>
      <g transform="translate(240 150)"><g class="cin-part">${cup(0, 0, 0.55)}</g></g>
      <g font-family="Inter,sans-serif" fill="#c9c2ba">
-       <text x="350" y="92" font-size="9" letter-spacing="2.5">CIŚNIENIE</text>
-       <text x="350" y="116" font-size="20" fill="#f7f3ee" font-family="Fraunces,serif">1 200 bar</text>
-       <text x="350" y="146" font-size="9" letter-spacing="2.5">TOLERANCJA</text>
-       <text x="350" y="168" font-size="16" fill="#e9b893" font-family="Fraunces,serif">± 0,05 mm</text>
+       <text x="350" y="92" font-size="9" letter-spacing="2.5">${L.pressure}</text>
+       <text x="350" y="116" font-size="20" fill="#f7f3ee" font-family="Fraunces,serif">${L.press}</text>
+       <text x="350" y="146" font-size="9" letter-spacing="2.5">${L.tolerance}</text>
+       <text x="350" y="168" font-size="16" fill="#e9b893" font-family="Fraunces,serif">${L.tol}</text>
      </g>`,
 
     /* 03 — Wulkanizacja */
@@ -116,7 +119,7 @@
      </g>
      <path class="cin-coil" d="M136 214 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10 l12 -10 l12 10" fill="none" stroke="#7a2d12" stroke-width="3" stroke-linejoin="round"/>
      <text x="240" y="84" text-anchor="middle" font-family="Fraunces,serif" font-size="30" fill="#ffd9bd"><tspan id="cin-temp">20</tspan> °C</text>
-     <text x="240" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" letter-spacing="3" fill="#c9c2ba">SIECIOWANIE · t = 6:00 min</text>`,
+     <text x="240" y="100" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" letter-spacing="3" fill="#c9c2ba">${L.cure}</text>`,
 
     /* 04 — Kontrola jakości */
     `${floor}
@@ -129,7 +132,7 @@
      <g stroke="#e9b893" stroke-width="1" fill="none" opacity=".8">
        <path d="M128 226 V240 M232 226 V240 M128 236 H232"/>
      </g>
-     <text x="180" y="248" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" letter-spacing="1.5" fill="#e9b893">Ø 40,00 ±0,05 mm</text>
+     <text x="180" y="248" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" letter-spacing="1.5" fill="#e9b893">${L.dim}</text>
      <g transform="translate(360 140)">
        <circle r="66" fill="#141417" stroke="url(#c-metal-h)" stroke-width="4"/>
        ${Array.from({ length: 11 }, (_, i) => {
@@ -137,7 +140,7 @@
          return `<line x1="${(Math.sin(a) * 50).toFixed(1)}" y1="${(-Math.cos(a) * 50).toFixed(1)}" x2="${(Math.sin(a) * 58).toFixed(1)}" y2="${(-Math.cos(a) * 58).toFixed(1)}" stroke="${i > 8 ? "#6ee7a8" : "#8b8b93"}" stroke-width="2"/>`;
        }).join("")}
        <text y="30" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" letter-spacing="2" fill="#a8a199">BAR</text>
-       <text y="46" text-anchor="middle" font-family="Fraunces,serif" font-size="14" fill="#f7f3ee">-0,9</text>
+       <text y="46" text-anchor="middle" font-family="Fraunces,serif" font-size="14" fill="#f7f3ee">${L.gauge}</text>
        <g class="cin-needle" style="transform-origin:0 0"><path d="M-2 6 L0 -52 L2 6Z" fill="#e9b893"/></g>
        <circle r="6" fill="url(#c-copper)"/>
      </g>
@@ -164,34 +167,36 @@
        <circle class="cin-led" cx="130" cy="36" r="3" fill="#c8875a"/>
        <text x="102" y="50" font-family="Inter,sans-serif" font-size="6" letter-spacing="1" fill="#2a1a10">VG 15</text>
      </g>
-     <text x="440" y="24" text-anchor="end" font-family="Inter,sans-serif" font-size="8" letter-spacing="2.5" fill="#c9c2ba">PICK &amp; PLACE · 42 CYKLE/MIN</text>`,
+     <text x="440" y="24" text-anchor="end" font-family="Inter,sans-serif" font-size="8" letter-spacing="2.5" fill="#c9c2ba">${L.pnp.replace("&", "&amp;")}</text>`,
   ];
 
-  const CAPTIONS = [
-    "Wszystko zaczyna się od receptury.",
-    "Setne części milimetra. W każdej sztuce.",
-    "180 °C. Tu rodzi się sprężystość.",
-    "Trzyma albo nie wychodzi z hali.",
-    "Pierwszy chwyt. I milion kolejnych.",
-  ];
+  const SCENE_COUNT = 5;
+  const pad = (n) => String(n).padStart(2, "0");
 
   const stage = $("#cinema");
   if (stage) {
     const holder = $("#cinema-scenes");
-    holder.innerHTML = `<svg viewBox="0 0 480 300" class="h-full w-full overflow-visible" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${DEFS}${SCENES.map((s, i) => `<g class="scene${i === 0 ? " is-active" : ""}" data-scene="${i}">${s}</g>`).join("")}</svg>`;
-    const scenes = $$(".scene", holder);
     const segWrap = $("#cinema-segments");
-    segWrap.innerHTML = SCENES.map((_, i) => `
-      <li class="seg flex-1"><button type="button" data-seg="${i}" class="block w-full py-2" aria-label="Scena ${i + 1}: ${CAPTIONS[i]}">
-        <span class="block h-[3px] overflow-hidden rounded-full bg-white/20"><span class="seg-fill block h-full bg-copper-300"></span></span>
-      </button></li>`).join("");
-    const segs = $$(".seg", segWrap);
+    let scenes = [], segs = [];
+    // Sceny i oś czasu renderowane w bieżącym języku (etykiety w SVG, napisy).
+    const renderStage = () => {
+      const l = L();
+      const active = Math.max(current, 0);
+      holder.innerHTML = `<svg viewBox="0 0 480 300" class="h-full w-full overflow-visible" preserveAspectRatio="xMidYMid meet" aria-hidden="true">${DEFS}${SCENES(l).map((s, i) => `<g class="scene${i === active ? " is-active" : ""}" data-scene="${i}">${s}</g>`).join("")}</svg>`;
+      segWrap.innerHTML = l.captions.map((c, i) => `
+        <li class="seg flex-1${i === active ? " is-active" : ""}${i < active ? " is-done" : ""}"><button type="button" data-seg="${i}" class="block w-full py-2" aria-label="${escapeHtml(t("cin.seg", { n: i + 1, caption: c }))}">
+          <span class="block h-[3px] overflow-hidden rounded-full bg-white/20"><span class="seg-fill block h-full bg-copper-300"></span></span>
+        </button></li>`).join("");
+      scenes = $$(".scene", holder);
+      segs = $$(".seg", segWrap);
+    };
     const steps = $$("#process-steps [data-step]");
     const caption = $("#cinema-caption");
     const chapter = $("#cinema-chapter");
     const playBtn = $("#cinema-play");
     const SCENE_MS = 5200;
     let current = -1, playing = false, timer = 0, typeTimer = 0;
+    renderStage();
 
     const typeCaption = (text) => {
       clearInterval(typeTimer);
@@ -210,10 +215,10 @@
       scenes.forEach((s, n) => s.classList.toggle("is-active", n === i));
       segs.forEach((s, n) => { s.classList.toggle("is-active", n === i); s.classList.toggle("is-done", n < i); });
       steps.forEach((s, n) => s.classList.toggle("is-current", n === i));
-      chapter.textContent = `Scena ${String(i + 1).padStart(2, "0")} / ${String(SCENES.length).padStart(2, "0")}`;
-      typeCaption(CAPTIONS[i]);
+      chapter.textContent = t("cin.chapter", { n: pad(i + 1), total: pad(SCENE_COUNT) });
+      typeCaption(L().captions[i]);
       if (i === 2) runTemp();
-      if (playing) { clearTimeout(timer); timer = setTimeout(() => show((current + 1) % SCENES.length), SCENE_MS); }
+      if (playing) { clearTimeout(timer); timer = setTimeout(() => show((current + 1) % SCENE_COUNT), SCENE_MS); }
     };
 
     // Licznik temperatury w scenie wulkanizacji
@@ -234,7 +239,7 @@
       playing = on;
       stage.classList.toggle("is-playing", on);
       playBtn.setAttribute("aria-pressed", String(on));
-      playBtn.setAttribute("aria-label", on ? "Wstrzymaj film" : "Odtwórz film");
+      playBtn.setAttribute("aria-label", t(on ? "cin.pause" : "cin.play"));
       $(".play-i", playBtn).classList.toggle("hidden", on);
       $(".pause-i", playBtn).classList.toggle("hidden", !on);
       clearTimeout(timer);
@@ -242,7 +247,7 @@
         // Restart paska bieżącej sceny
         const seg = segs[current];
         seg.classList.remove("is-active"); void seg.offsetWidth; seg.classList.add("is-active");
-        timer = setTimeout(() => show((current + 1) % SCENES.length), SCENE_MS);
+        timer = setTimeout(() => show((current + 1) % SCENE_COUNT), SCENE_MS);
       }
     };
     playBtn.addEventListener("click", () => setPlaying(!playing));
@@ -284,6 +289,15 @@
 
     if (reducedMotion) stage.classList.add("is-paused");
     show(0);
+    setPlaying(false);
+
+    document.addEventListener("everson:lang", () => {
+      const i = current;
+      renderStage();
+      current = -1;
+      show(i);
+      setPlaying(playing);
+    });
   }
 
   /* ==========================================================================
@@ -299,7 +313,7 @@
   const G = 9.81;
   const form = $("#calc-form");
   if (form) {
-    const nf = (v, d = 0) => new Intl.NumberFormat("pl-PL", { maximumFractionDigits: d, minimumFractionDigits: d }).format(v);
+    const nf = (v, d = 0) => new Intl.NumberFormat(I18N.locale, { maximumFractionDigits: d, minimumFractionDigits: d }).format(v);
     const mass = $("#calc-mass"), acc = $("#calc-acc");
     const setFill = (r) => r.style.setProperty("--fill", `${((r.value - r.min) / (r.max - r.min)) * 100}%`);
     const animateNumber = (el, to, d = 0) => {
@@ -356,11 +370,11 @@
             <span class="studio relative block h-14 w-14 shrink-0 overflow-hidden rounded-xl"><span class="absolute inset-1.5 block">${renderVisual(x.p)}</span></span>
             <span class="min-w-0 flex-1">
               <span class="block truncate font-serif text-[15px] text-bone-50">${escapeHtml(x.p.name)}</span>
-              <span class="block text-[11px] text-bone-400">Siła teoretyczna ${nf(x.force, 0)} N · zapas ×${nf(x.force / perCup, 1)}</span>
+              <span class="block text-[11px] text-bone-400">${t("calc.force", { f: nf(x.force, 0), k: nf(x.force / perCup, 1) })}</span>
             </span>
             <span class="text-xs text-bone-100">${formatPrice(x.p.price)}</span>
           </button>`).join("")
-        : `<p class="rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-100">Żadna przyssawka z katalogu online nie przeniesie tej siły przy wybranych ustawieniach. Zwiększ liczbę przyssawek lub podciśnienie — albo poproś inżyniera Everson o dobór większych średnic.</p>`;
+        : `<p class="rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-100">${t("calc.none")}</p>`;
     };
 
     form.addEventListener("input", calc);
@@ -371,10 +385,10 @@
     });
     $("#calc-ask").addEventListener("click", () => {
       if (!last) return;
-      const cases = { 1: "podnoszenie poziome", 2: "ruch poziomy", 3: "chwyt pionowy" };
-      EVERSON.advisor?.open(`Kalkulator: detal ${nf(last.m, 1)} kg, ${cases[last.kase]}, ${last.n} przyssawki, wymagana średnica min. ${nf(last.dMin, 0)} mm. Pomożesz dobrać model?`);
+      EVERSON.advisor?.open(t("calc.prompt", { m: nf(last.m, 1), kase: t(`calc.case.${last.kase}`), n: last.n, d: Math.round(last.dMin) }));
     });
     calc();
+    document.addEventListener("everson:lang", calc);
   }
 
   /* ==========================================================================

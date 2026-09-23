@@ -1,109 +1,78 @@
 /* ==========================================================================
    Everson AI Advisor — symulacja doradcy technicznego (bez backendu)
    --------------------------------------------------------------------------
-   • Prowadzi krótki wywiad: zastosowanie → materiał → powierzchnia →
-     warunki pracy → skala/budżet, a następnie punktuje katalog i pokazuje
-     rekomendacje jako klikalne karty w rozmowie.
-   • Rozumie też swobodny tekst (słowa kluczowe PL) i odpowiada na pytania
-     o dostawę, ceny, gwarancję, kontakt i konkretne produkty.
+   • Prowadzi krótki wywiad: materiał → powierzchnia → warunki pracy →
+     skala/budżet, a następnie punktuje katalog i pokazuje rekomendacje
+     jako klikalne karty w rozmowie.
+   • Rozumie swobodny tekst (słowa kluczowe PL / EN / DE) i odpowiada na
+     pytania o dostawę, ceny, gwarancję, kontakt i konkretne produkty.
+   • Teksty rozmowy: EVERSON.content.advisor (i18n-content.js).
    • Ten sam silnik działa w pływającym widgecie i w sekcji #doradca.
-   Aby podłączyć prawdziwy model językowy, podmień metodę `reply()` na
-   wywołanie własnego endpointu — interfejs UI pozostaje bez zmian.
+   Aby podłączyć prawdziwy model językowy, w `handleText()` wyślij wiadomość
+   i `this.profile` do własnego endpointu — interfejs UI pozostaje bez zmian.
    ========================================================================== */
 (() => {
   "use strict";
 
-  const { products, industries, formatPrice, renderVisual, getProduct, starsSvg } = EVERSON;
+  const { products, formatPrice, renderVisual, getProduct, starsSvg, pf, indLabel, fmtNum } = EVERSON;
   const { openQuickView, addToCart, escapeHtml } = EVERSON.ui;
+  const I18N = EVERSON.i18n;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+  const norm = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l").replace(/ß/g, "ss");
+  const C = () => I18N.pick(EVERSON.content.advisor);
+  const fill = (s, vars) => s.replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 
-  /* ---------------- Kroki wywiadu ---------------- */
-  const STEPS = {
-    material: {
-      q: "Świetnie. Co będziemy chwytać? Wybierz materiał lub opisz go własnymi słowami.",
-      options: [
-        { label: "Kartony i opakowania", set: { industry: "opakowania" } },
-        { label: "Butelki i puszki", set: { industry: "opakowania", bottle: true } },
-        { label: "Szkło i kamień", set: { industry: "szklo" } },
-        { label: "Drewno i płyty", set: { industry: "drewno" } },
-        { label: "Blachy i metal", set: { industry: "metal" } },
-        { label: "Elektronika / PCB", set: { industry: "elektronika" } },
-        { label: "Ogniwa PV / wafle", set: { industry: "fotowoltaika" } },
-        { label: "Żywność", set: { industry: "spozywczy", condition: "zywnosc" } },
-        { label: "Folie i kompozyty", set: { industry: "kompozyty" } },
-      ],
-    },
-    surface: {
-      q: "Jaka jest powierzchnia detalu w miejscu chwytu?",
-      options: [
-        { label: "Gładka i płaska", set: { surface: "gladka" } },
-        { label: "Strukturalna / porowata", set: { surface: "strukturalna" } },
-        { label: "Nierówna lub zakrzywiona", set: { surface: "nierowna" } },
-        { label: "Delikatna / cienka", set: { surface: "delikatna" } },
-      ],
-    },
-    condition: {
-      q: "W jakich warunkach pracuje chwytak?",
-      options: [
-        { label: "Standardowe warunki hali", set: { condition: "standard" } },
-        { label: "Wysoka temperatura (>100 °C)", set: { condition: "temperatura" } },
-        { label: "Kontakt z żywnością", set: { condition: "zywnosc" } },
-        { label: "Bez śladów / czyste środowisko", set: { condition: "czystosc" } },
-      ],
-    },
-    tier: {
-      q: "Ostatnie pytanie — jaka jest skala i budżet?",
-      options: [
-        { label: "Pojedyncze wymiany · ekonomicznie", set: { tier: 1 } },
-        { label: "Seria na linię · optymalnie", set: { tier: 2 } },
-        { label: "Kompletny układ · premium", set: { tier: 3 } },
-      ],
-    },
+  /* ---------------- Kroki wywiadu (etykiety w słowniku) ---------------- */
+  const STEP_SETS = {
+    material: [
+      { industry: "opakowania" }, { industry: "opakowania", bottle: true }, { industry: "szklo" }, { industry: "drewno" },
+      { industry: "metal" }, { industry: "elektronika" }, { industry: "fotowoltaika" }, { industry: "spozywczy", condition: "zywnosc" },
+      { industry: "kompozyty" },
+    ],
+    surface: [{ surface: "gladka" }, { surface: "strukturalna" }, { surface: "nierowna" }, { surface: "delikatna" }],
+    condition: [{ condition: "standard" }, { condition: "temperatura" }, { condition: "zywnosc" }, { condition: "czystosc" }],
+    tier: [{ tier: 1 }, { tier: 2 }, { tier: 3 }],
   };
   const ORDER = ["material", "surface", "condition", "tier"];
+  const stepOptions = (step) => STEP_SETS[step].map((set, i) => ({ label: C().opt[step][i], set }));
+  const act = (key, action) => ({ label: C().a[key], action });
 
-  /* ---------------- Słownik słów kluczowych (NLU-lite) ---------------- */
+  /* ---------------- Słownik słów kluczowych (PL / EN / DE) ---------------- */
   const KEYWORDS = [
-    { re: /butel|puszk|pet\b|szyjk/, set: { industry: "opakowania", bottle: true } },
-    { re: /karton|pudel|opakow|paletyz|worek|work/, set: { industry: "opakowania" } },
-    { re: /szkl|szyb(?!k)|kamien|granit|marmur|kafl|plytk/, set: { industry: "szklo" } },
-    { re: /drewn|mebl|mdf|plyt[ay]\b|sklejk|fornir/, set: { industry: "drewno" } },
-    { re: /blach|metal|stal|alumin/, set: { industry: "metal" } },
-    { re: /elektron|pcb|plytk[ai] drukow|smd/, set: { industry: "elektronika" } },
-    { re: /\bpv\b|fotowolt|ogniw|wafl|krzem/, set: { industry: "fotowoltaika" } },
-    { re: /zywnos|spozyw|cukier|slodycz|piecz|mies|\bser\b|czekolad/, set: { industry: "spozywczy", condition: "zywnosc" } },
-    { re: /kompozyt|foli|tworzyw|plastik|karbon/, set: { industry: "kompozyty" } },
-    { re: /samoch|motoryz|karoser|automotive/, set: { industry: "motoryzacja" } },
-    { re: /glad|plask|polerow/, set: { surface: "gladka" } },
-    { re: /struktur|poro|ryflow|chropow|szorstk|rowk/, set: { surface: "strukturalna" } },
-    { re: /nierown|zakrzyw|krzyw|wypukl|faluj|pochyl/, set: { surface: "nierowna" } },
-    { re: /delikat|ciensk|cienk|kruch|pekn/, set: { surface: "delikatna" } },
-    { re: /temperat|gorac|piec\b|piecow|hartow|\b[1-9]\d{2}\s?°?c/, set: { condition: "temperatura" } },
-    { re: /slad|czyst|clean|\besd\b/, set: { condition: "czystosc" } },
-    { re: /tani|ekonom|budzet|najtan|wymian/, set: { tier: 1 } },
-    { re: /seri|lini[ai]/, set: { tier: 2 } },
-    { re: /system|kompletn|uklad|premium|nowa linia|od zera/, set: { tier: 3 } },
+    { re: /butel|puszk|pet\b|szyjk|bottle|\bcans?\b|flasch|dose/, set: { industry: "opakowania", bottle: true } },
+    { re: /karton|pudel|opakow|paletyz|worek|work|carton|box|packag|pallet|verpack|schachtel|palett/, set: { industry: "opakowania" } },
+    { re: /szkl|szyb(?!k)|kamien|granit|marmur|kafl|plytk|glass|stone|tile|\bglas\b|stein|fliese/, set: { industry: "szklo" } },
+    { re: /drewn|mebl|mdf|plyt[ay]\b|sklejk|fornir|wood|timber|furniture|plywood|\bholz|mobel|sperrholz/, set: { industry: "drewno" } },
+    { re: /blach|metal|stal|alumin|sheet metal|steel|\bblech|stahl/, set: { industry: "metal" } },
+    { re: /elektron|pcb|plytk[ai] drukow|smd|electronic|circuit board|leiterplatt/, set: { industry: "elektronika" } },
+    { re: /\bpv\b|fotowolt|ogniw|wafl|krzem|photovolt|solar|wafer|silicon|silizium|zelle/, set: { industry: "fotowoltaika" } },
+    { re: /zywnos|spozyw|cukier|slodycz|piecz|mies|\bser\b|czekolad|food|confection|sweets|bakery|chocolate|lebensmittel|suss|backwar|geback|schokolad/, set: { industry: "spozywczy", condition: "zywnosc" } },
+    { re: /kompozyt|foli|tworzyw|plastik|karbon|composite|plastic|film|carbon|verbund|kunststoff|folie/, set: { industry: "kompozyty" } },
+    { re: /samoch|motoryz|karoser|automotive|\bcar\b|body panel|\bauto\b|fahrzeug|karosser/, set: { industry: "motoryzacja" } },
+    { re: /glad|plask|polerow|smooth|flat|polished|\bglatt|\beben\b|poliert/, set: { surface: "gladka" } },
+    { re: /struktur|poro|ryflow|chropow|szorstk|rowk|textur|rough|groov|\brau\b|rille/, set: { surface: "strukturalna" } },
+    { re: /nierown|zakrzyw|krzyw|wypukl|faluj|pochyl|uneven|curved|irregular|uneben|gewolbt|gebogen/, set: { surface: "nierowna" } },
+    { re: /delikat|ciensk|cienk|kruch|pekn|delicate|thin|fragile|brittle|empfindlich|dunn|zerbrech/, set: { surface: "delikatna" } },
+    { re: /temperat|gorac|piec\b|piecow|hartow|\bhot\b|heat|furnace|oven|tempering|heiss|hitze|\bofen|\bhart|\b[1-9]\d{2}\s?°?c/, set: { condition: "temperatura" } },
+    { re: /slad|czyst|clean|\besd\b|non.?marking|no marks|spurfrei|sauber|\brein\b/, set: { condition: "czystosc" } },
+    { re: /tani|ekonom|budzet|najtan|wymian|cheap|budget|econom|replacement|spare|gunstig|ersatz/, set: { tier: 1 } },
+    { re: /seri|lini[ai]|series|production line|\bline\b|linie/, set: { tier: 2 } },
+    { re: /system|kompletn|uklad|premium|nowa linia|od zera|complete|new line|komplett|neue linie/, set: { tier: 3 } },
   ];
 
   const FAQ = [
-    { re: /dostaw|wysyl|kurier|kiedy dotrze|czas realiz/, a: "Produkty dostępne od ręki wysyłamy z magazynu w Toruniu w ciągu 24 h. Od 500 zł netto dostawa jest bezpłatna. Dla pozycji na zamówienie opiekun potwierdzi termin w dniu złożenia zamówienia." },
-    { re: /rabat|znizk|cennik|hurt|kontrakt|bon|kod/, a: "Dla stałych klientów przygotowujemy indywidualne cenniki kontraktowe, a na start możesz odebrać bon <strong>-10%</strong> zapisując się do Klubu Everson w stopce strony. Przy większych wolumenach poproś o wycenę — odpowiadamy zwykle tego samego dnia." },
-    { re: /gwaranc|zwrot|reklamac|satysfakc/, a: "Sprzedajemy wyłącznie oryginalne komponenty. Jeśli dobrany produkt nie sprawdzi się w Twojej aplikacji, pomożemy dobrać zamiennik — szczegóły zwrotów i reklamacji znajdziesz w stopce strony." },
-    { re: /kontakt|telefon|zadzwon|mail|inzynier|konsultant|czlowiek|handlow/, a: "Chętnie połączę Cię z zespołem aplikacyjnym:<br>📞 <a class=\"text-copper-300 underline\" href=\"tel:+48566566171\">+48 56 656 61 71</a><br>✉️ <a class=\"text-copper-300 underline\" href=\"mailto:kontakt@everson.com.pl\">kontakt@everson.com.pl</a><br>Pon.–Pt. 7:00–15:00, ul. Towarowa 5, Toruń." },
-    { re: /faktur|vat|nip|przelew|platno/, a: "Każde zamówienie dokumentujemy fakturą VAT. Obsługujemy przelew tradycyjny, szybkie płatności online, a dla stałych klientów — odroczony termin płatności." },
-    { re: /generator|ejektor|pomp/, a: "Generator podciśnienia (ejektor) wytwarza próżnię ze sprężonego powietrza — bez części ruchomych i bez serwisu. Wersje wielostopniowe, jak EV-Gen VG 15, szybciej zasysają i zużywają mniej powietrza.", show: ["ev-gen-vg15"] },
-    { re: /mieszk|falda|fald/, a: "Przyssawki mieszkowe kompensują różnice wysokości i nachylenia, a przy zasysaniu lekko unoszą detal. To najlepszy wybór do opakowań i powierzchni nierównych.", show: ["ev-bellow-25", "ev-food-30"] },
-    { re: /\bwaz|przewod/, a: "Do instalacji próżniowych polecamy węże poliuretanowe odporne na zapadanie się przy głębokim podciśnieniu.", show: ["ev-hose-pu86"] },
-    { re: /\bmat[ay]?\b|stol/, a: "Maty ssące mocują arkusze na całej płaszczyźnie — bez zacisków i bez śladów. Można je przyciąć do formatu stołu.", show: ["ev-mat-sm600"] },
+    { key: "delivery", re: /dostaw|wysyl|kurier|kiedy dotrze|czas realiz|deliver|shipping|ship|dispatch|lieferung|liefer|versand/ },
+    { key: "price", re: /rabat|znizk|cennik|hurt|kontrakt|bon|kod|discount|price list|voucher|coupon|rabatt|preisliste|gutschein/ },
+    { key: "warranty", re: /gwaranc|zwrot|reklamac|satysfakc|warrant|guarantee|return|complaint|garantie|ruckgabe|reklamation/ },
+    { key: "contact", re: /kontakt|telefon|zadzwon|mail|inzynier|konsultant|czlowiek|handlow|contact|phone|\bcall\b|engineer|human|ingenieur|anruf|ansprechpartner/ },
+    { key: "invoice", re: /faktur|vat|nip|przelew|platno|invoice|payment|pay\b|rechnung|zahlung|mwst/ },
+    { key: "generator", re: /generator|ejektor|ejector|pomp|pump|vakuumerzeuger|erzeuger/, show: ["ev-gen-vg15"] },
+    { key: "bellows", re: /mieszk|falda|fald|bellow|faltenbalg/, show: ["ev-bellow-25", "ev-food-30"] },
+    { key: "hose", re: /\bwaz|przewod|hose|tubing|schlauch/, show: ["ev-hose-pu86"] },
+    { key: "mat", re: /\bmat[ay]?\b|stol|suction mat|saugmatte|\bmatte/, show: ["ev-mat-sm600"] },
   ];
 
-  const LABELS = {
-    industry: (v) => industries[v],
-    surface: (v) => ({ gladka: "powierzchnia gładka", strukturalna: "powierzchnia strukturalna", nierowna: "powierzchnia nierówna", delikatna: "detal delikatny" }[v]),
-    condition: (v) => ({ standard: "warunki standardowe", temperatura: "wysoka temperatura", zywnosc: "kontakt z żywnością", czystosc: "bez śladów" }[v]),
-    tier: (v) => ({ 1: "budżet ekonomiczny", 2: "seria na linię", 3: "kompletny układ" }[v]),
-  };
+  const label = (k, v) => (k === "industry" ? indLabel(v) : C().labels[k]?.[v]);
 
   /* ---------------- Rekomendacje ---------------- */
   const recommend = (profile) => {
@@ -122,18 +91,15 @@
     return scored.sort((a, b) => b.s - a.s).slice(0, 3).map((x) => x.p);
   };
 
-  const STRICT = { temperatura: "wysokiej temperatury", zywnosc: "kontaktu z żywnością", czystosc: "stref wymagających braku śladów" };
-  const SURFACE_FOR = { gladka: "gładkie powierzchnie", strukturalna: "powierzchnie strukturalne", nierowna: "nierówne powierzchnie", delikatna: "delikatne detale" };
-
   const whyLine = (p, profile) => {
-    const r = [];
-    if (STRICT[profile.condition] && !p.conditions.includes(profile.condition)) r.push(`alternatywa poza strefą ${STRICT[profile.condition]}`);
-    if (profile.condition === "temperatura" && p.conditions.includes("temperatura")) r.push(`pracuje do +${p.temp[1]} °C`);
-    if (profile.condition === "zywnosc" && p.conditions.includes("zywnosc")) r.push("materiał do kontaktu z żywnością");
-    if (profile.condition === "czystosc" && p.conditions.includes("czystosc")) r.push("nie zostawia śladów");
-    if (profile.surface && p.surfaces.includes(profile.surface)) r.push(`zaprojektowana na ${SURFACE_FOR[profile.surface]}`);
-    if (profile.industry && p.industries.includes(profile.industry)) r.push(`sprawdzona w branży: ${industries[profile.industry].toLowerCase()}`);
-    return r.length ? r.slice(0, 2).join(" · ") : p.benefit;
+    const c = C(), w = c.why, r = [];
+    if (c.strict[profile.condition] && !p.conditions.includes(profile.condition)) r.push(fill(w.alt, { what: c.strict[profile.condition] }));
+    if (profile.condition === "temperatura" && p.conditions.includes("temperatura")) r.push(fill(w.temp, { t: p.temp[1] }));
+    if (profile.condition === "zywnosc" && p.conditions.includes("zywnosc")) r.push(w.food);
+    if (profile.condition === "czystosc" && p.conditions.includes("czystosc")) r.push(w.clean);
+    if (profile.surface && p.surfaces.includes(profile.surface)) r.push(fill(w.surface, { what: c.surfaceFor[profile.surface] }));
+    if (profile.industry && p.industries.includes(profile.industry)) r.push(fill(w.industry, { what: indLabel(profile.industry).toLowerCase() }));
+    return r.length ? r.slice(0, 2).join(" · ") : pf(p, "benefit");
   };
 
   /* ==========================================================================
@@ -145,11 +111,14 @@
       this.floating = floating;
       this.profile = {};
       this.busy = false;
+      this.timers = [];
+      this.root.addEventListener("click", (e) => this.onClick(e));
       this.build();
       this.greet();
     }
 
     build() {
+      const c = C();
       const uid = this.floating ? "f" : "i";
       this.root.innerHTML = `
         <div class="flex items-center gap-3 border-b border-white/10 px-5 py-4">
@@ -158,29 +127,28 @@
             <span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-ink-900 bg-emerald-400"></span>
           </span>
           <div class="min-w-0 flex-1">
-            <p class="font-serif text-lg leading-tight text-bone-50">Everson AI Advisor</p>
-            <p class="text-xs text-bone-400">Doradca techniczny · online</p>
+            <p class="font-serif text-lg leading-tight text-bone-50">${c.title}</p>
+            <p class="text-xs text-bone-400">${c.status}</p>
           </div>
-          <button type="button" data-act="reset" class="grid h-9 w-9 place-items-center rounded-full text-bone-400 hover:bg-white/5 hover:text-bone-50" aria-label="Zacznij rozmowę od nowa" title="Zacznij od nowa">
+          <button type="button" data-act="reset" class="grid h-9 w-9 place-items-center rounded-full text-bone-400 hover:bg-white/5 hover:text-bone-50" aria-label="${c.reset}" title="${c.reset}">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8M4 4v4h4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          ${this.floating ? `<button type="button" data-act="close" class="grid h-9 w-9 place-items-center rounded-full text-bone-400 hover:bg-white/5 hover:text-bone-50" aria-label="Zamknij doradcę">
+          ${this.floating ? `<button type="button" data-act="close" class="grid h-9 w-9 place-items-center rounded-full text-bone-400 hover:bg-white/5 hover:text-bone-50" aria-label="${c.close}">
             <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg></button>` : ""}
         </div>
-        <div class="chat-scroll flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5" data-el="log" role="log" aria-live="polite" aria-label="Rozmowa z doradcą"></div>
+        <div class="chat-scroll flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-5" data-el="log" role="log" aria-live="polite" aria-label="${c.log}"></div>
         <div data-el="quick" class="flex flex-wrap gap-2 px-4 pb-3 sm:px-5"></div>
         <form data-el="form" class="flex items-center gap-2 border-t border-white/10 p-3">
-          <label for="advisor-input-${uid}" class="sr-only">Napisz wiadomość do doradcy</label>
-          <input id="advisor-input-${uid}" data-el="input" type="text" autocomplete="off" maxlength="400" placeholder="Opisz aplikację, np. „szkło, 200 °C”…"
+          <label for="advisor-input-${uid}" class="sr-only">${c.inputLabel}</label>
+          <input id="advisor-input-${uid}" data-el="input" type="text" autocomplete="off" maxlength="400" placeholder="${escapeHtml(c.placeholder)}"
                  class="min-w-0 flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:outline-none">
-          <button type="submit" class="btn-copper grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label="Wyślij">
+          <button type="submit" class="btn-copper grid h-11 w-11 shrink-0 place-items-center rounded-full" aria-label="${c.send}">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
         </form>`;
       this.log = this.root.querySelector('[data-el="log"]');
       this.quick = this.root.querySelector('[data-el="quick"]');
       this.input = this.root.querySelector('[data-el="input"]');
-
       this.root.querySelector('[data-el="form"]').addEventListener("submit", (e) => {
         e.preventDefault();
         const text = this.input.value.trim();
@@ -188,18 +156,28 @@
         this.input.value = "";
         this.handleText(text);
       });
-      this.root.addEventListener("click", (e) => {
-        const act = e.target.closest("[data-act]");
-        if (act?.dataset.act === "reset") this.reset();
-        if (act?.dataset.act === "close") EVERSON.advisor.close();
-        const opt = e.target.closest("[data-opt]");
-        if (opt && !this.busy) this.handleOption(JSON.parse(opt.dataset.opt), opt.textContent.trim());
-        const card = e.target.closest("[data-rec]");
-        if (card) {
-          if (e.target.closest("[data-rec-add]")) addToCart(card.dataset.rec);
-          else openQuickView(card.dataset.rec);
-        }
-      });
+    }
+
+    onClick(e) {
+      const a = e.target.closest("[data-act]");
+      if (a?.dataset.act === "reset") this.greet();
+      if (a?.dataset.act === "close") EVERSON.advisor.close();
+      const opt = e.target.closest("[data-opt]");
+      if (opt && !this.busy) this.handleOption(JSON.parse(opt.dataset.opt), opt.textContent.trim());
+      const card = e.target.closest("[data-rec]");
+      if (card) {
+        if (e.target.closest("[data-rec-add]")) addToCart(card.dataset.rec);
+        else openQuickView(card.dataset.rec);
+      }
+    }
+
+    /** Zmiana języka: nowy interfejs i nowa rozmowa w wybranym języku. */
+    relocalize() {
+      this.timers.forEach(clearTimeout);
+      this.timers = [];
+      this.busy = false;
+      this.build();
+      this.greet();
     }
 
     /* ---------- Render wiadomości ---------- */
@@ -228,18 +206,19 @@
     }
 
     cards(list, profile = {}) {
+      const m = C().m;
       return `<div class="grid gap-2">${list.map((p) => `
-        <div data-rec="${p.id}" role="button" tabindex="0" aria-label="Szybki podgląd: ${escapeHtml(p.name)}"
+        <div data-rec="${p.id}" role="button" tabindex="0" aria-label="${escapeHtml(fill(m.card, { name: p.name }))}"
              class="group flex cursor-pointer items-center gap-3 rounded-2xl border border-white/10 bg-ink-950/50 p-2.5 transition hover:border-copper-300/40 hover:bg-white/[0.04]">
           <span class="studio relative block h-16 w-16 shrink-0 overflow-hidden rounded-xl"><span class="absolute inset-1.5 block transition duration-500 group-hover:scale-110">${renderVisual(p)}</span></span>
           <span class="min-w-0 flex-1">
             <span class="block truncate font-serif text-[15px] text-bone-50">${escapeHtml(p.name)}</span>
-            <span class="mt-0.5 flex items-center gap-1.5 text-[11px] text-bone-400">${starsSvg(p.rating, 10)} ${p.rating.toFixed(1).replace(".", ",")}</span>
+            <span class="mt-0.5 flex items-center gap-1.5 text-[11px] text-bone-400">${starsSvg(p.rating, 10)} ${fmtNum(p.rating)}</span>
             <span class="mt-1 block text-[11px] leading-snug text-bone-300">${escapeHtml(whyLine(p, profile))}</span>
           </span>
           <span class="flex shrink-0 flex-col items-end gap-1.5">
             <span class="text-xs font-medium text-bone-50">${formatPrice(p.price)}</span>
-            <button type="button" data-rec-add class="grid h-8 w-8 place-items-center rounded-full bg-copper-400 text-ink-950 transition hover:bg-copper-300" aria-label="Dodaj ${escapeHtml(p.name)} do koszyka">
+            <button type="button" data-rec-add class="grid h-8 w-8 place-items-center rounded-full bg-copper-400 text-ink-950 transition hover:bg-copper-300" aria-label="${escapeHtml(fill(m.add, { name: p.name }))}">
               <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
             </button>
           </span>
@@ -258,37 +237,30 @@
       this.setQuick([]);
       const el = document.createElement("div");
       el.className = "msg-in flex gap-2.5";
-      el.innerHTML = `<span class="w-7 shrink-0"></span><div class="typing flex items-center gap-1 rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] px-4 py-3.5" aria-label="Doradca pisze"><span></span><span></span><span></span></div>`;
+      el.innerHTML = `<span class="w-7 shrink-0"></span><div class="typing flex items-center gap-1 rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] px-4 py-3.5" aria-label="${C().typing}"><span></span><span></span><span></span></div>`;
       this.log.appendChild(el);
       this.scroll();
-      return new Promise((res) => setTimeout(() => { el.remove(); this.busy = false; res(); }, reducedMotion ? 150 : ms));
+      const gen = this.log;
+      // Jeśli w trakcie „pisania” zmieni się język, stara rozmowa nie jest kontynuowana.
+      return new Promise((res) => this.timers.push(setTimeout(() => { el.remove(); this.busy = false; if (gen === this.log) res(); }, reducedMotion ? 150 : ms)));
     }
 
     /* ---------- Logika rozmowy ---------- */
-    async greet() {
+    greet() {
       this.log.innerHTML = "";
       this.profile = {};
-      this.addBot(
-        "Cześć! Jestem Twoim osobistym doradcą Everson. 👋<br>Szukasz rozwiązania do <strong>konkretnej, wymagającej aplikacji</strong> czy kompletujesz części do <strong>codziennego utrzymania ruchu</strong>?"
-      );
-      this.setQuick([
-        { label: "Nowa, wymagająca aplikacja", action: "start" },
-        { label: "Codzienne utrzymanie ruchu", action: "start-maint" },
-        { label: "Bestsellery", action: "bestsellers" },
-        { label: "Rozmowa z inżynierem", action: "human" },
-      ]);
+      this.addBot(C().greet);
+      this.setQuick([act("start", "start"), act("maint", "start-maint"), act("best", "bestsellers"), act("human", "human")]);
     }
-
-    reset() { this.greet(); }
 
     nextStep() { return ORDER.find((k) => this.profile[k === "material" ? "industry" : k] === undefined); }
 
     async ask(step) {
       await this.typing(550);
-      const s = STEPS[step];
+      const c = C();
       const progress = ORDER.indexOf(step) + 1;
-      this.addBot(`<span class="mb-1 block text-[10px] uppercase tracking-[0.2em] text-copper-300">Krok ${progress} z ${ORDER.length}</span>${s.q}`);
-      this.setQuick(s.options);
+      this.addBot(`<span class="mb-1 block text-[10px] uppercase tracking-[0.2em] text-copper-300">${fill(c.step, { n: progress, total: ORDER.length })}</span>${c.q[step]}`);
+      this.setQuick(stepOptions(step));
     }
 
     async advance() {
@@ -299,53 +271,49 @@
 
     async showRecommendations() {
       await this.typing(1100);
+      const m = C().m;
       const recs = recommend(this.profile);
       const summary = Object.entries(this.profile)
-        .filter(([k]) => LABELS[k])
-        .map(([k, v]) => `<span class="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-bone-200">${LABELS[k](v)}</span>`)
+        .map(([k, v]) => label(k, v))
+        .filter(Boolean)
+        .map((l) => `<span class="rounded-full bg-white/10 px-2 py-0.5 text-[11px] text-bone-200">${l}</span>`)
         .join(" ");
-      this.addBot(
-        `Przeanalizowałem parametry:<div class="my-2 flex flex-wrap gap-1">${summary}</div>Oto komponenty, które polecam dla tej aplikacji. Kliknij kartę, aby zobaczyć pełną specyfikację.`,
-        this.cards(recs, this.profile)
-      );
+      this.addBot(`${m.analysed}<div class="my-2 flex flex-wrap gap-1">${summary}</div>${m.recs}`, this.cards(recs, this.profile));
       const opts = [];
-      if (this.profile.tier === 3 || this.profile.tier === 2) opts.push({ label: "Dobierz generator i akcesoria", action: "system" });
-      opts.push({ label: "Zacznij od nowa", action: "restart" }, { label: "Rozmowa z inżynierem", action: "human" });
+      if (this.profile.tier === 3 || this.profile.tier === 2) opts.push(act("system", "system"));
+      opts.push(act("restart", "restart"), act("human", "human"));
       this.setQuick(opts);
     }
 
-    async handleOption(set, label) {
-      this.addUser(label);
+    async handleOption(set, text) {
+      this.addUser(text);
       if (set.action) return this.runAction(set.action);
       Object.assign(this.profile, set);
       return this.advance();
     }
 
     async runAction(action) {
+      const m = C().m;
       switch (action) {
         case "start":
           return this.ask("material");
         case "start-maint":
           await this.typing(600);
-          this.addBot("Rozumiem — liczy się niezawodność i szybka dostępność. Wszystkie bestsellery wysyłamy w 24 h. Podaj proszę kilka szczegółów, a dobiorę dokładny odpowiednik.");
+          this.addBot(m.maint);
           this.profile.tier = 1;
           return this.ask("material");
-        case "bestsellers": {
+        case "bestsellers":
           await this.typing(700);
-          const list = products.filter((p) => p.bestseller).slice(0, 3);
-          this.addBot("Oto produkty, które klienci wybierają najczęściej — sprawdzone na tysiącach linii:", this.cards(list));
-          return this.setQuick([{ label: "Dobierz dla mojej aplikacji", action: "start" }, { label: "Rozmowa z inżynierem", action: "human" }]);
-        }
-        case "system": {
+          this.addBot(m.best, this.cards(products.filter((p) => p.bestseller).slice(0, 3)));
+          return this.setQuick([act("mine", "start"), act("human", "human")]);
+        case "system":
           await this.typing(800);
-          const list = ["ev-gen-vg15", "ev-block-vb4", "ev-hose-pu86"].map(getProduct);
-          this.addBot("Aby przyssawki pracowały z pełną wydajnością, warto skompletować cały obwód próżni. Polecam taki zestaw:", this.cards(list));
-          return this.setQuick([{ label: "Zacznij od nowa", action: "restart" }, { label: "Rozmowa z inżynierem", action: "human" }]);
-        }
+          this.addBot(m.system, this.cards(["ev-gen-vg15", "ev-block-vb4", "ev-hose-pu86"].map(getProduct)));
+          return this.setQuick([act("restart", "restart"), act("human", "human")]);
         case "human":
           await this.typing(600);
-          this.addBot(FAQ.find((f) => /kontakt/.test(f.re.source)).a + "<br><br>Możesz też opisać aplikację tutaj — przekażę podsumowanie inżynierowi.");
-          return this.setQuick([{ label: "Kontynuuj z doradcą AI", action: "start" }]);
+          this.addBot(C().faq.contact + m.humanTail);
+          return this.setQuick([act("keep", "start")]);
         case "restart":
           return this.greet();
       }
@@ -354,74 +322,70 @@
     async handleText(text) {
       this.addUser(text);
       const t = norm(text);
+      const c = C(), m = c.m;
 
-      // 1) Konkretny produkt z katalogu
-      const named = products.find((p) => t.includes(norm(p.name)) || t.includes(norm(p.name.split(" ")[0])));
-
-      // 2) Parametry aplikacji
-      const found = {};
-      KEYWORDS.forEach((k) => { if (k.re.test(t)) Object.entries(k.set).forEach(([kk, v]) => { if (found[kk] === undefined) found[kk] = v; }); });
-
-      // 3) Pytania ogólne
-      const faq = FAQ.find((f) => f.re.test(t));
-
-      // 0) Wynik z kalkulatora siły trzymania
-      const calcD = /kalkulator/.test(t) && t.match(/min\.?\s*(\d+)\s*mm/);
+      // Wynik z kalkulatora siły trzymania
+      const calcD = /kalkulator|calculator|rechner/.test(t) && t.match(/min\.?\s*(\d+)\s*mm/);
       if (calcD) {
         const dMin = Number(calcD[1]);
         const fits = Object.entries(EVERSON.cupDiameters || {}).filter(([, d]) => d >= dMin).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([id]) => getProduct(id));
         await this.typing(900);
         if (fits.length) {
-          this.addBot(`Dziękuję za dane z kalkulatora. Przy minimalnej średnicy <strong>Ø ${dMin} mm</strong> te modele mają wystarczający zapas siły. Aby wybrać właściwy materiał, powiedz jeszcze, jaka jest powierzchnia detalu.`, this.cards(fits));
-          return this.setQuick(STEPS.surface.options);
+          this.addBot(fill(m.calcOk, { d: dMin }), this.cards(fits));
+          return this.setQuick(stepOptions("surface"));
         }
-        this.addBot(`Wymagana średnica <strong>Ø ${dMin} mm</strong> przekracza przyssawki dostępne w sklepie online. To zadanie dla naszego zespołu aplikacyjnego — dobierzemy większe średnice, przyssawki wielowargowe lub chwytak z matą ssącą.`, this.cards([getProduct("ev-mat-sm600")]));
-        return this.setQuick([{ label: "Rozmowa z inżynierem", action: "human" }, { label: "Zacznij od nowa", action: "restart" }]);
+        this.addBot(fill(m.calcNo, { d: dMin }), this.cards([getProduct("ev-mat-sm600")]));
+        return this.setQuick([act("human", "human"), act("restart", "restart")]);
       }
 
-      if (named && /sprawdzi|pasuje|nada|czy /.test(t)) {
+      const named = products.find((p) => t.includes(norm(p.name)) || t.includes(norm(p.name.split(" ")[0])));
+      const found = {};
+      KEYWORDS.forEach((k) => { if (k.re.test(t)) Object.entries(k.set).forEach(([kk, v]) => { if (found[kk] === undefined) found[kk] = v; }); });
+      const faq = FAQ.find((f) => f.re.test(t));
+
+      if (named && /sprawdzi|pasuje|nada|czy |will|work|fit|suitable|passt|geeignet/.test(t)) {
         await this.typing(800);
-        this.addBot(`<strong>${escapeHtml(named.name)}</strong> — ${escapeHtml(named.benefit)}<br><br>Aby potwierdzić dopasowanie, odpowiedz na kilka pytań o Twoją aplikację.`, this.cards([named]));
+        this.addBot(fill(m.fit, { name: escapeHtml(named.name), benefit: escapeHtml(pf(named, "benefit")) }), this.cards([named]));
         Object.assign(this.profile, found);
         return this.advance();
       }
 
       if (faq) {
         await this.typing(750);
-        this.addBot(faq.a, faq.show ? this.cards(faq.show.map(getProduct)) : "");
+        this.addBot(c.faq[faq.key], faq.show ? this.cards(faq.show.map(getProduct)) : "");
         if (Object.keys(found).length) { Object.assign(this.profile, found); return this.advance(); }
-        return this.setQuick([{ label: "Dobierz produkt", action: "start" }, { label: "Bestsellery", action: "bestsellers" }]);
+        return this.setQuick([act("pick", "start"), act("best", "bestsellers")]);
       }
 
       if (Object.keys(found).length) {
         Object.assign(this.profile, found);
-        const understood = Object.entries(found).filter(([k]) => LABELS[k]).map(([k, v]) => LABELS[k](v)).join(", ");
+        const understood = Object.entries(found).map(([k, v]) => label(k, v)).filter(Boolean).join(", ");
         await this.typing(600);
-        this.addBot(`Zanotowałem: <em class="text-copper-200">${understood}</em>.`);
+        this.addBot(fill(m.noted, { what: understood }));
         return this.advance();
       }
 
       if (named) {
         await this.typing(700);
-        this.addBot(`${escapeHtml(named.headline)} ${escapeHtml(named.benefit)}`, this.cards([named]));
-        return this.setQuick([{ label: "Dobierz dla mojej aplikacji", action: "start" }]);
+        this.addBot(`${escapeHtml(pf(named, "headline"))} ${escapeHtml(pf(named, "benefit"))}`, this.cards([named]));
+        return this.setQuick([act("mine", "start")]);
       }
 
-      if (/^(hej|czesc|dzien dobry|witam|siema|hello)/.test(t)) {
+      if (/^(hej|czesc|dzien dobry|witam|siema|hello|hi\b|hey|good (morning|afternoon)|hallo|guten tag|servus|moin)/.test(t)) {
         await this.typing(500);
-        this.addBot("Dzień dobry! Opisz, co chcesz chwytać i w jakich warunkach — albo wybierz jedną z opcji poniżej.");
-        return this.setQuick([{ label: "Dobierz produkt", action: "start" }, { label: "Bestsellery", action: "bestsellers" }]);
+        this.addBot(m.hello);
+        return this.setQuick([act("pick", "start"), act("best", "bestsellers")]);
       }
 
-      if (/dziek|super|ok\b|swietnie/.test(t)) {
+      if (/dziek|super|ok\b|swietnie|thank|great|perfect|danke|prima|toll/.test(t)) {
         await this.typing(500);
-        this.addBot("Cała przyjemność po mojej stronie. Jeśli będziesz potrzebować wyceny dla większej ilości, nasz zespół przygotuje ją jeszcze dziś.");
-        return this.setQuick([{ label: "Zacznij od nowa", action: "restart" }, { label: "Rozmowa z inżynierem", action: "human" }]);
+        this.addBot(m.thanks);
+        return this.setQuick([act("restart", "restart"), act("human", "human")]);
       }
 
       await this.typing(700);
-      this.addBot("Chcę dobrać to precyzyjnie. Napisz proszę, <strong>jaki materiał</strong> chwytamy i <strong>w jakich warunkach</strong> (np. „kartony, linia pakująca” albo „szkło, 200 °C”). Możesz też wybrać opcję poniżej.");
-      this.setQuick([{ label: "Poprowadź mnie krok po kroku", action: "start" }, { label: "Rozmowa z inżynierem", action: "human" }]);
+      this.addBot(m.fallback);
+      this.setQuick([act("guide", "start"), act("human", "human")]);
     }
 
     send(text) { if (text) this.handleText(text); }
@@ -448,9 +412,11 @@
   const setOpen = (open) => {
     panel.dataset.open = String(open);
     fab.setAttribute("aria-expanded", String(open));
-    fab.querySelector(".fab-label").textContent = open ? "Zamknij" : "Doradca AI";
+    fab.querySelector(".fab-label").textContent = I18N.t(open ? "fab.close" : "fab.open");
+    panel.setAttribute("aria-label", C().title);
     if (open) setTimeout(() => floating.input.focus({ preventScroll: true }), 250);
   };
+  setOpen(false);
   fab.addEventListener("click", () => setOpen(panel.dataset.open !== "true"));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && panel.dataset.open === "true") { setOpen(false); fab.focus(); } });
 
@@ -464,6 +430,12 @@
       fab.tabIndex = hide ? -1 : 0;
     }, { threshold: 0.35 }).observe(inlineRoot);
   }
+
+  document.addEventListener("everson:lang", () => {
+    inline?.relocalize();
+    floating.relocalize();
+    setOpen(panel.dataset.open === "true");
+  });
 
   EVERSON.advisor = {
     open(prefill) {

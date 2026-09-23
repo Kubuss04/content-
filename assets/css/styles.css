@@ -305,3 +305,7 @@ input[type="range"].range::-moz-range-thumb { width: 18px; height: 18px; border-
 .case-opt input:checked + span { border-color: rgba(233, 184, 147, .6); background: rgba(200, 135, 90, .12); }
 .case-opt input:focus-visible + span { outline: 2px solid var(--copper-300); outline-offset: 2px; }
 .gauge-arc { transition: stroke-dashoffset 1s var(--ease-out-expo), stroke .6s; }
+
+/* Kontener widgetu nie może przechwytywać kliknięć, gdy panel jest zamknięty */
+#advisor-widget { pointer-events: none; }
+#advisor-fab, #advisor-panel[data-open="true"] { pointer-events: auto; }

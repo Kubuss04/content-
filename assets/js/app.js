@@ -7,7 +7,9 @@
 
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-  const { products, categories, industries, formatPrice, starsSvg, renderVisual, getProduct } = EVERSON;
+  const { products, categories, industries, formatPrice, starsSvg, renderVisual, getProduct, pf, catLabel, indLabel, fmtNum } = EVERSON;
+  const I18N = EVERSON.i18n;
+  const t = (key, vars) => I18N.t(key, vars);
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const escapeHtml = (s) =>
@@ -63,25 +65,27 @@
   });
   $$("a", menu).forEach((a) => a.addEventListener("click", () => togglePanel(menuBtn, menu, false)));
 
-  $("#account-btn").addEventListener("click", () =>
-    toast("Panel klienta B2B z historią zamówień i cenami kontraktowymi — już wkrótce."));
+  [$("#account-btn"), $("[data-account]")].forEach((b) => b?.addEventListener("click", () => {
+    togglePanel(menuBtn, menu, false);
+    toast(t("account.soon"));
+  }));
 
   /* ---------------------------------------------------------------------
      Karty produktów
      --------------------------------------------------------------------- */
-  const catLabel = (id) => categories.find((c) => c.id === id)?.label || "";
+  const unitStr = (p) => (p.unit ? ` / ${t(`unit.${p.unit}`)}` : "");
 
   const productCard = (p) => `
     <article class="product-card reveal glass group relative flex flex-col overflow-hidden rounded-3xl" data-id="${p.id}">
       <div class="studio relative aspect-[5/4] overflow-hidden">
         <div class="absolute inset-[10%]">${renderVisual(p)}</div>
         <div class="absolute left-4 top-4 flex flex-wrap gap-1.5">
-          ${p.bestseller ? `<span class="rounded-full bg-copper-400 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-950">Bestseller</span>` : ""}
+          ${p.bestseller ? `<span class="rounded-full bg-copper-400 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-950">${t("badge.bestseller")}</span>` : ""}
           <span class="rounded-full border border-white/10 bg-ink-950/60 px-2.5 py-1 text-[10px] uppercase tracking-wider text-bone-300 backdrop-blur">${escapeHtml(p.diameter)}</span>
         </div>
         <div class="card-actions absolute inset-x-4 bottom-4 flex gap-2">
-          <button type="button" data-quickview="${p.id}" class="glass-strong flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-xs font-medium text-bone-50 hover:border-copper-300/40">${icon.eye} Szybki podgląd</button>
-          <button type="button" data-add="${p.id}" class="btn-copper grid h-10 w-10 shrink-0 place-items-center rounded-full" aria-label="Dodaj ${escapeHtml(p.name)} do koszyka">${icon.bag}</button>
+          <button type="button" data-quickview="${p.id}" class="glass-strong flex flex-1 items-center justify-center gap-2 rounded-full px-3 py-2.5 text-xs font-medium text-bone-50 hover:border-copper-300/40">${icon.eye} ${t("card.quickview")}</button>
+          <button type="button" data-add="${p.id}" class="btn-copper grid h-10 w-10 shrink-0 place-items-center rounded-full" aria-label="${escapeHtml(t("card.add", { name: p.name }))}">${icon.bag}</button>
         </div>
       </div>
       <div class="flex flex-1 flex-col p-5">
@@ -92,9 +96,9 @@
         <h3 class="mt-3 font-serif text-xl text-bone-50">
           <button type="button" data-quickview="${p.id}" class="text-left after:absolute after:inset-0 after:content-[''] focus:outline-none">${escapeHtml(p.name)}</button>
         </h3>
-        <p class="mt-2 text-sm leading-relaxed text-bone-400">${escapeHtml(p.benefit)}</p>
+        <p class="mt-2 text-sm leading-relaxed text-bone-400">${escapeHtml(pf(p, "benefit"))}</p>
         <div class="mt-auto flex items-end justify-between pt-5">
-          <p><span class="text-xs text-bone-400">od</span> <span class="font-serif text-2xl text-bone-50">${formatPrice(p.price)}</span><span class="text-xs text-bone-400"> netto${p.unit ? ` / ${p.unit}` : ""}</span></p>
+          <p><span class="text-xs text-bone-400">${t("price.from")}</span> <span class="font-serif text-2xl text-bone-50">${formatPrice(p.price)}</span><span class="text-xs text-bone-400"> ${t("price.net")}${unitStr(p)}</span></p>
           <span class="flex items-center gap-1 text-xs text-bone-400">${icon.temp}${p.temp[0]}…${p.temp[1]}°C</span>
         </div>
       </div>
@@ -106,19 +110,26 @@
      Bestsellery
      --------------------------------------------------------------------- */
   const bestGrid = $("#bestseller-grid");
-  bestGrid.innerHTML = products.filter((p) => p.bestseller).slice(0, 4).map(productCard).join("");
-  liftActions(bestGrid);
+  const renderBest = () => {
+    bestGrid.innerHTML = products.filter((p) => p.bestseller).slice(0, 4).map(productCard).join("");
+    liftActions(bestGrid);
+  };
+  renderBest();
 
   /* ---------------------------------------------------------------------
      Kolekcje: filtrowanie i sortowanie
      --------------------------------------------------------------------- */
   const state = { category: "all", industry: "all", sort: "popular" };
   const chipsWrap = $("#category-chips");
-  chipsWrap.innerHTML = categories
-    .map((c) => `<button type="button" class="chip rounded-full border border-white/10 px-4 py-2 text-sm text-bone-300 hover:border-copper-300/40 hover:text-bone-50" data-cat="${c.id}" aria-pressed="${c.id === "all"}">${c.label}</button>`)
-    .join("");
   const industrySelect = $("#industry-filter");
-  industrySelect.insertAdjacentHTML("beforeend", Object.entries(industries).map(([k, v]) => `<option value="${k}">${v}</option>`).join(""));
+  const renderFilters = () => {
+    chipsWrap.innerHTML = categories
+      .map((c) => `<button type="button" class="chip rounded-full border border-white/10 px-4 py-2 text-sm text-bone-300 hover:border-copper-300/40 hover:text-bone-50" data-cat="${c.id}" aria-pressed="${c.id === state.category}">${catLabel(c.id)}</button>`)
+      .join("");
+    industrySelect.innerHTML = ["all", ...Object.keys(industries)]
+      .map((k) => `<option value="${k}"${k === state.industry ? " selected" : ""}>${indLabel(k)}</option>`).join("");
+  };
+  renderFilters();
 
   const grid = $("#product-grid");
   const renderGrid = () => {
@@ -131,14 +142,14 @@
       rating: (a, b) => b.rating - a.rating || b.reviews - a.reviews,
       "price-asc": (a, b) => a.price - b.price,
       "price-desc": (a, b) => b.price - a.price,
-      name: (a, b) => a.name.localeCompare(b.name, "pl"),
+      name: (a, b) => a.name.localeCompare(b.name, I18N.locale),
     };
     list = list.sort(sorters[state.sort]);
     grid.innerHTML = list.map(productCard).join("");
     liftActions(grid);
     $("#empty-state").classList.toggle("hidden", list.length > 0);
     const n = list.length;
-    $("#results-count").textContent = `${n} ${n === 1 ? "produkt" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "produkty" : "produktów"}`;
+    $("#results-count").textContent = t("results", { n });
     observeReveal(grid);
   };
 
@@ -159,9 +170,15 @@
      Wyszukiwarka z autouzupełnianiem
      --------------------------------------------------------------------- */
   const normalize = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");
+  // Indeks obejmuje wszystkie języki — wyszukiwanie działa niezależnie od wersji strony.
+  const allLangs = (key) => I18N.SUPPORTED.map((l) => I18N.ui[l][key] || "");
   const searchIndex = products.map((p) => ({
     p,
-    text: normalize([p.name, catLabel(p.category), p.material, p.benefit, p.headline, ...p.industries.map((i) => industries[i])].join(" ")),
+    text: normalize([
+      p.name, p.material, p.benefit, p.headline, ...allLangs(`cat.${p.category}`),
+      ...Object.values(EVERSON.content.products[p.id] || {}).flatMap((x) => [x.benefit, x.headline]),
+      ...p.industries.flatMap((i) => allLangs(`ind.${i}`)),
+    ].join(" ")),
   }));
   const search = (q) => {
     const terms = normalize(q).split(/\s+/).filter(Boolean);
@@ -199,7 +216,7 @@
                 <span class="block truncate text-xs text-bone-400">${catLabel(p.category)} · ${formatPrice(p.price)}</span>
               </span>
             </li>`).join("")
-        : `<li class="px-3 py-4 text-sm text-bone-400">Brak wyników. <button type="button" data-open-advisor class="text-copper-300 underline underline-offset-2">Zapytaj doradcę AI</button></li>`;
+        : `<li class="px-3 py-4 text-sm text-bone-400">${t("search.none")} <button type="button" data-open-advisor class="text-copper-300 underline underline-offset-2">${t("search.ask")}</button></li>`;
       list.classList.remove("hidden");
       input.setAttribute("aria-expanded", "true");
       input.setAttribute("aria-activedescendant", active >= 0 ? `${list.id}-opt-${active}` : "");
@@ -240,7 +257,7 @@
     badge.textContent = count;
     badge.classList.toggle("hidden", !count);
     badge.classList.toggle("grid", !!count);
-    $("#cart-btn").setAttribute("aria-label", `Koszyk, ${count} produktów`);
+    $("#cart-btn").setAttribute("aria-label", t("cart.aria", { n: count }));
     $("#cart-net").textContent = formatPrice(net);
     $("#cart-vat").textContent = formatPrice(net * 0.23);
     $("#cart-total").textContent = formatPrice(net * 1.23);
@@ -251,23 +268,23 @@
             <div class="studio relative h-20 w-20 shrink-0 overflow-hidden rounded-xl"><div class="absolute inset-2">${renderVisual(p)}</div></div>
             <div class="flex min-w-0 flex-1 flex-col">
               <p class="truncate font-serif text-lg text-bone-50">${escapeHtml(p.name)}</p>
-              <p class="text-xs text-bone-400">${formatPrice(p.price)} netto${p.unit ? ` / ${p.unit}` : ""}</p>
+              <p class="text-xs text-bone-400">${formatPrice(p.price)} ${t("price.net")}${unitStr(p)}</p>
               <div class="mt-auto flex items-center justify-between pt-2">
                 <div class="flex items-center rounded-full border border-white/10">
-                  <button type="button" data-qty="-1" data-id="${id}" class="grid h-8 w-8 place-items-center text-bone-300 hover:text-bone-50" aria-label="Zmniejsz ilość">−</button>
+                  <button type="button" data-qty="-1" data-id="${id}" class="grid h-8 w-8 place-items-center text-bone-300 hover:text-bone-50" aria-label="${t("cart.dec")}">−</button>
                   <span class="w-8 text-center text-sm" aria-live="polite">${q}</span>
-                  <button type="button" data-qty="1" data-id="${id}" class="grid h-8 w-8 place-items-center text-bone-300 hover:text-bone-50" aria-label="Zwiększ ilość">+</button>
+                  <button type="button" data-qty="1" data-id="${id}" class="grid h-8 w-8 place-items-center text-bone-300 hover:text-bone-50" aria-label="${t("cart.inc")}">+</button>
                 </div>
-                <button type="button" data-remove="${id}" class="text-xs text-bone-400 underline-offset-2 hover:text-copper-300 hover:underline">Usuń</button>
+                <button type="button" data-remove="${id}" class="text-xs text-bone-400 underline-offset-2 hover:text-copper-300 hover:underline">${t("cart.remove")}</button>
               </div>
             </div>
           </div>`;
         }).join("")
       : `<div class="grid h-full place-items-center py-16 text-center">
            <div>
-             <p class="font-serif text-2xl text-bone-50">Koszyk czeka na pierwszy komponent</p>
-             <p class="mt-2 text-sm text-bone-400">Nie wiesz, od czego zacząć? Doradca AI dobierze produkt w minutę.</p>
-             <button type="button" data-open-advisor class="btn-ghost mt-6 rounded-full border border-white/15 px-6 py-3 text-sm">Uruchom doradcę</button>
+             <p class="font-serif text-2xl text-bone-50">${t("cart.empty.title")}</p>
+             <p class="mt-2 text-sm text-bone-400">${t("cart.empty.text")}</p>
+             <button type="button" data-open-advisor class="btn-ghost mt-6 rounded-full border border-white/15 px-6 py-3 text-sm">${t("cart.empty.cta")}</button>
            </div>
          </div>`;
   };
@@ -278,7 +295,7 @@
     cart[id] = (cart[id] || 0) + qty;
     saveCart();
     renderCart();
-    toast(`<strong class="font-medium">${escapeHtml(p.name)}</strong> w koszyku`);
+    toast(t("cart.added", { name: escapeHtml(p.name) }));
     const b = $("#cart-btn");
     b.animate?.([{ transform: "scale(1)" }, { transform: "scale(1.2)" }, { transform: "scale(1)" }], { duration: 450, easing: "cubic-bezier(.16,1,.3,1)" });
   };
@@ -310,8 +327,8 @@
     renderCart();
   });
   $("#checkout-btn").addEventListener("click", () => {
-    if (!Object.keys(cart).length) return toast("Dodaj produkty, aby złożyć zamówienie.");
-    toast("Dziękujemy! Opiekun handlowy potwierdzi dostępność i termin wysyłki.");
+    if (!Object.keys(cart).length) return toast(t("checkout.empty"));
+    toast(t("checkout.ok"));
   });
   renderCart();
 
@@ -319,35 +336,37 @@
      Szybki podgląd
      --------------------------------------------------------------------- */
   const qv = $("#quickview");
+  let qvId = null;
   const openQuickView = (id) => {
     const p = getProduct(id);
     if (!p) return;
+    qvId = id;
     $("#quickview-body").innerHTML = `
       <div class="grid md:grid-cols-2">
         <div class="studio relative aspect-square md:aspect-auto md:min-h-[520px]">
           <div class="absolute inset-[12%]">${renderVisual(p, { hero: true })}</div>
-          ${p.bestseller ? `<span class="absolute left-5 top-5 rounded-full bg-copper-400 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-950">Bestseller</span>` : ""}
+          ${p.bestseller ? `<span class="absolute left-5 top-5 rounded-full bg-copper-400 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink-950">${t("badge.bestseller")}</span>` : ""}
         </div>
         <div class="flex max-h-[80svh] flex-col overflow-y-auto p-6 sm:p-8">
           <div class="flex items-start justify-between gap-4">
             <p class="eyebrow">${catLabel(p.category)}</p>
-            <button type="button" data-close-qv class="-mr-2 -mt-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-bone-300 hover:bg-white/5 hover:text-bone-50" aria-label="Zamknij podgląd">${icon.close}</button>
+            <button type="button" data-close-qv class="-mr-2 -mt-2 grid h-10 w-10 shrink-0 place-items-center rounded-full text-bone-300 hover:bg-white/5 hover:text-bone-50" aria-label="${t("qv.close")}">${icon.close}</button>
           </div>
           <h2 id="qv-title" class="mt-2 font-serif text-3xl text-bone-50 sm:text-4xl">${escapeHtml(p.name)}</h2>
-          <p class="mt-2 font-serif text-lg italic text-copper-200">${escapeHtml(p.headline)}</p>
-          <div class="mt-3 flex items-center gap-2 text-sm text-bone-400">${starsSvg(p.rating)} <span>${p.rating.toFixed(1).replace(".", ",")} · ${p.reviews} ocen</span></div>
-          <p class="mt-5 text-sm leading-relaxed text-bone-300">${escapeHtml(p.description)}</p>
+          <p class="mt-2 font-serif text-lg italic text-copper-200">${escapeHtml(pf(p, "headline"))}</p>
+          <div class="mt-3 flex items-center gap-2 text-sm text-bone-400">${starsSvg(p.rating)} <span>${t("qv.ratings", { r: fmtNum(p.rating), n: p.reviews })}</span></div>
+          <p class="mt-5 text-sm leading-relaxed text-bone-300">${escapeHtml(pf(p, "description"))}</p>
           <dl class="mt-6 divide-y divide-white/5 rounded-2xl border border-white/10 text-sm">
-            ${Object.entries(p.specs).map(([k, v]) => `<div class="flex justify-between gap-4 px-4 py-2.5"><dt class="text-bone-400">${k}</dt><dd class="text-right text-bone-100">${escapeHtml(v)}</dd></div>`).join("")}
+            ${Object.entries(pf(p, "specs")).map(([k, v]) => `<div class="flex justify-between gap-4 px-4 py-2.5"><dt class="text-bone-400">${k}</dt><dd class="text-right text-bone-100">${escapeHtml(v)}</dd></div>`).join("")}
           </dl>
           <div class="mt-4 flex flex-wrap gap-1.5">
-            ${p.industries.map((i) => `<span class="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-bone-300">${industries[i]}</span>`).join("")}
+            ${p.industries.map((i) => `<span class="rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-bone-300">${indLabel(i)}</span>`).join("")}
           </div>
           <div class="mt-auto flex flex-col gap-3 pt-8 sm:flex-row sm:items-center">
-            <p class="font-serif text-3xl text-bone-50">${formatPrice(p.price)}<span class="ml-1 text-xs text-bone-400">netto${p.unit ? ` / ${p.unit}` : ""}</span></p>
-            <button type="button" data-add="${p.id}" data-close-qv class="btn-copper flex flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold sm:ml-auto">${icon.bag} Dodaj do koszyka</button>
+            <p class="font-serif text-3xl text-bone-50">${formatPrice(p.price)}<span class="ml-1 text-xs text-bone-400">${t("price.net")}${unitStr(p)}</span></p>
+            <button type="button" data-add="${p.id}" data-close-qv class="btn-copper flex flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold sm:ml-auto">${icon.bag} ${t("qv.add")}</button>
           </div>
-          <button type="button" data-ask-advisor="${p.id}" class="mt-3 text-left text-xs text-bone-400 hover:text-copper-300">Nie masz pewności, czy to właściwy wybór? <span class="underline underline-offset-2">Zapytaj doradcę AI →</span></button>
+          <button type="button" data-ask-advisor="${p.id}" class="mt-3 text-left text-xs text-bone-400 hover:text-copper-300">${t("qv.ask")} <span class="underline underline-offset-2">${t("qv.ask.link")}</span></button>
         </div>
       </div>`;
     if (!qv.open) qv.showModal();
@@ -365,7 +384,7 @@
     const view = e.target.closest("[data-quickview]");
     if (view) { openQuickView(view.dataset.quickview); return; }
     const ask = e.target.closest("[data-ask-advisor]");
-    if (ask) { qv.close(); EVERSON.advisor?.open(`Czy ${getProduct(ask.dataset.askAdvisor).name} sprawdzi się w mojej aplikacji?`); return; }
+    if (ask) { qv.close(); EVERSON.advisor?.open(t("advisor.askProduct", { name: getProduct(ask.dataset.askAdvisor).name })); return; }
     if (e.target.closest("[data-open-advisor]")) {
       if (drawer.dataset.open === "true") setCart(false);
       EVERSON.advisor?.open();
@@ -375,46 +394,49 @@
   /* ---------------------------------------------------------------------
      Treści dekoracyjne: marquee, hero, opinie, galeria
      --------------------------------------------------------------------- */
-  const sectors = ["Pakowanie i paletyzacja", "Przemysł spożywczy", "Motoryzacja", "Szkło i kamień", "Fotowoltaika", "Elektronika", "Drewno i meble", "Obróbka blach", "Kompozyty"];
   const marqueeItem = (s) => `<li class="flex items-center gap-14"><span>${s}</span><span class="h-1.5 w-1.5 rounded-full bg-copper-400/70" aria-hidden="true"></span></li>`;
-  $("#marquee-list").innerHTML = [...sectors, ...sectors].map(marqueeItem).join("");
-  $$("#marquee-list li").slice(sectors.length).forEach((li) => li.setAttribute("aria-hidden", "true"));
-
-  $("#hero-product").innerHTML = renderVisual(getProduct("ev-bellow-25"), { hero: true });
-  $("#about-visual").innerHTML = renderVisual(getProduct("ev-gen-vg15"), { hero: true });
-  $("#avg-stars").innerHTML = starsSvg(4.9, 16);
-
-  // PRZYKŁADOWE opinie — zastąp zweryfikowanymi opiniami klientów.
-  const reviews = [
-    { name: "Marek K.", role: "Kierownik utrzymania ruchu", company: "Zakład opakowań, Bydgoszcz", rating: 5, text: "Przyssawki mieszkowe pracują u nas na trzech zmianach i wytrzymują wyraźnie dłużej niż poprzednie zamienniki. Dostawa następnego dnia uratowała nam niejeden weekend.", hue: 24 },
-    { name: "Anna W.", role: "Inżynier automatyk", company: "Producent słodyczy", rating: 5, text: "Doradca od razu zapytał o kontakt z żywnością i temperaturę. Dostaliśmy niebieskie przyssawki silikonowe, które przeszły audyt bez uwag.", hue: 200 },
-    { name: "Tomasz R.", role: "Integrator robotów", company: "Firma integratorska", rating: 5, text: "Everson to dla nas pewne źródło oryginalnych komponentów. Wielostopniowe ejektory obniżyły zużycie powietrza na linii klienta — to argument, który sprzedaje się sam.", hue: 150 },
-    { name: "Katarzyna P.", role: "Zakupy techniczne", company: "Przemysł meblarski", rating: 4.5, text: "Przejrzysta oferta, szybkie wyceny i faktury bez niespodzianek. Przyssawki z wargą piankową rozwiązały problem płyt ryflowanych.", hue: 330 },
-    { name: "Piotr S.", role: "Technolog", company: "Linia PV", rating: 5, text: "Przyssawki do ogniw nie zostawiają śladów, a odsetek mikropęknięć spadł zauważalnie. Profesjonalne wsparcie przy doborze średnic.", hue: 260 },
-    { name: "Michał D.", role: "Właściciel", company: "Obróbka szkła", rating: 5, text: "Przyssawki wysokotemperaturowe pracują przy hartowni bez twardnienia. Wreszcie dostawca, który rozumie, co dzieje się na hali.", hue: 40 },
-  ];
-  $("#reviews-grid").innerHTML = reviews.map((r) => `
-    <figure class="reveal glass flex flex-col rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/25">
-      <div class="flex items-center justify-between">${starsSvg(r.rating)}<svg class="h-7 w-7 text-copper-300/40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.5 6C6.5 7 5 9.5 5 13v5h5v-5H7.5c0-2 .8-3.6 2.8-4.5L9.5 6Zm9 0C15.5 7 14 9.5 14 13v5h5v-5h-2.5c0-2 .8-3.6 2.8-4.5L18.5 6Z"/></svg></div>
-      <blockquote class="mt-5 flex-1 text-[15px] leading-relaxed text-bone-200">„${r.text}”</blockquote>
-      <figcaption class="mt-6 flex items-center gap-3 border-t border-white/5 pt-5">
-        <span class="grid h-11 w-11 place-items-center rounded-full font-serif text-lg text-white" style="background:linear-gradient(135deg,hsl(${r.hue} 45% 45%),hsl(${r.hue + 30} 35% 22%))" aria-hidden="true">${r.name[0]}</span>
-        <span><span class="block text-sm font-medium text-bone-50">${r.name}</span><span class="block text-xs text-bone-400">${r.role} · ${r.company}</span></span>
-      </figcaption>
-    </figure>`).join("");
-
   const insta = ["ev-foam-60", "ev-food-30", "ev-gen-vg15", "ev-wafer-20", "ev-bottle-bg3", "ev-heat-50"];
-  $("#insta-grid").innerHTML = insta.map((id, i) => {
-    const p = getProduct(id);
-    return `<li class="reveal">
-      <button type="button" data-quickview="${id}" class="studio group relative block aspect-square w-full overflow-hidden rounded-2xl border border-white/5" aria-label="Zobacz ${escapeHtml(p.name)}">
-        <span class="absolute inset-[14%] block transition duration-700 group-hover:scale-110">${renderVisual(p)}</span>
-        <span class="absolute inset-0 grid place-items-center bg-ink-950/60 opacity-0 transition duration-500 group-hover:opacity-100">
-          <svg class="h-7 w-7 text-bone-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01" stroke-linecap="round"/></svg>
-        </span>
-      </button>
-    </li>`;
-  }).join("");
+  const quote = { pl: ["„", "”"], en: ["“", "”"], de: ["„", "“"] };
+
+  const renderDecor = () => {
+    const sectors = I18N.pick(EVERSON.content.sectors);
+    $("#marquee-list").innerHTML = [...sectors, ...sectors].map(marqueeItem).join("");
+    $$("#marquee-list li").slice(sectors.length).forEach((li) => li.setAttribute("aria-hidden", "true"));
+
+    $("#hero-product").innerHTML = renderVisual(getProduct("ev-bellow-25"), { hero: true });
+    $("#about-visual").innerHTML = renderVisual(getProduct("ev-gen-vg15"), { hero: true });
+    $("#avg-stars").innerHTML = starsSvg(4.9, 16);
+
+    // PRZYKŁADOWE opinie (i18n-content.js) — zastąp zweryfikowanymi opiniami klientów.
+    const [qo, qc] = quote[I18N.lang];
+    $("#reviews-grid").innerHTML = EVERSON.content.reviews.map((r) => {
+      const c = I18N.pick(r);
+      return `
+      <figure class="reveal is-visible glass flex flex-col rounded-3xl p-7 transition duration-500 hover:-translate-y-1 hover:border-copper-300/25">
+        <div class="flex items-center justify-between">${starsSvg(r.rating)}<svg class="h-7 w-7 text-copper-300/40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.5 6C6.5 7 5 9.5 5 13v5h5v-5H7.5c0-2 .8-3.6 2.8-4.5L9.5 6Zm9 0C15.5 7 14 9.5 14 13v5h5v-5h-2.5c0-2 .8-3.6 2.8-4.5L18.5 6Z"/></svg></div>
+        <blockquote class="mt-5 flex-1 text-[15px] leading-relaxed text-bone-200">${qo}${c.text}${qc}</blockquote>
+        <figcaption class="mt-6 flex items-center gap-3 border-t border-white/5 pt-5">
+          <span class="grid h-11 w-11 place-items-center rounded-full font-serif text-lg text-white" style="background:linear-gradient(135deg,hsl(${r.hue} 45% 45%),hsl(${r.hue + 30} 35% 22%))" aria-hidden="true">${r.name[0]}</span>
+          <span><span class="block text-sm font-medium text-bone-50">${r.name}</span><span class="block text-xs text-bone-400">${c.role} · ${c.company}</span></span>
+        </figcaption>
+      </figure>`;
+    }).join("");
+
+    $("#insta-grid").innerHTML = insta.map((id) => {
+      const p = getProduct(id);
+      return `<li class="reveal is-visible">
+        <button type="button" data-quickview="${id}" class="studio group relative block aspect-square w-full overflow-hidden rounded-2xl border border-white/5" aria-label="${escapeHtml(t("insta.view", { name: p.name }))}">
+          <span class="absolute inset-[14%] block transition duration-700 group-hover:scale-110">${renderVisual(p)}</span>
+          <span class="absolute inset-0 grid place-items-center bg-ink-950/60 opacity-0 transition duration-500 group-hover:opacity-100">
+            <svg class="h-7 w-7 text-bone-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5v.01" stroke-linecap="round"/></svg>
+          </span>
+        </button>
+      </li>`;
+    }).join("");
+  };
+  renderDecor();
+  // Pierwsze wejście: opinie i galeria pojawiają się z animacją.
+  $$("#reviews-grid .reveal, #insta-grid .reveal").forEach((el) => el.classList.remove("is-visible"));
 
   /* ---------------------------------------------------------------------
      Newsletter
@@ -424,17 +446,17 @@
     const email = $("#nl-email"), consent = $("#nl-consent"), msg = $("#nl-msg");
     msg.className = "min-h-[1.5rem] text-sm";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())) {
-      msg.textContent = "Podaj poprawny adres e-mail.";
+      msg.textContent = t("nl.invalid");
       msg.classList.add("text-red-300");
       email.focus();
       return;
     }
     if (!consent.checked) {
-      msg.textContent = "Zaznacz zgodę, abyśmy mogli wysłać Ci bon.";
+      msg.textContent = t("nl.consent");
       msg.classList.add("text-red-300");
       return;
     }
-    msg.innerHTML = `Witamy w Klubie Everson! Twój kod: <strong class="rounded bg-copper-400/15 px-2 py-0.5 font-mono text-copper-200">EVERSON10</strong> — wysłaliśmy go też na e-mail.`;
+    msg.innerHTML = t("nl.ok", { code: `<strong class="rounded bg-copper-400/15 px-2 py-0.5 font-mono text-copper-200">EVERSON10</strong>` });
     msg.classList.add("text-bone-100");
     e.target.reset();
   });
@@ -458,6 +480,40 @@
   }
   renderGrid();
   observeReveal();
+
+  /* ---------------------------------------------------------------------
+     Linki wewnątrz strony (#sekcja) — przewijamy skryptem, dzięki czemu
+     działają także w podglądzie osadzonym w innej stronie (iframe/srcdoc),
+     gdzie sam „#” prowadziłby do adresu strony nadrzędnej.
+     --------------------------------------------------------------------- */
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    const id = decodeURIComponent(a.getAttribute("href").slice(1));
+    const target = id ? document.getElementById(id) : document.body;
+    if (!target) return;
+    target.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    if (id === "main" || target.matches("section,footer,main")) {
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    }
+    try { history.replaceState(null, "", `#${id}`); } catch { /* podgląd bez historii */ }
+  });
+
+  /* ---------------------------------------------------------------------
+     Zmiana języka — odświeżenie treści generowanych w JS
+     --------------------------------------------------------------------- */
+  document.addEventListener("everson:lang", () => {
+    renderBest();
+    renderFilters();
+    renderGrid();
+    renderCart();
+    renderDecor();
+    $("#nl-msg").textContent = "";
+    if (qv.open && qvId) openQuickView(qvId);
+    $$(".reveal", document).forEach((el) => el.classList.add("is-visible"));
+  });
 
   /* ---------------------------------------------------------------------
      Hero: kinowa pętla — pole podciśnienia (cząsteczki zasysane do centrum)

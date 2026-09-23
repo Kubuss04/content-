@@ -22,6 +22,8 @@ python3 -m http.server 8000   # lub dowolny serwer statyczny → http://localhos
 | `assets/js/products.js` | Katalog produktów z copywritingiem + renderer makiet studyjnych SVG |
 | `assets/js/app.js` | Nagłówek, autouzupełnianie, filtry/sortowanie, koszyk, szybki podgląd, animacja hero |
 | `assets/js/advisor.js` | **Everson AI Advisor** — symulacja czatu (wywiad techniczny + rekomendacje w formie kart) |
+| `assets/js/i18n.js` | Silnik tłumaczeń: przełącznik języka, tłumaczenie statycznego HTML, zapamiętanie wyboru |
+| `assets/js/i18n-content.js` | Słowniki PL / EN / DE: teksty strony, produkty, opinie, doradca AI, film, kalkulator |
 | `assets/js/cinema.js` | Film „Jak powstaje przyssawka” (5 animowanych scen), kalkulator siły trzymania, paralaksa hero |
 | `assets/img/products/manifest.js` | Lista zdjęć produktów — wpisz plik, a zdjęcie zastąpi makietę w całym serwisie |
 | `tailwind.config.js` | Paleta `ink` / `copper` / `bone`, fonty Fraunces + Inter |
@@ -39,6 +41,15 @@ python3 -m http.server 8000   # lub dowolny serwer statyczny → http://localhos
 
 - **„Jak powstaje przyssawka”** (`#proces`) — pięć scen: mieszanka, formowanie, wulkanizacja, kontrola, praca na linii. Sceny zmieniają się podczas przewijania; przycisk ▶ odtwarza całość jak film (oś czasu, timecode, napisy). Animacja zatrzymuje się poza ekranem.
 - **Kalkulator siły trzymania** (`#kalkulator`) — trzy przypadki obciążenia (wzory w sekcji „Jak liczymy?”), wynik w N, minimalna średnica i pasujące przyssawki z katalogu; wynik można przekazać doradcy AI. Średnice czynne przyssawek: `CUP_D` w `cinema.js`.
+
+## Wersje językowe (PL / EN / DE)
+
+- Przełącznik w nagłówku (ikona globusa). Wybór jest zapamiętywany; link z `?lang=en` lub `?lang=de` otwiera stronę od razu w danym języku.
+- Polski jest językiem źródłowym — teksty w `index.html` i `products.js` pozostają bez zmian.
+- Tłumaczenia statycznego HTML: tablica `S` w `i18n-content.js` (kolumny: PL → EN → DE). Po zmianie polskiego tekstu w HTML zaktualizuj też klucz w tej tablicy.
+- Elementy z atrybutem `data-i18n-skip` renderuje JavaScript (karty, koszyk, czat itd.) — ich teksty są w sekcjach `UI` i `CONTENT`.
+- Wyszukiwarka znajduje produkty po nazwach i opisach we wszystkich trzech językach; doradca AI rozumie słowa kluczowe PL, EN i DE.
+- Ceny pozostają w PLN, formatowane zgodnie z językiem (np. `PLN 18.90` / `18,90 PLN`).
 
 ## Podłączenie prawdziwego modelu AI
 

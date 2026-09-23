@@ -36,7 +36,7 @@
        A. NAGŁÓWEK
        ===================================================================== -->
   <header id="site-header" class="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
-    <div class="header-shell mx-auto flex max-w-site items-center gap-3 rounded-2xl border border-transparent px-3 py-2.5 backdrop-blur-xl transition-all duration-500 sm:px-5 lg:gap-6">
+    <div class="header-shell mx-auto flex max-w-site items-center gap-2 rounded-2xl sm:gap-3 border border-transparent px-3 py-2.5 backdrop-blur-xl transition-all duration-500 sm:px-5 lg:gap-6">
       <!-- Logo -->
       <a href="#top" class="group flex shrink-0 items-center gap-2.5" aria-label="Everson — strona główna">
         <span class="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-copper-300 via-copper-500 to-copper-700 shadow-lg shadow-copper-500/20">
@@ -44,7 +44,7 @@
             <path d="M12 3v8" stroke-linecap="round"/><path d="M9 11h6"/><path d="M4.5 18c0-3.6 3.4-6 7.5-6s7.5 2.4 7.5 6" stroke-linecap="round"/><path d="M3 20h18" stroke-linecap="round"/>
           </svg>
         </span>
-        <span class="font-serif text-xl font-medium tracking-[0.18em] text-bone-50">EVERSON</span>
+        <span class="hidden font-serif text-lg font-medium tracking-[0.14em] text-bone-50 min-[360px]:inline sm:text-xl sm:tracking-[0.18em]">EVERSON</span>
       </a>
 
       <!-- Nawigacja desktop -->
@@ -66,7 +66,7 @@
         <input id="search-input" type="search" autocomplete="off" placeholder="Szukaj: szkło, butelki, generator…"
                role="combobox" aria-expanded="false" aria-controls="search-suggest" aria-autocomplete="list"
                class="w-full rounded-full border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:bg-white/[0.07] focus:outline-none">
-        <ul id="search-suggest" role="listbox" aria-label="Podpowiedzi wyszukiwania"
+        <ul id="search-suggest" data-i18n-skip data-i18n-attrs role="listbox" aria-label="Podpowiedzi wyszukiwania"
             class="glass-strong absolute left-0 right-0 top-[calc(100%+8px)] hidden max-h-96 overflow-auto rounded-2xl p-2 shadow-2xl"></ul>
       </div>
 
@@ -75,10 +75,22 @@
         <button id="search-toggle" type="button" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50 md:hidden" aria-label="Otwórz wyszukiwarkę" aria-expanded="false" aria-controls="mobile-search">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
         </button>
-        <button id="account-btn" type="button" class="grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Konto klienta B2B">
+        <div id="lang-switch" class="relative" data-i18n-skip>
+          <button id="lang-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="lang-menu" aria-label="Język / Language / Sprache"
+                  class="flex h-10 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold tracking-[0.15em] text-bone-300 transition hover:bg-white/5 hover:text-bone-50">
+            <svg class="hidden h-4 w-4 sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z"/></svg>
+            <span id="lang-current">PL</span>
+          </button>
+          <ul id="lang-menu" class="glass-strong absolute z-10 !bg-ink-900 right-0 top-[calc(100%+10px)] hidden w-48 rounded-2xl p-1.5 shadow-2xl">
+            <li><button type="button" data-lang="pl" class="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm text-bone-100 hover:bg-white/5"><span>Polski</span><span class="text-[10px] font-semibold tracking-[0.2em] text-bone-400">PL</span></button></li>
+            <li><button type="button" data-lang="en" class="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm text-bone-100 hover:bg-white/5"><span>English</span><span class="text-[10px] font-semibold tracking-[0.2em] text-bone-400">EN</span></button></li>
+            <li><button type="button" data-lang="de" class="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm text-bone-100 hover:bg-white/5"><span>Deutsch</span><span class="text-[10px] font-semibold tracking-[0.2em] text-bone-400">DE</span></button></li>
+          </ul>
+        </div>
+        <button id="account-btn" type="button" class="hidden h-10 w-10 sm:grid place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Konto klienta B2B">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" stroke-linecap="round"/></svg>
         </button>
-        <button id="cart-btn" type="button" class="relative grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Koszyk, 0 produktów" aria-controls="cart-drawer" aria-expanded="false">
+        <button id="cart-btn" data-i18n-skip type="button" class="relative grid h-10 w-10 place-items-center rounded-full text-bone-300 transition hover:bg-white/5 hover:text-bone-50" aria-label="Koszyk, 0 produktów" aria-controls="cart-drawer" aria-expanded="false">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8Z" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round"/></svg>
           <span id="cart-count" class="absolute -right-0.5 -top-0.5 hidden h-5 min-w-5 place-items-center rounded-full bg-copper-400 px-1 text-[10px] font-semibold text-ink-950">0</span>
         </button>
@@ -94,7 +106,7 @@
       <input id="search-input-m" type="search" autocomplete="off" placeholder="Czego szukasz?"
              role="combobox" aria-expanded="false" aria-controls="search-suggest-m" aria-autocomplete="list"
              class="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-bone-50 placeholder:text-bone-400 focus:border-copper-400/60 focus:outline-none">
-      <ul id="search-suggest-m" role="listbox" aria-label="Podpowiedzi wyszukiwania" class="mt-2 hidden max-h-80 overflow-auto"></ul>
+      <ul id="search-suggest-m" data-i18n-skip data-i18n-attrs role="listbox" aria-label="Podpowiedzi wyszukiwania" class="mt-2 hidden max-h-80 overflow-auto"></ul>
     </div>
 
     <!-- Menu mobile -->
@@ -107,6 +119,7 @@
         <li><a href="#doradca" class="block rounded-xl px-4 py-3 hover:bg-white/5">Doradca AI</a></li>
         <li><a href="#o-marce" class="block rounded-xl px-4 py-3 hover:bg-white/5">O marce</a></li>
         <li><a href="#kontakt" class="block rounded-xl px-4 py-3 hover:bg-white/5">Kontakt</a></li>
+        <li class="sm:hidden"><button type="button" data-account class="block w-full rounded-xl px-4 py-3 text-left hover:bg-white/5">Konto klienta B2B</button></li>
       </ul>
     </nav>
   </header>
@@ -159,7 +172,7 @@
           <div class="reveal relative aspect-square">
             <div class="absolute inset-[8%] rounded-full border border-copper-300/15"></div>
             <div class="absolute inset-[18%] rounded-full border border-white/5"></div>
-            <div id="hero-product" class="hero-product absolute inset-[10%]"></div>
+            <div id="hero-product" data-i18n-skip class="hero-product absolute inset-[10%]"></div>
 
             <div class="glass absolute left-0 top-[14%] rounded-2xl px-4 py-3 text-xs shadow-xl sm:-left-4">
               <p class="text-bone-400">Podciśnienie robocze</p>
@@ -182,7 +195,7 @@
     <!-- Pasek branż (zamiast logotypów partnerów — patrz README) -->
     <section id="branze" class="border-y border-white/5 bg-ink-900/60 py-8" aria-label="Branże, którym dostarczamy">
       <div class="marquee overflow-hidden">
-        <ul class="marquee-track flex w-max items-center gap-14 whitespace-nowrap font-serif text-xl text-bone-400 sm:text-2xl" id="marquee-list"></ul>
+        <ul class="marquee-track flex w-max items-center gap-14 whitespace-nowrap font-serif text-xl text-bone-400 sm:text-2xl" id="marquee-list" data-i18n-skip></ul>
       </div>
     </section>
 
@@ -198,7 +211,7 @@
           </div>
           <p class="max-w-md text-bone-300">Sprawdzone w tysiącach aplikacji — od linii pakujących po roboty delta. Najczęściej wybierane, najrzadziej wymieniane.</p>
         </div>
-        <div id="bestseller-grid" class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <div id="bestseller-grid" data-i18n-skip class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
       </div>
     </section>
 
@@ -216,14 +229,13 @@
         <!-- Panel filtrów -->
         <div class="reveal mt-12 flex flex-col gap-5">
           <div class="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-            <div id="category-chips" class="flex w-max gap-2 sm:w-auto sm:flex-wrap" role="group" aria-label="Filtruj według kategorii"></div>
+            <div id="category-chips" data-i18n-skip data-i18n-attrs class="flex w-max gap-2 sm:w-auto sm:flex-wrap" role="group" aria-label="Filtruj według kategorii"></div>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="flex flex-col gap-3 sm:flex-row">
               <label class="relative">
                 <span class="sr-only">Branża</span>
-                <select id="industry-filter" class="w-full appearance-none rounded-full border border-white/10 bg-ink-800 py-2.5 pl-4 pr-10 text-sm text-bone-100 focus:border-copper-400/60 focus:outline-none sm:w-60">
-                  <option value="all">Wszystkie branże</option>
+                <select id="industry-filter" data-i18n-skip class="w-full appearance-none rounded-full border border-white/10 bg-ink-800 py-2.5 pl-4 pr-10 text-sm text-bone-100 focus:border-copper-400/60 focus:outline-none sm:w-60">
                 </select>
                 <svg class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </label>
@@ -239,11 +251,11 @@
                 <svg class="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-bone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </label>
             </div>
-            <p id="results-count" class="text-sm text-bone-400" aria-live="polite"></p>
+            <p id="results-count" data-i18n-skip class="text-sm text-bone-400" aria-live="polite"></p>
           </div>
         </div>
 
-        <div id="product-grid" class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
+        <div id="product-grid" data-i18n-skip class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
         <div id="empty-state" class="hidden rounded-3xl border border-dashed border-white/10 p-12 text-center">
           <p class="font-serif text-2xl text-bone-50">Brak produktów dla tych kryteriów</p>
           <p class="mt-2 text-bone-400">Zmień filtry lub zapytaj doradcę AI — dobierzemy zamiennik.</p>
@@ -270,22 +282,22 @@
           <div class="sticky top-[76px] z-20 self-start sm:top-24 lg:col-span-7">
             <div id="cinema" class="cinema-stage film-grain relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden rounded-[22px] border border-white/10 shadow-2xl shadow-black/60 sm:rounded-[28px]" style="--scene-ms:5200ms">
               <span class="bar top" aria-hidden="true"></span><span class="bar bottom" aria-hidden="true"></span>
-              <div id="cinema-scenes" class="absolute inset-x-0 top-[10%] bottom-[19%]" role="img" aria-label="Animacja procesu produkcji przyssawki"></div>
+              <div id="cinema-scenes" data-i18n-skip data-i18n-attrs class="absolute inset-x-0 top-[10%] bottom-[19%]" role="img" aria-label="Animacja procesu produkcji przyssawki"></div>
 
               <!-- HUD -->
               <div class="pointer-events-none absolute inset-x-0 top-[7%] z-[4] flex items-center justify-between px-4 pt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-bone-300 sm:px-6 sm:text-[11px]">
-                <span class="flex items-center gap-2"><span class="rec-dot h-2 w-2 rounded-full bg-red-500"></span><span id="cinema-chapter">Scena 01 / 05</span></span>
-                <span id="cinema-timecode" aria-hidden="true">00:00:00:00</span>
+                <span class="flex items-center gap-2"><span class="rec-dot h-2 w-2 rounded-full bg-red-500"></span><span id="cinema-chapter" data-i18n-skip>Scena 01 / 05</span></span>
+                <span id="cinema-timecode" data-i18n-skip aria-hidden="true">00:00:00:00</span>
               </div>
-              <p id="cinema-caption" class="pointer-events-none absolute inset-x-0 bottom-[calc(7%+44px)] z-[4] px-6 text-center font-serif text-sm italic text-bone-50 drop-shadow-[0_2px_8px_rgba(0,0,0,.9)] sm:text-xl" aria-live="polite"></p>
+              <p id="cinema-caption" data-i18n-skip class="pointer-events-none absolute inset-x-0 bottom-[calc(7%+44px)] z-[4] px-6 text-center font-serif text-sm italic text-bone-50 drop-shadow-[0_2px_8px_rgba(0,0,0,.9)] sm:text-xl" aria-live="polite"></p>
 
               <!-- Oś czasu -->
               <div class="absolute inset-x-0 bottom-[7%] z-[4] flex items-center gap-3 px-4 pb-3 sm:px-6">
-                <button id="cinema-play" type="button" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-bone-50/10 text-bone-50 backdrop-blur transition hover:bg-copper-400 hover:text-ink-950" aria-label="Odtwórz film" aria-pressed="false">
+                <button id="cinema-play" data-i18n-skip type="button" class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-bone-50/10 text-bone-50 backdrop-blur transition hover:bg-copper-400 hover:text-ink-950" aria-label="Odtwórz film" aria-pressed="false">
                   <svg class="play-i h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"/></svg>
                   <svg class="pause-i hidden h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>
                 </button>
-                <ol id="cinema-segments" class="flex flex-1 gap-1.5" aria-label="Rozdziały filmu"></ol>
+                <ol id="cinema-segments" data-i18n-skip data-i18n-attrs class="flex flex-1 gap-1.5" aria-label="Rozdziały filmu"></ol>
               </div>
             </div>
           </div>
@@ -371,11 +383,11 @@
 
             <div class="mt-8 grid gap-7 sm:grid-cols-2">
               <div>
-                <div class="flex items-baseline justify-between"><label for="calc-mass" class="text-sm text-bone-200">Masa detalu</label><output id="out-mass" for="calc-mass" class="font-serif text-xl text-bone-50">5 kg</output></div>
+                <div class="flex items-baseline justify-between"><label for="calc-mass" class="text-sm text-bone-200">Masa detalu</label><output id="out-mass" data-i18n-skip for="calc-mass" class="font-serif text-xl text-bone-50">5 kg</output></div>
                 <input id="calc-mass" type="range" class="range mt-3" min="0.1" max="100" step="0.1" value="5">
               </div>
               <div>
-                <div class="flex items-baseline justify-between"><label for="calc-acc" class="text-sm text-bone-200">Przyspieszenie</label><output id="out-acc" for="calc-acc" class="font-serif text-xl text-bone-50">5 m/s²</output></div>
+                <div class="flex items-baseline justify-between"><label for="calc-acc" class="text-sm text-bone-200">Przyspieszenie</label><output id="out-acc" data-i18n-skip for="calc-acc" class="font-serif text-xl text-bone-50">5 m/s²</output></div>
                 <input id="calc-acc" type="range" class="range mt-3" min="0" max="25" step="0.5" value="5">
               </div>
             </div>
@@ -442,16 +454,16 @@
               </svg>
               <div>
                 <p class="text-xs uppercase tracking-[0.2em] text-bone-400">Wymagana siła całkowita</p>
-                <p class="mt-1 font-serif text-5xl text-bone-50"><span id="calc-total">0</span><span class="ml-1 text-xl text-copper-300">N</span></p>
-                <p class="mt-1 text-xs text-bone-400"><span id="calc-kg">0</span> kg siły trzymania</p>
+                <p class="mt-1 font-serif text-5xl text-bone-50"><span id="calc-total" data-i18n-skip>0</span><span class="ml-1 text-xl text-copper-300">N</span></p>
+                <p class="mt-1 text-xs text-bone-400"><span id="calc-kg" data-i18n-skip>0</span> kg siły trzymania</p>
               </div>
             </div>
             <dl class="mt-8 grid grid-cols-2 gap-4">
-              <div class="rounded-2xl border border-white/10 p-4"><dt class="text-xs text-bone-400">Na jedną przyssawkę</dt><dd class="mt-1 font-serif text-2xl text-bone-50"><span id="calc-per">0</span> N</dd></div>
-              <div class="rounded-2xl border border-white/10 p-4"><dt class="text-xs text-bone-400">Minimalna średnica</dt><dd class="mt-1 font-serif text-2xl text-bone-50">Ø <span id="calc-d">0</span> mm</dd></div>
+              <div class="rounded-2xl border border-white/10 p-4"><dt class="text-xs text-bone-400">Na jedną przyssawkę</dt><dd class="mt-1 font-serif text-2xl text-bone-50"><span id="calc-per" data-i18n-skip>0</span> N</dd></div>
+              <div class="rounded-2xl border border-white/10 p-4"><dt class="text-xs text-bone-400">Minimalna średnica</dt><dd class="mt-1 font-serif text-2xl text-bone-50">Ø <span id="calc-d" data-i18n-skip>0</span> mm</dd></div>
             </dl>
             <p class="mt-8 text-xs uppercase tracking-[0.2em] text-copper-300">Pasujące przyssawki</p>
-            <div id="calc-recs" class="mt-3 grid gap-2"></div>
+            <div id="calc-recs" data-i18n-skip class="mt-3 grid gap-2"></div>
             <button type="button" id="calc-ask" class="btn-ghost mt-auto rounded-full border border-white/15 px-5 py-3 text-sm text-bone-50 [margin-top:1.5rem]">Omów wynik z doradcą AI</button>
           </div>
         </div>
@@ -498,7 +510,7 @@
 
         <!-- Osadzony chat -->
         <div class="reveal">
-          <div class="glass hairline relative flex h-[620px] max-h-[80svh] flex-col overflow-hidden rounded-[28px] shadow-2xl shadow-black/60" data-advisor-root="inline"></div>
+          <div class="glass hairline relative flex h-[620px] max-h-[80svh] flex-col overflow-hidden rounded-[28px] shadow-2xl shadow-black/60" data-advisor-root="inline" data-i18n-skip></div>
         </div>
       </div>
     </section>
@@ -544,7 +556,7 @@
       <div class="mx-auto grid max-w-site items-center gap-14 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div class="reveal relative order-2 lg:order-1">
           <div class="studio relative aspect-[4/5] overflow-hidden rounded-[32px] border border-white/10">
-            <div id="about-visual" class="absolute inset-[12%]"></div>
+            <div id="about-visual" data-i18n-skip class="absolute inset-[12%]"></div>
             <div class="glass absolute inset-x-5 bottom-5 rounded-2xl p-5">
               <p class="font-serif text-lg italic text-bone-50">„Każda przyssawka to setki tysięcy cykli. Dlatego dobieramy ją tak, jakby to był jedyny element Twojej linii.”</p>
               <p class="mt-3 text-xs uppercase tracking-[0.2em] text-copper-300">Zespół aplikacyjny Everson</p>
@@ -581,10 +593,10 @@
           </div>
           <div class="glass flex items-center gap-4 rounded-2xl px-5 py-4">
             <p class="font-serif text-4xl text-bone-50">4,9</p>
-            <div><div id="avg-stars"></div><p class="mt-1 text-xs text-bone-400">Średnia ocen produktów w sklepie</p></div>
+            <div><div id="avg-stars" data-i18n-skip></div><p class="mt-1 text-xs text-bone-400">Średnia ocen produktów w sklepie</p></div>
           </div>
         </div>
-        <div id="reviews-grid" class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"></div>
+        <div id="reviews-grid" data-i18n-skip class="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"></div>
 
         <!-- Galeria „Z linii produkcyjnych” (sekcja Instagram) -->
         <div class="reveal mt-24 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -597,7 +609,7 @@
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
         </div>
-        <ul id="insta-grid" class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"></ul>
+        <ul id="insta-grid" data-i18n-skip class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"></ul>
       </div>
     </section>
 
@@ -629,7 +641,7 @@
               <input id="nl-consent" type="checkbox" required class="mt-0.5 h-4 w-4 rounded border-white/20 bg-transparent accent-copper-500">
               <span>Wyrażam zgodę na otrzymywanie informacji handlowych od Everson. Szczegóły w <a href="#polityka" class="underline decoration-copper-400/60 underline-offset-2 hover:text-bone-100">Polityce prywatności</a>.</span>
             </label>
-            <p id="nl-msg" class="min-h-[1.5rem] text-sm" role="status" aria-live="polite"></p>
+            <p id="nl-msg" data-i18n-skip class="min-h-[1.5rem] text-sm" role="status" aria-live="polite"></p>
           </form>
         </div>
       </div>
@@ -701,7 +713,7 @@
       </div>
 
       <div class="flex flex-col items-start justify-between gap-4 border-t border-white/5 py-8 text-xs text-bone-400 sm:flex-row sm:items-center">
-        <p>© <span id="year">2026</span> Everson · Accurate Group. Wszelkie prawa zastrzeżone.</p>
+        <p>© <span id="year" data-i18n-skip>2026</span> Everson · Accurate Group. Wszelkie prawa zastrzeżone.</p>
         <p class="flex items-center gap-2">
           <svg class="h-4 w-4 text-copper-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg>
           Bezpieczne płatności · Faktura VAT · Szyfrowanie SSL
@@ -715,7 +727,7 @@
        Pływający widget Everson AI Advisor
        ===================================================================== -->
   <div id="advisor-widget" class="fixed bottom-4 right-4 z-[60] flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">
-    <div id="advisor-panel" data-open="false" role="dialog" aria-modal="false" aria-label="Everson AI Advisor"
+    <div id="advisor-panel" data-i18n-skip data-open="false" role="dialog" aria-modal="false" aria-label="Everson AI Advisor"
          class="glass-strong hairline flex h-[min(640px,calc(100svh-7rem))] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-[26px] shadow-2xl shadow-black/70 sm:w-[400px]"
          data-advisor-root="floating"></div>
     <button id="advisor-fab" type="button" aria-controls="advisor-panel" aria-expanded="false"
@@ -723,7 +735,7 @@
       <span class="pulse grid h-9 w-9 place-items-center rounded-full bg-ink-950 text-copper-300">
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8L12 3Z" stroke-linejoin="round"/><path d="M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z" stroke-linejoin="round"/></svg>
       </span>
-      <span class="fab-label">Doradca AI</span>
+      <span class="fab-label" data-i18n-skip>Doradca AI</span>
     </button>
   </div>
 
@@ -737,11 +749,11 @@
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <div id="cart-items" class="chat-scroll flex-1 overflow-y-auto px-6 py-4"></div>
+    <div id="cart-items" data-i18n-skip class="chat-scroll flex-1 overflow-y-auto px-6 py-4"></div>
     <div class="border-t border-white/10 px-6 py-6">
-      <div class="flex items-center justify-between text-sm text-bone-300"><span>Wartość netto</span><span id="cart-net">0,00 zł</span></div>
-      <div class="mt-2 flex items-center justify-between text-sm text-bone-300"><span>VAT 23%</span><span id="cart-vat">0,00 zł</span></div>
-      <div class="mt-4 flex items-center justify-between font-serif text-xl text-bone-50"><span>Razem brutto</span><span id="cart-total">0,00 zł</span></div>
+      <div class="flex items-center justify-between text-sm text-bone-300"><span>Wartość netto</span><span id="cart-net" data-i18n-skip>0,00 zł</span></div>
+      <div class="mt-2 flex items-center justify-between text-sm text-bone-300"><span>VAT 23%</span><span id="cart-vat" data-i18n-skip>0,00 zł</span></div>
+      <div class="mt-4 flex items-center justify-between font-serif text-xl text-bone-50"><span>Razem brutto</span><span id="cart-total" data-i18n-skip>0,00 zł</span></div>
       <button type="button" id="checkout-btn" class="btn-copper mt-6 w-full rounded-full py-4 text-sm font-semibold">Przejdź do zamówienia</button>
       <p class="mt-3 text-center text-xs text-bone-400">Darmowa dostawa od 500 zł netto · Faktura VAT</p>
     </div>
@@ -749,12 +761,14 @@
 
   <!-- Szybki podgląd -->
   <dialog id="quickview" class="m-auto w-[calc(100vw-2rem)] max-w-4xl overflow-hidden rounded-[28px] border border-white/10 bg-ink-900 p-0 text-bone-100 shadow-2xl" aria-labelledby="qv-title">
-    <div id="quickview-body"></div>
+    <div id="quickview-body" data-i18n-skip></div>
   </dialog>
 
   <!-- Powiadomienia -->
-  <div id="toast-region" class="pointer-events-none fixed bottom-24 left-1/2 z-[90] flex w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col gap-2" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast-region" data-i18n-skip class="pointer-events-none fixed bottom-24 left-1/2 z-[90] flex w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col gap-2" aria-live="polite" aria-atomic="true"></div>
 
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/i18n-content.js"></script>
   <script src="assets/js/products.js"></script>
   <script src="assets/img/products/manifest.js"></script>
   <script src="assets/js/app.js"></script>
