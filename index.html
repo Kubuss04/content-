@@ -1,0 +1,1828 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Math Mob</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap">
+<style>
+  /* Jeden, świadomie wybrany wygląd (świat gry), więc bez wariantu ciemnego. */
+  :root {
+    color-scheme: light;
+    --sky-top: #5ec4ff;
+    --sky-low: #dff4ff;
+    --ink: #17203f;
+    --ink-soft: #505a7d;
+    --paper: #ffffff;
+    --paper-soft: #f1f5fc;
+    --line: #dbe3f1;
+    --blue: #2f7bff;
+    --blue-deep: #1b4fd0;
+    --red: #ff3d4f;
+    --red-deep: #c61f33;
+    --gold: #ffc233;
+    --gold-deep: #d98e00;
+    --shadow: 0 10px 0 rgba(23, 32, 63, 0.18), 0 22px 40px rgba(23, 32, 63, 0.25);
+    --display: "Lilita One", "Arial Black", "Trebuchet MS", system-ui, sans-serif;
+    --body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--sky-top);
+    color: var(--ink);
+    font-family: var(--body);
+    overflow: hidden;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  #game {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    touch-action: none;
+    cursor: grab;
+  }
+  #game:active { cursor: grabbing; }
+
+  /* ---------- HUD ---------- */
+  .hud {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 0;
+    pointer-events: none;
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+  .hud-row {
+    width: 100%;
+    max-width: 560px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+  .chip {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    font-weight: 900;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: 0 3px 0 rgba(23, 32, 63, 0.15);
+    white-space: nowrap;
+  }
+  .chip.right { justify-self: end; }
+  .chip svg { width: 18px; height: 18px; flex: none; }
+  .score {
+    font-family: var(--display);
+    font-size: 34px;
+    line-height: 1;
+    color: var(--paper);
+    -webkit-text-stroke: 2px var(--ink);
+    paint-order: stroke fill;
+    text-shadow: 0 4px 0 var(--ink);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    min-width: 3ch;
+  }
+  .score small {
+    display: block;
+    font-family: var(--body);
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    -webkit-text-stroke: 0;
+    text-shadow: none;
+    color: var(--ink);
+    opacity: 0.75;
+    margin-bottom: 2px;
+  }
+  .progress {
+    width: min(100%, 300px);
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.55);
+    box-shadow: inset 0 2px 0 rgba(23, 32, 63, 0.12);
+    overflow: hidden;
+    position: relative;
+  }
+  .progress > i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--blue), #54a3ff);
+  }
+  .progress > b {
+    position: absolute;
+    right: 3px; top: 50%;
+    width: 8px; height: 8px;
+    margin-top: -4px;
+    border-radius: 2px;
+    background: var(--red);
+  }
+
+  /* ---------- Ekrany ---------- */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    background: radial-gradient(120% 80% at 50% 40%, rgba(23, 32, 63, 0.05), rgba(23, 32, 63, 0.45));
+    overflow-y: auto;
+  }
+  .card {
+    width: min(100%, 380px);
+    margin: auto;
+    padding: 26px 22px 22px;
+    border-radius: 28px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: 16px;
+    text-align: center;
+    animation: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  }
+  @keyframes pop {
+    from { transform: scale(0.85) translateY(20px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+  .logo {
+    font-family: var(--display);
+    font-size: clamp(56px, 18vw, 76px);
+    line-height: 0.86;
+    letter-spacing: 0.01em;
+    margin: 4px 0 0;
+    position: relative;
+    text-wrap: balance;
+  }
+  .logo span { display: block; -webkit-text-stroke: 3px var(--ink); paint-order: stroke fill; text-shadow: 0 6px 0 var(--ink); }
+  .logo .a { color: var(--blue); }
+  .logo .b { color: var(--red); }
+  .logo em {
+    position: absolute;
+    top: -6px; right: 6%;
+    font-style: normal;
+    font-size: 22px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--gold);
+    color: var(--ink);
+    -webkit-text-stroke: 0;
+    transform: rotate(10deg);
+    box-shadow: 0 3px 0 var(--ink);
+  }
+  .tagline {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    text-wrap: balance;
+  }
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .legend div {
+    display: grid;
+    gap: 4px;
+    justify-items: center;
+    padding: 10px 4px 8px;
+    border-radius: 16px;
+    background: var(--paper-soft);
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+  .gate-tag {
+    font-family: var(--display);
+    font-size: 17px;
+    color: var(--paper);
+    padding: 3px 9px;
+    border-radius: 9px;
+    border: 2px solid rgba(23, 32, 63, 0.25);
+  }
+  .gate-tag.good { background: var(--blue); }
+  .gate-tag.bad { background: var(--red); }
+  .gate-tag.gun { background: var(--gold); color: var(--ink); }
+  .controls {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+  kbd {
+    display: inline-block;
+    min-width: 22px;
+    padding: 1px 6px;
+    border-radius: 6px;
+    border: 2px solid var(--line);
+    border-bottom-width: 3px;
+    background: var(--paper);
+    font-family: var(--body);
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .best {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .btn {
+    appearance: none;
+    border: 0;
+    border-radius: 18px;
+    padding: 15px 18px 13px;
+    font-family: var(--display);
+    font-size: 24px;
+    letter-spacing: 0.02em;
+    color: var(--paper);
+    background: var(--blue);
+    box-shadow: 0 6px 0 var(--blue-deep);
+    cursor: pointer;
+    transition: transform 0.08s, box-shadow 0.08s;
+    text-transform: uppercase;
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--blue-deep); }
+  .btn:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+  .btn.secondary { background: var(--paper-soft); color: var(--ink); box-shadow: 0 6px 0 var(--line); font-size: 20px; }
+  .btn.secondary:active { box-shadow: 0 2px 0 var(--line); }
+  .btn.go { background: #1fbf6a; box-shadow: 0 6px 0 #11894a; }
+  .btn.go:active { box-shadow: 0 2px 0 #11894a; }
+  .actions { display: grid; gap: 12px; margin-top: 4px; }
+
+  .result-title {
+    font-family: var(--display);
+    font-size: clamp(34px, 11vw, 52px);
+    line-height: 1;
+    margin: 0;
+    color: var(--paper);
+    -webkit-text-stroke: 3px var(--ink);
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 var(--ink);
+    text-wrap: balance;
+  }
+  .result-title.win { color: #1fbf6a; }
+  .result-title.lose { color: var(--red); }
+  .result-sub { margin: -6px 0 0; font-weight: 800; color: var(--ink-soft); }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .stat {
+    padding: 12px 8px 10px;
+    border-radius: 18px;
+    background: var(--paper-soft);
+    display: grid;
+    gap: 2px;
+  }
+  .stat b {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 32px;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat span {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .stat.blue b { color: var(--blue); }
+  .stat.red b { color: var(--red); }
+  .stat.wide { grid-column: 1 / -1; background: #fff6dc; }
+  .stat.wide b { font-size: 40px; color: var(--ink); }
+  .stat .new {
+    justify-self: center;
+    margin-top: 2px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--gold);
+    color: var(--ink);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+
+  .sound {
+    position: fixed;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--ink);
+    box-shadow: 0 3px 0 rgba(23, 32, 63, 0.18);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .sound svg { width: 22px; height: 22px; }
+  .sound .x { display: none; }
+  .sound.off .x { display: inline; }
+  .sound.off .w { display: none; }
+  .sound:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+  [hidden] { display: none !important; }
+
+  @media (max-width: 360px) {
+    .chip { font-size: 11px; padding: 5px 9px; }
+    .chip svg { display: none; }
+    .score { font-size: 28px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; }
+    .btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="game" aria-label="Plansza gry Math Mob"></canvas>
+
+<div class="hud" id="hud" hidden>
+  <div class="hud-row">
+    <div class="chip" id="hudLevel">Poziom 1</div>
+    <div class="score" id="hudScore"><small>WYNIK</small><span id="hudScoreVal">0</span></div>
+    <div class="chip right" id="hudWeapon">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#ffc233" stroke="#17203f" stroke-width="2" stroke-linejoin="round" d="M3 9h13l2-2h3v5h-4l-1 2h-3l-1 5H7l1-5H3z"/></svg>
+      <span id="hudWeaponName">Pistolet</span>
+    </div>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="hudProgress"></i><b></b></div>
+</div>
+
+<section class="screen" id="startScreen">
+  <div class="card">
+    <h1 class="logo"><span class="a">MATH</span><span class="b">MOB</span><em>×2</em></h1>
+    <p class="tagline">Zbieraj tłum na bramkach, ulepszaj broń i rozbij czerwoną armię przed metą.</p>
+    <div class="legend">
+      <div><span class="gate-tag good">+10 ×2</span>więcej ludzi</div>
+      <div><span class="gate-tag bad">−5 ÷2</span>strata</div>
+      <div><span class="gate-tag gun">BROŃ</span>ulepszenie</div>
+    </div>
+    <p class="controls">Przeciągaj palcem lub myszką · <kbd>←</kbd> <kbd>→</kbd> albo <kbd>A</kbd> <kbd>D</kbd></p>
+    <p class="best" id="startBest">Rekord: 0 · Poziom 1</p>
+    <div class="actions">
+      <button class="btn" id="startBtn" type="button">Start Game</button>
+    </div>
+  </div>
+</section>
+
+<section class="screen" id="endScreen" hidden>
+  <div class="card">
+    <h2 class="result-title" id="endTitle">Zwycięstwo!</h2>
+    <p class="result-sub" id="endSub">Poziom 1 ukończony</p>
+    <div class="stats">
+      <div class="stat blue"><b id="statSurvivors">0</b><span>Ocaleni</span></div>
+      <div class="stat red"><b id="statKills">0</b><span>Pokonani wrogowie</span></div>
+      <div class="stat wide"><b id="statScore">0</b><span>Wynik</span><span class="new" id="statNew" hidden>Nowy rekord!</span></div>
+    </div>
+    <p class="best" id="endBest">Rekord: 0</p>
+    <div class="actions">
+      <button class="btn go" id="nextBtn" type="button">Następny poziom</button>
+      <button class="btn" id="retryBtn" type="button">Zagraj ponownie</button>
+    </div>
+  </div>
+</section>
+
+<button class="sound" id="soundBtn" type="button" aria-label="Dźwięk" aria-pressed="false" title="Wycisz (M)">
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/>
+    <path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>
+    <path class="x" d="M17 9l5 6M22 9l-5 6"/>
+  </svg>
+</button>
+
+<script>
+'use strict';
+
+/* =========================================================
+   MATH MOB – gra typu "crowd runner" w jednym pliku
+   ========================================================= */
+
+// ---------- Stałe świata (jednostki: metry, sekundy) ----------
+const TRACK_HALF = 5;          // połowa szerokości toru
+const RUN_SPEED = 11;          // prędkość biegu tłumu
+const FIGHT_SPEED = 1.5;       // prędkość w czasie starcia wręcz
+const MAX_VIS = 180;           // maks. liczba rysowanych jednostek gracza
+const MAX_VIS_ENEMY = 110;     // maks. liczba rysowanych jednostek w grupie wroga
+const CAM_BACK = 11;           // odległość kamery za tłumem
+const CAM_H = 8.4;             // wysokość kamery
+const CAM_PITCH = 0.54;        // pochylenie kamery (rad)
+const VIEW_AHEAD = 110;        // zasięg rysowania przed tłumem
+const STEER_SPEED = 10;        // prędkość sterowania klawiszami (m/s)
+
+const COL = {
+  blue: '#2f7bff', blueDark: '#1b4fd0', blueLight: '#7fb2ff',
+  red: '#ff3d4f', redDark: '#c61f33', redLight: '#ff8a96',
+  boss: '#b3122a', bossDark: '#6f0717',
+  gold: '#ffc233', goldDark: '#d98e00',
+  ink: '#17203f', white: '#ffffff',
+  track: '#f4f7fd', trackAlt: '#e6ecf7', rail: '#7c5cff', railDark: '#5236d6',
+  seaTop: '#bfe9ff', seaBottom: '#2ea4ec', skyTop: '#5ec4ff', skyLow: '#dff4ff',
+};
+
+// Uzbrojenie: każde ulepszenie przesuwa tłum o poziom wyżej.
+const WEAPONS = [
+  { name: 'Pistolet', rate: 1.8, range: 19, dmg: 1, speed: 40, color: '#ffd23f', size: 0.12 },
+  { name: 'Karabin',  rate: 3.3, range: 24, dmg: 1, speed: 48, color: '#ff9f1c', size: 0.14 },
+  { name: 'Minigun',  rate: 5.8, range: 27, dmg: 1, speed: 54, color: '#ff4fd8', size: 0.14 },
+  { name: 'Laser',    rate: 5.2, range: 34, dmg: 2, speed: 72, color: '#48f1ff', size: 0.19 },
+];
+
+// ---------- Losowość z ziarnem (poziomy są powtarzalne) ----------
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+const lerp = (a, b, t) => a + (b - a) * t;
+const damp = (a, b, rate, dt) => a + (b - a) * (1 - Math.exp(-rate * dt));
+const GOLDEN = Math.PI * (3 - Math.sqrt(5));
+
+// ---------- Zapis rekordu (tylko wygoda, gra działa bez niego) ----------
+const STORE_KEY = 'math-mob-v1';
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      return { best: d.best | 0, level: Math.max(1, d.level | 0) };
+    }
+  } catch (e) { /* brak dostępu do pamięci */ }
+  return { best: 0, level: 1 };
+}
+function writeSave() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(save)); } catch (e) { /* ignoruj */ }
+}
+const save = loadSave();
+
+// ---------- Stan gry ----------
+const game = {
+  state: 'menu',      // menu | play | win | lose
+  level: save.level,
+  time: 0,
+  z: 0, x: 0, targetX: 0,
+  count: 1,
+  units: [],
+  weaponTier: 0, rateMul: 1, rangeAdd: 0,
+  kills: 0, score: 0,
+  length: 400,
+  rows: [], groups: [], saws: [], boss: null,
+  bullets: [], particles: [], popups: [], rings: [],
+  fireAcc: 0, speed: RUN_SPEED,
+  shake: 0, flash: 0, endTimer: 0, finishedAt: 0,
+  bossBonus: 0, finishBonus: 0,
+  fighting: false, bossFight: false, shown: false,
+};
+
+// ---------- Płótno, kamera i rzutowanie perspektywiczne ----------
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W = 1, H = 1, DPR = 1;
+const view = { F: 500, cx: 0, cy: 0, cosP: Math.cos(CAM_PITCH), sinP: Math.sin(CAM_PITCH), horizon: 0 };
+const cam = { x: 0, y: CAM_H, z: -CAM_BACK };
+const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = Math.max(1, window.innerWidth);
+  H = Math.max(1, window.innerHeight);
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  // Punkt odniesienia: środek tłumu na ziemi.
+  const dy = -CAM_H, dz = CAM_BACK;
+  const yc = dy * view.cosP + dz * view.sinP;
+  const zc = -dy * view.sinP + dz * view.cosP;
+  const trackPx = Math.min(W * 0.94, H * 0.6);
+  view.F = trackPx * zc / (2 * TRACK_HALF);
+  view.cx = W / 2;
+  view.cy = H * 0.74 + yc * view.F / zc;
+  view.horizon = view.cy - Math.tan(CAM_PITCH) * view.F;
+}
+
+// Zwraca rzut punktu świata na ekran lub null (za kamerą).
+function proj(x, y, z) {
+  const dx = x - cam.x, dy = y - cam.y, dz = z - cam.z;
+  const zc = -dy * view.sinP + dz * view.cosP;
+  if (zc < 0.6) return null;
+  const yc = dy * view.cosP + dz * view.sinP;
+  const s = view.F / zc;
+  return { x: view.cx + dx * s, y: view.cy - yc * s, s, zc };
+}
+// Głębokość (do sortowania) bez pełnego rzutu.
+function depthOf(y, z) {
+  return -(y - cam.y) * view.sinP + (z - cam.z) * view.cosP;
+}
+
+// ---------- Sprite'y ludzików (rysowane raz, potem skalowane) ----------
+const SPR = { ppm: 80, w: 76, h: 100, ax: 38, ay: 92, frames: 8 }; // piksele na metr, rozmiar, kotwica
+
+function drawPerson(g, ph, c, opts) {
+  // g – kontekst, ph – faza biegu (0..2π), c – kolory
+  const bob = Math.abs(Math.sin(ph)) * 2.5;
+  const legA = Math.sin(ph) * 7, legB = -legA;
+  const armA = Math.sin(ph) * 6;
+  // cień
+  g.fillStyle = 'rgba(23,32,63,0.22)';
+  g.beginPath(); g.ellipse(38, 92, 21, 7, 0, 0, Math.PI * 2); g.fill();
+  // nogi
+  g.lineCap = 'round';
+  g.strokeStyle = c.dark; g.lineWidth = 10;
+  g.beginPath(); g.moveTo(31, 62 - bob); g.lineTo(30, 86 - Math.max(0, legA)); g.stroke();
+  g.beginPath(); g.moveTo(45, 62 - bob); g.lineTo(46, 86 - Math.max(0, legB)); g.stroke();
+  // ręce
+  g.strokeStyle = c.main; g.lineWidth = 8;
+  g.beginPath(); g.moveTo(22, 40 - bob); g.lineTo(16, 56 - bob + armA); g.stroke();
+  g.beginPath(); g.moveTo(54, 40 - bob); g.lineTo(60, 56 - bob - armA); g.stroke();
+  // tułów
+  const grad = g.createLinearGradient(20, 0, 56, 0);
+  grad.addColorStop(0, c.light); grad.addColorStop(0.45, c.main); grad.addColorStop(1, c.dark);
+  g.fillStyle = grad;
+  g.beginPath();
+  g.moveTo(24, 36 - bob);
+  g.quadraticCurveTo(38, 26 - bob, 52, 36 - bob);
+  g.lineTo(50, 64 - bob);
+  g.quadraticCurveTo(38, 70 - bob, 26, 64 - bob);
+  g.closePath(); g.fill();
+  // głowa
+  const hg = g.createRadialGradient(33, 16 - bob, 3, 38, 22 - bob, 16);
+  hg.addColorStop(0, c.light); hg.addColorStop(0.55, c.main); hg.addColorStop(1, c.dark);
+  g.fillStyle = hg;
+  g.beginPath(); g.arc(38, 21 - bob, 14, 0, Math.PI * 2); g.fill();
+  if (opts.face) {
+    // oczy i gniewne brwi – wróg patrzy w stronę gracza
+    g.fillStyle = '#fff';
+    g.beginPath(); g.ellipse(32.5, 22 - bob, 3.6, 4.4, 0, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.ellipse(43.5, 22 - bob, 3.6, 4.4, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = COL.ink;
+    g.beginPath(); g.arc(33, 23 - bob, 2, 0, Math.PI * 2); g.fill();
+    g.beginPath(); g.arc(43, 23 - bob, 2, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = COL.ink; g.lineWidth = 2.4;
+    g.beginPath(); g.moveTo(28, 15 - bob); g.lineTo(36, 18 - bob); g.stroke();
+    g.beginPath(); g.moveTo(48, 15 - bob); g.lineTo(40, 18 - bob); g.stroke();
+  } else {
+    // mały połysk na potylicy
+    g.fillStyle = 'rgba(255,255,255,0.35)';
+    g.beginPath(); g.ellipse(33, 14 - bob, 4.5, 3, -0.5, 0, Math.PI * 2); g.fill();
+  }
+  if (opts.horns) {
+    g.fillStyle = COL.gold; g.strokeStyle = COL.ink; g.lineWidth = 1.6;
+    g.beginPath(); g.moveTo(27, 13 - bob); g.lineTo(20, 0 - bob); g.lineTo(32, 9 - bob); g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(49, 13 - bob); g.lineTo(56, 0 - bob); g.lineTo(44, 9 - bob); g.closePath(); g.fill(); g.stroke();
+    // pas
+    g.fillStyle = COL.ink;
+    g.fillRect(25, 55 - bob, 26, 5);
+    g.fillStyle = COL.gold;
+    g.fillRect(35, 54 - bob, 6, 7);
+  }
+}
+
+function makeSprites(colors, opts) {
+  const frames = [];
+  for (let f = 0; f < SPR.frames; f++) {
+    const cv = document.createElement('canvas');
+    const k = opts.res || 1;
+    cv.width = SPR.w * k; cv.height = SPR.h * k;
+    const g = cv.getContext('2d');
+    g.scale(k, k);
+    drawPerson(g, (f / SPR.frames) * Math.PI * 2, colors, opts);
+    frames.push(cv);
+  }
+  return frames;
+}
+
+const sprites = {
+  player: makeSprites({ main: COL.blue, dark: COL.blueDark, light: COL.blueLight }, { face: false, res: 1 }),
+  enemy: makeSprites({ main: COL.red, dark: COL.redDark, light: COL.redLight }, { face: true, res: 1 }),
+  boss: makeSprites({ main: COL.boss, dark: COL.bossDark, light: '#ff5a6e' }, { face: true, horns: true, res: 3 }),
+};
+
+// Rysuje ludzika stojącego na ziemi w punkcie świata (x, z); hm – wysokość w metrach.
+function drawSprite(frames, phase, x, y, z, hm, alpha) {
+  const p = proj(x, y, z);
+  if (!p) return null;
+  const k = p.s * hm / SPR.ppm;         // skala sprite'a
+  const fr = frames[((phase * SPR.frames / (Math.PI * 2)) | 0) & (SPR.frames - 1)];
+  const w = SPR.w * k, h = SPR.h * k;
+  if (alpha !== undefined && alpha < 1) ctx.globalAlpha = alpha;
+  ctx.drawImage(fr, p.x - SPR.ax * k, p.y - SPR.ay * k, w, h);
+  if (alpha !== undefined && alpha < 1) ctx.globalAlpha = 1;
+  return p;
+}
+
+// ---------- Działania na bramkach ----------
+function applyOp(n, g) {
+  switch (g.op) {
+    case '+': return n + g.v;
+    case '-': return Math.max(0, n - g.v);
+    case 'x': return n * g.v;
+    case '/': return Math.floor(n / g.v);
+  }
+  return n;
+}
+function opLabel(g) {
+  if (g.kind === 'gun') return g.label;
+  const sym = { '+': '+', '-': '−', 'x': '×', '/': '÷' }[g.op];
+  return sym + g.v;
+}
+const nice = (v) => (v >= 20 ? Math.round(v / 5) * 5 : Math.round(v));
+
+function goodOp(rnd, est, level) {
+  if (est < 70 && rnd() < 0.4) return { op: 'x', v: est < 25 && rnd() < 0.35 ? 3 : 2 };
+  const v = nice(Math.max(5, 5 + level * 2 + est * (0.25 + rnd() * 0.3)));
+  return { op: '+', v };
+}
+function badOp(rnd, est) {
+  if (est > 14 && rnd() < 0.35) return { op: '/', v: 2 };
+  return { op: '-', v: nice(Math.max(3, est * (0.25 + rnd() * 0.3))) };
+}
+
+// ---------- Generator poziomu (ziarno = numer poziomu) ----------
+function genLevel(level) {
+  const rnd = mulberry32(level * 7919 + 17);
+  const lv = Math.min(level, 12);
+  const length = Math.round(Math.min(380 + level * 30, 700));
+  const rows = [], groups = [], saws = [];
+  let est = 1;               // liczebność tłumu przy rozsądnych wyborach
+  let z = 34, idx = 0, last = '', upgrades = 0;
+  const maxUpgrades = Math.min(3, 1 + Math.floor(level / 2));
+
+  const addRow = (z, a, b) => {
+    const left = { x0: -TRACK_HALF, x1: 0, ...a };
+    const right = { x0: 0, x1: TRACK_HALF, ...b };
+    rows.push({ z, gates: [left, right], used: false, chosen: -1, fade: 0 });
+  };
+  const mathGate = (o) => ({ kind: (o.op === '+' || o.op === 'x') ? 'good' : 'bad', op: o.op, v: o.v });
+
+  while (z < length - 80) {
+    let type = 'gates';
+    if (idx >= 2) {
+      const r = rnd();
+      if (last !== 'enemy' && r < 0.36) type = 'enemy';
+      else if (upgrades < maxUpgrades && last !== 'upgrade' && r < 0.52) type = 'upgrade';
+      else if (level >= 2 && last !== 'saw' && last !== 'enemy' && r < 0.64) type = 'saw';
+    }
+
+    if (type === 'gates') {
+      const mode = rnd();
+      let a, b;
+      if (idx < 2) {
+        a = { op: '+', v: nice(5 + lv * 2 + rnd() * 5) }; b = { op: 'x', v: rnd() < 0.5 ? 2 : 3 };
+      } else if (mode < 0.55 || est < 8) {
+        a = goodOp(rnd, est, lv); b = badOp(rnd, est);
+      } else if (mode < 0.85 || est < 26) {
+        a = goodOp(rnd, est, lv); b = goodOp(rnd, est, lv);
+        if (a.op === b.op && a.v === b.v) b = { op: '+', v: a.v + 5 };
+      } else {
+        a = badOp(rnd, est); b = badOp(rnd, est);
+        if (a.op === b.op && a.v === b.v) b = { op: '-', v: Math.max(3, a.v - 5) };
+      }
+      if (rnd() < 0.5) { const t = a; a = b; b = t; }
+      addRow(z, mathGate(a), mathGate(b));
+      est = Math.max(applyOp(est, a), applyOp(est, b));
+      z += 30 + rnd() * 8;
+    } else if (type === 'upgrade') {
+      const plus = goodOp(rnd, est, lv);
+      const gun = { kind: 'gun', label: 'BROŃ', op: 'gun', v: 0 };
+      const math = mathGate(plus.op === 'x' ? { op: '+', v: nice(Math.max(5, est * 0.4)) } : plus);
+      if (rnd() < 0.5) addRow(z, gun, math); else addRow(z, math, gun);
+      upgrades++;
+      z += 32 + rnd() * 6;
+    } else if (type === 'enemy') {
+      const f = 0.28 + lv * 0.03 + rnd() * 0.14;
+      const n = Math.max(3, Math.min(Math.round(est * f), Math.round(est * 0.7)));
+      groups.push(makeGroup(z + 8, (rnd() - 0.5) * 4, n));
+      est = Math.max(4, est - n * 0.75);
+      z += 42 + rnd() * 8;
+    } else {
+      const amp = TRACK_HALF - 1.2;
+      saws.push({ z, x: 0, amp, speed: 1.3 + rnd() * 0.5 + lv * 0.05, ph: rnd() * 6.28, r: 0.95, rot: 0 });
+      est *= 0.9;
+      z += 28 + rnd() * 6;
+    }
+    last = type; idx++;
+  }
+
+  const hp = Math.max(12, Math.round(est * (0.5 + lv * 0.025)));
+  const boss = {
+    z: length - 26, x: 0, hp, maxHp: hp, state: 'idle',
+    stompT: 1.6, jump: 0, deadT: 0, ph: 0, hitT: 0, fightAcc: 0,
+  };
+  return { length, rows, groups, saws, boss };
+}
+
+function makeGroup(z, x, n) {
+  const g = { z, x, count: n, units: [], state: 'idle', r: 0.5, fightAcc: 0, alertT: 0 };
+  const vis = Math.min(n, MAX_VIS_ENEMY);
+  for (let i = 0; i < vis; i++) g.units.push({ x: 0, z: 0, ph: Math.random() * 6.28 });
+  layoutGroup(g, true);
+  return g;
+}
+
+// Rozstaw w formacji "słonecznika" – gęsty, okrągły tłum.
+function spacingFor(n) { return clamp(3.1 / Math.sqrt(Math.max(n, 1)), 0.21, 0.36); }
+function slot(i, sp) {
+  const r = sp * Math.sqrt(i + 0.3);
+  const a = i * GOLDEN;
+  return { x: Math.cos(a) * r, z: Math.sin(a) * r };
+}
+function layoutGroup(g, snap) {
+  const sp = spacingFor(g.units.length);
+  for (let i = 0; i < g.units.length; i++) {
+    const s = slot(i, sp), u = g.units[i];
+    u.tx = s.x; u.tz = s.z;
+    if (snap) { u.x = s.x; u.z = s.z; }
+  }
+  g.r = sp * Math.sqrt(Math.max(1, g.units.length)) + 0.25;
+}
+
+// ---------- Tłum gracza ----------
+function crowdRadius() {
+  const n = game.units.length;
+  return spacingFor(n) * Math.sqrt(Math.max(1, n)) + 0.25;
+}
+
+// Dopasowuje liczbę rysowanych ludzików do licznika tłumu.
+function syncUnits(sx, sz) {
+  const u = game.units;
+  const target = Math.min(game.count, MAX_VIS);
+  while (u.length < target) {
+    u.push({
+      x: sx + (Math.random() - 0.5) * 0.8, z: sz + (Math.random() - 0.5) * 0.8,
+      ph: Math.random() * 6.28, pop: 0,
+    });
+  }
+  while (u.length > target) removeUnit(u.length - 1, true);
+}
+
+function removeUnit(i, fx) {
+  const u = game.units;
+  const d = u[i];
+  if (fx) burst(game.x + d.x, 0.5, game.z + d.z, COL.blue, 4, 3);
+  u[i] = u[u.length - 1];
+  u.pop();
+}
+
+// Usuwa k jednostek; przy walce giną te z przodu (najbliżej wroga).
+function loseUnits(k, front) {
+  if (k <= 0) return;
+  game.count = Math.max(0, game.count - k);
+  const u = game.units;
+  let extra = u.length - Math.min(game.count, MAX_VIS);
+  while (extra-- > 0 && u.length) {
+    let idx = u.length - 1;
+    if (front) {
+      let best = -1e9;
+      for (let i = 0; i < u.length; i++) if (u[i].z > best) { best = u[i].z; idx = i; }
+    }
+    removeUnit(idx, true);
+  }
+  // Uzupełnij z "rezerwy" (od tyłu), gdy tłum jest większy niż limit rysowania.
+  syncUnits(0, -crowdRadius() * 0.8);
+}
+
+function setCount(n) {
+  const before = game.count;
+  game.count = clamp(Math.round(n), 0, 99999);
+  if (game.count > before) syncUnits(0, 0.6);
+  else if (game.count < before) {
+    const u = game.units;
+    while (u.length > Math.min(game.count, MAX_VIS)) removeUnit(u.length - 1, true);
+  }
+}
+
+// ---------- Start poziomu ----------
+function startLevel(level) {
+  const lv = genLevel(level);
+  Object.assign(game, {
+    level, time: 0, z: 0, x: 0, targetX: 0, count: 1, units: [],
+    weaponTier: 0, rateMul: 1, rangeAdd: 0, kills: 0, score: 0,
+    length: lv.length, rows: lv.rows, groups: lv.groups, saws: lv.saws, boss: lv.boss,
+    bullets: [], particles: [], popups: [], rings: [],
+    fireAcc: 0, speed: RUN_SPEED, shake: 0, flash: 0, endTimer: 0, bossBonus: 0,
+    finishBonus: 0, fighting: false,
+  });
+  syncUnits(0, 0);
+  for (const u of game.units) u.pop = 1;
+  cam.x = 0; cam.z = game.z - CAM_BACK;
+}
+
+// ---------- Efekty ----------
+function burst(x, y, z, color, n, power) {
+  const P = game.particles;
+  for (let i = 0; i < n && P.length < 450; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = (0.4 + Math.random()) * power;
+    P.push({
+      x, y, z, vx: Math.cos(a) * sp, vy: 1.5 + Math.random() * power * 1.2, vz: Math.sin(a) * sp,
+      t: 0, life: 0.45 + Math.random() * 0.45, color, size: 0.08 + Math.random() * 0.09,
+    });
+  }
+}
+function popup(text, color, big) {
+  game.popups.push({ text, color, big: !!big, t: 0, x: game.x, z: game.z });
+}
+function ring(x, z, color, maxR) { game.rings.push({ x, z, t: 0, color, maxR }); }
+function addShake(v) { if (!reducedMotion) game.shake = Math.max(game.shake, v); }
+
+// ---------- Aktualizacja świata ----------
+function update(dt) {
+  game.time += dt;
+  const st = game.state;
+  const playing = st === 'play';
+
+  if (playing) {
+    if (keys.left) game.targetX -= STEER_SPEED * dt;
+    if (keys.right) game.targetX += STEER_SPEED * dt;
+  }
+  const R = crowdRadius();
+  const lim = Math.max(0, TRACK_HALF - Math.min(R, 3.2) * 0.8 - 0.3);
+  game.targetX = clamp(game.targetX, -lim, lim);
+  game.x = damp(game.x, game.targetX, 14, dt);
+
+  let target = RUN_SPEED;
+  if (st === 'menu' || st === 'lose') target = 0;
+  else if (st === 'win') target = game.z < game.length + 14 ? RUN_SPEED * 0.55 : 0;
+  else if (game.bossFight || game.fighting) target = FIGHT_SPEED;
+  game.speed = damp(game.speed, target, game.fighting || game.bossFight ? 12 : 5, dt);
+  const prevZ = game.z;
+  game.z += game.speed * dt;
+  const b = game.boss;
+  if (b && b.state === 'fight') game.z = Math.min(game.z, b.z - (R * 0.75 + 1.3));
+
+  if (playing) checkGates(prevZ);
+  updateSaws(dt, playing);
+  updateGroups(dt, playing);
+  updateBoss(dt, playing);
+  if (playing) updateShooting(dt);
+  updateBullets(dt);
+  updateUnits(dt);
+  updateFx(dt);
+
+  cam.x = damp(cam.x, game.x * 0.35, 6, dt);
+  cam.z = game.z - CAM_BACK;
+
+  if (playing) {
+    if (game.count <= 0) endGame(false);
+    else if (game.z >= game.length) endGame(true);
+  } else if (st === 'win' || st === 'lose') {
+    game.endTimer += dt;
+    if (!game.shown && game.endTimer > 1.2) { game.shown = true; showEnd(); }
+  }
+}
+
+function checkGates(prevZ) {
+  for (const row of game.rows) {
+    if (row.used || !(prevZ < row.z && game.z >= row.z)) continue;
+    row.used = true;
+    let gi = row.gates.findIndex((g) => game.x >= g.x0 && game.x <= g.x1);
+    if (gi < 0) gi = game.x < 0 ? 0 : 1;
+    row.chosen = gi;
+    applyGate(row.gates[gi]);
+  }
+}
+
+function applyGate(g) {
+  if (g.kind === 'gun') {
+    if (game.weaponTier < WEAPONS.length - 1) {
+      game.weaponTier++;
+      popup(WEAPONS[game.weaponTier].name.toUpperCase() + '!', COL.gold, true);
+    } else {
+      game.rateMul *= 1.25;
+      game.rangeAdd += 3;
+      popup('TURBO!', COL.gold, true);
+    }
+    burst(game.x, 1.2, game.z + 0.5, COL.gold, 26, 5);
+    updateHud(true);
+    sfx('upgrade');
+    return;
+  }
+  const before = game.count;
+  setCount(applyOp(before, g));
+  const diff = game.count - before;
+  const good = diff >= 0;
+  popup((good ? '+' : '−') + Math.abs(diff), good ? COL.blue : COL.red, false);
+  if (good) {
+    burst(game.x, 1.0, game.z + 0.5, COL.blueLight, 18, 4);
+    sfx('good');
+  } else {
+    game.flash = 0.35;
+    addShake(0.25);
+    sfx('bad');
+  }
+}
+
+function updateSaws(dt, playing) {
+  for (const s of game.saws) {
+    s.x = Math.sin(game.time * s.speed + s.ph) * s.amp;
+    s.rot += dt * 16;
+    if (!playing || Math.abs(s.z - game.z) > 4.5) continue;
+    let killed = 0;
+    const u = game.units;
+    for (let i = u.length - 1; i >= 0; i--) {
+      if (u[i].pop < 1) continue; // świeże posiłki z "rezerwy" są chwilowo nietykalne
+      const wz = game.z + u[i].z, wx = game.x + u[i].x;
+      if (Math.abs(wz - s.z) < 0.42 && Math.abs(wx - s.x) < s.r + 0.14) {
+        game.count = Math.max(0, game.count - 1);
+        removeUnit(i, true);
+        killed++;
+      }
+    }
+    if (killed) {
+      burst(s.x, 0.8, s.z, '#dfe6f2', 6, 4);
+      syncUnits(0, -crowdRadius() * 0.9);
+      sfx('saw');
+    }
+  }
+}
+
+function updateGroups(dt, playing) {
+  game.fighting = false;
+  const R = crowdRadius();
+  for (let gi = game.groups.length - 1; gi >= 0; gi--) {
+    const g = game.groups[gi];
+    if (g.count <= 0) { game.groups.splice(gi, 1); continue; }
+    // formacja
+    const us = g.units, sp = spacingFor(us.length), k = 1 - Math.exp(-6 * dt);
+    const running = g.state === 'charge' || g.state === 'fight';
+    for (let i = 0; i < us.length; i++) {
+      const r = sp * Math.sqrt(i + 0.3), a = i * GOLDEN;
+      const u = us[i];
+      u.x += (Math.cos(a) * r - u.x) * k;
+      u.z += (Math.sin(a) * r - u.z) * k;
+      u.ph += dt * (running ? 13 : 3);
+    }
+    g.r = sp * Math.sqrt(Math.max(1, us.length)) + 0.25;
+    if (!playing) continue;
+
+    const dz = g.z - game.z;
+    if (g.state === 'idle' && dz < 21) { g.state = 'charge'; g.alertT = 0.6; }
+    g.alertT = Math.max(0, g.alertT - dt);
+    if (g.state === 'charge') {
+      g.z -= 4.5 * dt;
+      g.x = damp(g.x, game.x, 1.8, dt);
+      if (g.z - game.z < (R + g.r) * 0.72) { g.state = 'fight'; sfx('clash'); }
+    }
+    if (g.state === 'fight') {
+      game.fighting = true;
+      g.x = damp(g.x, game.x, 3, dt);
+      g.z = game.z + (R + g.r) * 0.7;
+      g.fightAcc += (12 + 1.1 * Math.min(game.count, g.count)) * dt;
+      let n = Math.floor(g.fightAcc);
+      if (n > 0) {
+        g.fightAcc -= n;
+        n = Math.min(n, g.count, game.count);
+        killEnemies(g, n);
+        loseUnits(n, true);
+        const cz = game.z + R * 0.8;
+        burst(lerp(game.x, g.x, 0.5) + (Math.random() - 0.5) * 2, 0.6, cz, Math.random() < 0.5 ? COL.red : COL.blue, 3, 3.5);
+        if (Math.random() < 0.3) sfx('hit');
+      }
+    }
+  }
+}
+
+function killEnemies(g, n) {
+  n = Math.min(n, g.count);
+  if (n <= 0) return;
+  g.count -= n;
+  game.kills += n;
+  game.score += n * 10;
+  const us = g.units;
+  const vis = Math.min(g.count, MAX_VIS_ENEMY);
+  while (us.length > vis) {
+    let idx = 0, best = 1e9;
+    for (let i = 0; i < us.length; i++) if (us[i].z < best) { best = us[i].z; idx = i; }
+    const d = us[idx];
+    burst(g.x + d.x, 0.5, g.z + d.z, COL.red, 4, 3);
+    us[idx] = us[us.length - 1];
+    us.pop();
+  }
+}
+
+function updateBoss(dt, playing) {
+  game.bossFight = false;
+  const b = game.boss;
+  if (!b) return;
+  b.hitT = Math.max(0, b.hitT - dt);
+  if (b.state === 'dead') { b.deadT += dt; return; }
+  b.ph += dt * (b.state === 'walk' ? 7 : 3);
+  if (b.jump > 0) {
+    b.jump += dt;
+    if (b.jump >= 0.55) {
+      b.jump = 0;
+      b.stompT = 2.1;
+      ring(b.x, b.z - 0.6, COL.red, 5.5);
+      addShake(0.6);
+      sfx('stomp');
+      if (b.state === 'fight' && playing) loseUnits(Math.min(game.count, 2 + Math.floor(game.level / 3)), true);
+    }
+  }
+  if (!playing) return;
+  const R = crowdRadius();
+  if (b.state === 'idle' && b.z - game.z < 30) b.state = 'walk';
+  if (b.state === 'walk') {
+    b.z -= 2.4 * dt;
+    b.x = damp(b.x, clamp(game.x, -2.5, 2.5), 1.2, dt);
+    if (b.z - game.z < R * 0.75 + 1.35) { b.state = 'fight'; sfx('clash'); }
+  }
+  if (b.state === 'fight') {
+    game.bossFight = true;
+    b.x = damp(b.x, clamp(game.x, -2.5, 2.5), 2, dt);
+    b.fightAcc += (9 + 0.7 * Math.min(game.count, b.hp)) * dt;
+    let n = Math.floor(b.fightAcc);
+    if (n > 0) {
+      b.fightAcc -= n;
+      n = Math.min(n, game.count, b.hp);
+      damageBoss(n);
+      loseUnits(n, true);
+      burst(b.x + (Math.random() - 0.5) * 2, 0.8, b.z - 0.8, Math.random() < 0.5 ? COL.red : COL.blue, 3, 3.5);
+    }
+    b.stompT -= dt;
+    if (b.stompT <= 0 && b.jump === 0 && b.hp > 0) b.jump = 0.0001;
+  }
+}
+
+function damageBoss(d) {
+  const b = game.boss;
+  if (!b || b.state === 'dead') return;
+  d = Math.min(d, b.hp);
+  b.hp -= d;
+  b.hitT = 0.1;
+  game.score += d * 5;
+  if (b.hp <= 0) {
+    b.state = 'dead';
+    b.deadT = 0;
+    b.jump = 0;
+    game.bossBonus = 500 + game.level * 50;
+    game.score += game.bossBonus;
+    game.kills += 1;
+    burst(b.x, 1.6, b.z, COL.red, 60, 7);
+    burst(b.x, 1.6, b.z, COL.gold, 30, 6);
+    ring(b.x, b.z, COL.gold, 7);
+    addShake(0.8);
+    popup('BOSS POKONANY!', COL.gold, true);
+    sfx('boss');
+  }
+}
+
+// ---------- Strzelanie ----------
+function findTarget(range) {
+  let best = null, bestD = range;
+  for (const g of game.groups) {
+    if (g.count <= 0 || g.z < game.z - 0.5) continue;
+    const d = g.z - g.r - game.z;
+    if (d < bestD) { bestD = d; best = g; }
+  }
+  const b = game.boss;
+  if (b && b.state !== 'dead' && b.z - 1.2 - game.z < bestD) best = b;
+  return best;
+}
+
+function updateShooting(dt) {
+  const w = WEAPONS[game.weaponTier];
+  const t = findTarget(w.range + game.rangeAdd);
+  if (!t || game.units.length === 0) { game.fireAcc = Math.min(game.fireAcc, 1); return; }
+  const shooters = Math.min(game.count, 10);
+  game.fireAcc += w.rate * game.rateMul * Math.pow(shooters, 0.75) * dt;
+  let n = 0;
+  while (game.fireAcc >= 1 && n < 8) { game.fireAcc -= 1; fire(t, w); n++; }
+  if (n) sfx('shot');
+}
+
+function fire(t, w) {
+  if (game.bullets.length > 180) return;
+  const u = game.units;
+  let src = u[(Math.random() * u.length) | 0];
+  for (let k = 0; k < 2; k++) { const c = u[(Math.random() * u.length) | 0]; if (c.z > src.z) src = c; }
+  const sx = game.x + src.x, sz = game.z + src.z + 0.3;
+  const isBoss = t === game.boss;
+  const tx = t.x + (Math.random() - 0.5) * (isBoss ? 1.4 : t.r * 1.3);
+  const tz = t.z - (isBoss ? 0.5 : t.r * 0.3);
+  const dx = tx - sx, dz = Math.max(0.5, tz - sz);
+  const len = Math.hypot(dx, dz);
+  game.bullets.push({
+    x: sx, y: 0.62, z: sz, vx: (dx / len) * w.speed, vz: (dz / len) * w.speed,
+    dmg: w.dmg, color: w.color, size: w.size, life: (w.range + game.rangeAdd) / w.speed + 0.3,
+  });
+}
+
+function updateBullets(dt) {
+  const B = game.bullets, b0 = game.boss;
+  for (let i = B.length - 1; i >= 0; i--) {
+    const b = B[i];
+    b.x += b.vx * dt; b.z += b.vz * dt; b.life -= dt;
+    let hit = false;
+    for (const g of game.groups) {
+      if (g.count <= 0) continue;
+      const dx = b.x - g.x, dz = b.z - g.z, rr = g.r + 0.15;
+      if (dx * dx + dz * dz < rr * rr) { killEnemies(g, b.dmg); hit = true; break; }
+    }
+    if (!hit && b0 && b0.state !== 'dead' && Math.abs(b.x - b0.x) < 1.3 && Math.abs(b.z - b0.z) < 0.9) {
+      damageBoss(b.dmg);
+      hit = true;
+    }
+    if (hit) burst(b.x, 0.7, b.z, b.color, 2, 2);
+    if (hit || b.life <= 0) { B[i] = B[B.length - 1]; B.pop(); }
+  }
+}
+
+// ---------- Ruch ludzików w formacji ----------
+function updateUnits(dt) {
+  const u = game.units;
+  const sp = spacingFor(u.length), k = 1 - Math.exp(-7 * dt);
+  const cadence = 3 + game.speed * 0.95;
+  const brawl = game.fighting || game.bossFight;
+  for (let i = 0; i < u.length; i++) {
+    const r = sp * Math.sqrt(i + 0.3), a = i * GOLDEN;
+    const it = u[i];
+    let tz = Math.sin(a) * r;
+    if (brawl) tz += 0.25; // napór do przodu w czasie walki
+    it.x += (Math.cos(a) * r - it.x) * k;
+    it.z += (tz - it.z) * k;
+    it.ph += dt * cadence;
+    if (it.pop < 1) it.pop = Math.min(1, it.pop + dt * 4);
+  }
+}
+
+function updateFx(dt) {
+  const P = game.particles;
+  for (let i = P.length - 1; i >= 0; i--) {
+    const p = P[i];
+    p.t += dt;
+    if (p.t >= p.life) { P[i] = P[P.length - 1]; P.pop(); continue; }
+    p.vy -= 16 * dt;
+    p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    if (p.y < 0.05) { p.y = 0.05; p.vy *= -0.35; p.vx *= 0.6; p.vz *= 0.6; }
+  }
+  for (let i = game.popups.length - 1; i >= 0; i--) {
+    const q = game.popups[i];
+    q.t += dt;
+    q.x = game.x; q.z = game.z;
+    if (q.t > 1.15) game.popups.splice(i, 1);
+  }
+  for (let i = game.rings.length - 1; i >= 0; i--) {
+    game.rings[i].t += dt;
+    if (game.rings[i].t > 0.6) game.rings.splice(i, 1);
+  }
+  for (const row of game.rows) if (row.used && row.fade < 1) row.fade = Math.min(1, row.fade + dt * 2.5);
+  game.shake = Math.max(0, game.shake - dt * 2.2);
+  game.flash = Math.max(0, game.flash - dt * 2.5);
+}
+
+function endGame(win) {
+  game.state = win ? 'win' : 'lose';
+  game.endTimer = 0;
+  game.shown = false;
+  if (win) {
+    game.finishBonus = game.count * 20;
+    game.score += game.finishBonus;
+    for (let i = 0; i < 5; i++) {
+      burst(game.x + (Math.random() - 0.5) * 6, 2.5, game.z + 3 + Math.random() * 4,
+        ['#ffc233', '#2f7bff', '#ff3d4f', '#1fbf6a', '#ff4fd8'][i], 16, 6);
+    }
+    sfx('win');
+  } else {
+    addShake(0.4);
+    sfx('lose');
+  }
+  updateHud(true);
+}
+
+// ---------- Rysowanie ----------
+const FONT = '"Lilita One", "Arial Black", "Trebuchet MS", sans-serif';
+const GATE_PAL = {
+  good: { a: 'rgba(120,185,255,0.40)', b: 'rgba(47,123,255,0.70)', post: COL.blueDark, bar: COL.blue, stroke: '#123a9c' },
+  bad: { a: 'rgba(255,140,150,0.40)', b: 'rgba(255,61,79,0.72)', post: COL.redDark, bar: COL.red, stroke: '#8f1022' },
+  gun: { a: 'rgba(255,224,140,0.45)', b: 'rgba(255,194,51,0.80)', post: COL.goldDark, bar: COL.gold, stroke: '#7a4a00' },
+};
+const clouds = Array.from({ length: 7 }, (_, i) => ({
+  x: (i * 0.37 + 0.11) % 1, y: 0.18 + ((i * 0.53) % 1) * 0.55, s: 0.7 + ((i * 0.29) % 1) * 0.8, v: 0.4 + ((i * 0.61) % 1) * 0.6,
+}));
+let bgCanvas = null;
+
+function buildBackground() {
+  bgCanvas = document.createElement('canvas');
+  bgCanvas.width = Math.max(1, Math.round(W * DPR));
+  bgCanvas.height = Math.max(1, Math.round(H * DPR));
+  const g = bgCanvas.getContext('2d');
+  g.scale(DPR, DPR);
+  const hz = clamp(view.horizon, 0, H);
+  let gr = g.createLinearGradient(0, 0, 0, Math.max(1, hz));
+  gr.addColorStop(0, COL.skyTop); gr.addColorStop(1, COL.skyLow);
+  g.fillStyle = gr; g.fillRect(0, 0, W, hz + 1);
+  gr = g.createLinearGradient(0, hz, 0, H);
+  gr.addColorStop(0, COL.seaTop); gr.addColorStop(0.35, '#7dcdf7'); gr.addColorStop(1, COL.seaBottom);
+  g.fillStyle = gr; g.fillRect(0, hz, W, H - hz);
+}
+
+function pathPoly(pts) {
+  for (const p of pts) if (!p) return false;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.closePath();
+  return true;
+}
+function groundQuad(x0, x1, z0, z1, y) {
+  y = y || 0;
+  return pathPoly([proj(x0, y, z0), proj(x1, y, z0), proj(x1, y, z1), proj(x0, y, z1)]);
+}
+function rrect(x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function outlinedText(text, x, y, size, fill, stroke) {
+  ctx.font = size + 'px ' + FONT;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(2, size * 0.16);
+  ctx.strokeStyle = stroke;
+  ctx.strokeText(text, x, y);
+  ctx.fillStyle = fill;
+  ctx.fillText(text, x, y);
+}
+function badge(text, x, y, size, bg, border) {
+  ctx.font = size + 'px ' + FONT;
+  const w = Math.max(ctx.measureText(text).width + size * 1.0, size * 1.9);
+  const h = size * 1.45;
+  ctx.fillStyle = 'rgba(23,32,63,0.25)';
+  rrect(x - w / 2, y - h / 2 + 3, w, h, h / 2); ctx.fill();
+  ctx.fillStyle = bg;
+  rrect(x - w / 2, y - h / 2, w, h, h / 2); ctx.fill();
+  ctx.lineWidth = 2.5; ctx.strokeStyle = border; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x - 6, y + h / 2 - 1); ctx.lineTo(x + 6, y + h / 2 - 1); ctx.lineTo(x, y + h / 2 + 7);
+  ctx.closePath(); ctx.fillStyle = bg; ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y + size * 0.06);
+}
+
+function drawBackground() {
+  if (bgCanvas) ctx.drawImage(bgCanvas, 0, 0, W, H);
+  const hz = view.horizon;
+  // chmury
+  if (hz > 30) {
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    const span = W + 360;
+    for (const c of clouds) {
+      const x = ((c.x * span - game.time * c.v * 14 - cam.x * 6) % span + span) % span - 180;
+      const y = hz * c.y, s = c.s * Math.min(1.4, Math.max(0.7, W / 700));
+      ctx.beginPath();
+      ctx.ellipse(x, y, 46 * s, 16 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(x - 26 * s, y + 3 * s, 26 * s, 12 * s, 0, 0, Math.PI * 2);
+      ctx.ellipse(x + 20 * s, y - 9 * s, 28 * s, 17 * s, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  // odblaski na wodzie – dają poczucie prędkości
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  const span = 170;
+  for (let i = 0; i < 70; i++) {
+    const wx = ((i * 53.7) % 150) - 75;
+    const base = (i * 29.3) % span;
+    const wz = base + span * Math.ceil((game.z - 15 - base) / span);
+    const p = proj(wx, -9, wz);
+    if (!p || p.y < hz) continue;
+    const w = 1.1 * p.s;
+    ctx.fillRect(p.x - w / 2, p.y, w, Math.max(1, 0.14 * p.s));
+  }
+}
+
+function drawTrack() {
+  const z0 = Math.max(-40, cam.z + 0.8);
+  const end = game.length + 45;
+  const z1 = Math.min(end, game.z + VIEW_AHEAD);
+  if (z1 <= z0) return;
+  // cień platformy na wodzie
+  ctx.fillStyle = 'rgba(10,70,140,0.22)';
+  if (pathPoly([proj(-TRACK_HALF + 2.4, -9, z0), proj(TRACK_HALF + 2.4, -9, z0), proj(TRACK_HALF + 2.4, -9, z1), proj(-TRACK_HALF + 2.4, -9, z1)])) ctx.fill();
+  // nawierzchnia w pasy
+  ctx.fillStyle = COL.track;
+  if (groundQuad(-TRACK_HALF, TRACK_HALF, z0, z1)) ctx.fill();
+  ctx.fillStyle = COL.trackAlt;
+  const BAND = 5;
+  for (let k = Math.floor(z0 / BAND); k * BAND < z1; k++) {
+    if ((k & 1) === 0) continue;
+    const a = Math.max(z0, k * BAND), b = Math.min(z1, k * BAND + BAND);
+    if (b > a && groundQuad(-TRACK_HALF, TRACK_HALF, a, b)) ctx.fill();
+  }
+  // strefa mety
+  const L = game.length;
+  if (L + 2 < z1) {
+    ctx.fillStyle = '#ffeec2';
+    if (groundQuad(-TRACK_HALF, TRACK_HALF, Math.max(z0, L + 2), z1)) ctx.fill();
+  }
+  // szachownica mety
+  if (L > z0 - 2 && L < z1) {
+    const cols = 12, cw = (TRACK_HALF * 2) / cols;
+    for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++) {
+      ctx.fillStyle = (r + c) & 1 ? COL.ink : '#fff';
+      if (groundQuad(-TRACK_HALF + c * cw, -TRACK_HALF + (c + 1) * cw, L + r, L + r + 1)) ctx.fill();
+    }
+  }
+  // linia startu
+  if (z0 < 1 && z1 > 0) {
+    ctx.fillStyle = COL.blueLight;
+    if (groundQuad(-TRACK_HALF, TRACK_HALF, 0, 0.6)) ctx.fill();
+  }
+  // prowadnice pił
+  for (const s of game.saws) {
+    if (s.z < z0 || s.z > z1) continue;
+    ctx.fillStyle = '#aab5c9';
+    if (groundQuad(-TRACK_HALF + 0.4, TRACK_HALF - 0.4, s.z - 0.14, s.z + 0.14)) ctx.fill();
+  }
+  // bandy po bokach (górna płaszczyzna i wewnętrzna ściana)
+  for (const side of [-1, 1]) {
+    const xo = side * TRACK_HALF, xi = side * (TRACK_HALF - 0.32);
+    ctx.fillStyle = COL.railDark;
+    if (pathPoly([proj(xi, 0, z0), proj(xi, 0.32, z0), proj(xi, 0.32, z1), proj(xi, 0, z1)])) ctx.fill();
+    ctx.fillStyle = COL.rail;
+    if (pathPoly([proj(xo, 0.32, z0), proj(xi, 0.32, z0), proj(xi, 0.32, z1), proj(xo, 0.32, z1)])) ctx.fill();
+  }
+  // fale uderzeniowe na ziemi
+  for (const r of game.rings) {
+    const p = proj(r.x, 0.02, r.z);
+    if (!p) continue;
+    const t = r.t / 0.6, rad = r.maxR * t * p.s;
+    ctx.strokeStyle = r.color;
+    ctx.globalAlpha = 1 - t;
+    ctx.lineWidth = Math.max(2, 0.35 * p.s * (1 - t));
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, rad, rad * 0.5, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawGate(row, gi) {
+  const g = row.gates[gi];
+  const alpha = row.used ? Math.max(0.12, 1 - row.fade * 0.88) : 1;
+  const Hh = 2.7, x0 = g.x0 + 0.1, x1 = g.x1 - 0.1, z = row.z;
+  const bl = proj(x0, 0, z), br = proj(x1, 0, z), tr = proj(x1, Hh, z), tl = proj(x0, Hh, z);
+  if (!bl || !br || !tr || !tl) return;
+  const pal = GATE_PAL[g.kind];
+  ctx.globalAlpha = alpha;
+  const gr = ctx.createLinearGradient(0, tl.y, 0, bl.y);
+  gr.addColorStop(0, pal.a); gr.addColorStop(1, pal.b);
+  ctx.fillStyle = gr;
+  pathPoly([bl, br, tr, tl]); ctx.fill();
+  // słupki i belka
+  const pw = 0.24;
+  ctx.fillStyle = pal.post;
+  for (const px of [x0, x1]) {
+    if (pathPoly([proj(px - pw / 2, 0, z), proj(px + pw / 2, 0, z), proj(px + pw / 2, Hh + 0.35, z), proj(px - pw / 2, Hh + 0.35, z)])) ctx.fill();
+  }
+  ctx.fillStyle = pal.bar;
+  if (pathPoly([proj(x0 - pw / 2, Hh, z), proj(x1 + pw / 2, Hh, z), proj(x1 + pw / 2, Hh + 0.35, z), proj(x0 - pw / 2, Hh + 0.35, z)])) ctx.fill();
+  // napis
+  const c = proj((x0 + x1) / 2, 1.4, z);
+  const fs = clamp(c.s * 1.1, 9, 96);
+  if (g.kind === 'gun') {
+    const next = game.weaponTier < WEAPONS.length - 1 ? WEAPONS[game.weaponTier + 1].name.toUpperCase() : 'TURBO';
+    outlinedText('BROŃ', c.x, c.y - fs * 0.55, fs * 0.55, '#fff', pal.stroke);
+    outlinedText(next, c.x, c.y + fs * 0.25, fs * 0.72, '#fff', pal.stroke);
+  } else {
+    outlinedText(opLabel(g), c.x, c.y, fs, '#fff', pal.stroke);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawSaw(s) {
+  const c = proj(s.x, 1.0, s.z);
+  if (!c) return;
+  const r = s.r * c.s;
+  ctx.save();
+  ctx.translate(c.x, c.y);
+  ctx.rotate(s.rot);
+  const teeth = 12;
+  ctx.beginPath();
+  for (let i = 0; i < teeth * 2; i++) {
+    const a = (i / (teeth * 2)) * Math.PI * 2;
+    const rr = i % 2 ? r * 0.8 : r;
+    if (i === 0) ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    else ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+  }
+  ctx.closePath();
+  const gr = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
+  gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#9aa6bd');
+  ctx.fillStyle = gr; ctx.fill();
+  ctx.lineWidth = Math.max(1, r * 0.06); ctx.strokeStyle = '#56627e'; ctx.stroke();
+  ctx.fillStyle = COL.red;
+  ctx.beginPath(); ctx.arc(0, 0, r * 0.28, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = COL.ink;
+  ctx.beginPath(); ctx.arc(0, 0, r * 0.1, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawFinishArch() {
+  const z = game.length, x = TRACK_HALF + 0.1, top = 4.6;
+  const pts = (x0, x1, y0, y1) => [proj(x0, y0, z), proj(x1, y0, z), proj(x1, y1, z), proj(x0, y1, z)];
+  ctx.fillStyle = COL.ink;
+  if (pathPoly(pts(-x - 0.3, -x + 0.3, 0, top))) ctx.fill();
+  if (pathPoly(pts(x - 0.3, x + 0.3, 0, top))) ctx.fill();
+  // szachownicowy baner
+  const cols = 14, cw = (2 * x) / cols;
+  for (let r = 0; r < 2; r++) for (let c = 0; c < cols; c++) {
+    ctx.fillStyle = (r + c) & 1 ? COL.ink : '#fff';
+    if (pathPoly(pts(-x + c * cw, -x + (c + 1) * cw, top - 0.5 * (r + 1), top - 0.5 * r))) ctx.fill();
+  }
+  const c = proj(0, top + 0.55, z);
+  if (c) outlinedText('META', c.x, c.y, clamp(c.s * 0.9, 10, 80), COL.gold, COL.ink);
+}
+
+function drawBoss(b) {
+  const jumpY = b.jump > 0 ? Math.sin((b.jump / 0.55) * Math.PI) * 1.3 : 0;
+  if (b.state === 'dead') {
+    if (b.deadT > 1.7) return;
+    const p = proj(b.x, 0, b.z);
+    if (!p) return;
+    const k = (p.s * 3.3) / SPR.ppm;
+    ctx.save();
+    ctx.globalAlpha = 1 - clamp((b.deadT - 0.9) / 0.8, 0, 1);
+    ctx.translate(p.x, p.y);
+    ctx.rotate(-Math.min(1, b.deadT / 0.7) * 1.35);
+    ctx.drawImage(sprites.boss[0], -SPR.ax * k, -SPR.ay * k, SPR.w * k, SPR.h * k);
+    ctx.restore();
+    return;
+  }
+  if (jumpY > 0) {
+    const g = proj(b.x, 0, b.z);
+    if (g) {
+      ctx.fillStyle = 'rgba(23,32,63,0.25)';
+      ctx.beginPath(); ctx.ellipse(g.x, g.y, 1.3 * g.s, 0.45 * g.s, 0, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  const p = drawSprite(sprites.boss, b.ph, b.x, jumpY, b.z, b.hitT > 0 ? 3.45 : 3.3);
+  if (!p) return;
+  // pasek zdrowia
+  const t = proj(b.x, jumpY + 4.1, b.z);
+  if (!t) return;
+  const w = clamp(2.8 * t.s, 70, 260), h = clamp(0.36 * t.s, 10, 22);
+  ctx.fillStyle = 'rgba(23,32,63,0.85)';
+  rrect(t.x - w / 2 - 3, t.y - h / 2 - 3, w + 6, h + 6, (h + 6) / 2); ctx.fill();
+  const f = b.hp / b.maxHp;
+  if (f > 0) {
+    ctx.fillStyle = b.hitT > 0 ? COL.redLight : COL.red;
+    rrect(t.x - w / 2, t.y - h / 2, Math.max(h, w * f), h, h / 2); ctx.fill();
+  }
+  outlinedText(String(b.hp), t.x, t.y + 1, h * 1.05, '#fff', COL.ink);
+  outlinedText('BOSS', t.x, t.y - h * 1.35, h * 1.1, COL.gold, COL.ink);
+}
+
+function drawBullet(b) {
+  const a = proj(b.x, b.y, b.z);
+  const c = proj(b.x - b.vx * 0.035, b.y, b.z - b.vz * 0.035);
+  if (!a || !c) return;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = b.color;
+  ctx.lineWidth = Math.max(2, b.size * 2.2 * a.s);
+  ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(a.x, a.y); ctx.stroke();
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = Math.max(1, b.size * a.s);
+  ctx.beginPath(); ctx.moveTo(lerp(c.x, a.x, 0.5), lerp(c.y, a.y, 0.5)); ctx.lineTo(a.x, a.y); ctx.stroke();
+}
+
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  drawBackground();
+  let ox = 0, oy = 0;
+  if (game.shake > 0) {
+    const m = game.shake * 12;
+    ox = (Math.random() - 0.5) * m; oy = (Math.random() - 0.5) * m;
+  }
+  ctx.translate(ox, oy);
+  drawTrack();
+
+  // Obiekty sortowane od najdalszego do najbliższego.
+  const list = [];
+  const zMax = game.z + VIEW_AHEAD, zMin = cam.z + 1;
+  for (const row of game.rows) {
+    if (row.z < zMin || row.z > zMax) continue;
+    const d = depthOf(1.3, row.z);
+    list.push({ d, t: 2, a: row, b: 0 }, { d, t: 2, a: row, b: 1 });
+  }
+  for (const s of game.saws) if (s.z > zMin && s.z < zMax) list.push({ d: depthOf(1, s.z), t: 3, a: s });
+  for (const g of game.groups) {
+    if (g.z > zMax + 3 || g.z < zMin) continue;
+    for (const u of g.units) list.push({ d: depthOf(0.5, g.z + u.z), t: 1, a: g, b: u });
+  }
+  const b = game.boss;
+  if (b && b.z < zMax && b.z > zMin) list.push({ d: depthOf(0.5, b.z), t: 4, a: b });
+  if (game.length < zMax && game.length > zMin) list.push({ d: depthOf(1, game.length), t: 6 });
+  const cheer = game.state === 'win';
+  for (const u of game.units) list.push({ d: depthOf(0.5, game.z + u.z), t: 0, a: u });
+  for (const bl of game.bullets) list.push({ d: depthOf(bl.y, bl.z), t: 5, a: bl });
+  list.sort((p, q) => q.d - p.d);
+
+  for (const it of list) {
+    switch (it.t) {
+      case 0: {
+        const u = it.a;
+        const k = u.pop < 1 ? 0.3 + 0.7 * u.pop : 1;
+        const y = cheer ? Math.abs(Math.sin(game.time * 9 + u.ph * 0.3)) * 0.35 : 0;
+        drawSprite(sprites.player, u.ph, game.x + u.x, y, game.z + u.z, k);
+        break;
+      }
+      case 1: {
+        const g = it.a, u = it.b;
+        drawSprite(sprites.enemy, u.ph, g.x + u.x, 0, g.z + u.z, 1);
+        break;
+      }
+      case 2: drawGate(it.a, it.b); break;
+      case 3: drawSaw(it.a); break;
+      case 4: drawBoss(it.a); break;
+      case 5: drawBullet(it.a); break;
+      case 6: drawFinishArch(); break;
+    }
+  }
+
+  // cząsteczki
+  for (const p of game.particles) {
+    const pr = proj(p.x, p.y, p.z);
+    if (!pr) continue;
+    const sz = Math.max(1.5, p.size * pr.s);
+    ctx.globalAlpha = 1 - p.t / p.life;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(pr.x - sz / 2, pr.y - sz / 2, sz, sz);
+  }
+  ctx.globalAlpha = 1;
+
+  // mgiełka przy horyzoncie
+  const hz = view.horizon;
+  const fog = ctx.createLinearGradient(0, hz - 4, 0, hz + H * 0.14);
+  fog.addColorStop(0, 'rgba(223,244,255,0.95)');
+  fog.addColorStop(1, 'rgba(223,244,255,0)');
+  ctx.fillStyle = fog;
+  ctx.fillRect(-20, hz - 4, W + 40, H * 0.14 + 4);
+
+  // liczniki nad grupami wrogów
+  for (const g of game.groups) {
+    if (g.z > zMax || g.z < zMin || g.count <= 0) continue;
+    const p = proj(g.x, 1.5, g.z);
+    if (!p || p.y < hz + 6) continue;
+    const size = clamp(p.s * 0.55, 11, 22);
+    badge(String(g.count), p.x, p.y - size, size, COL.red, '#fff');
+    if (g.alertT > 0) outlinedText('!', p.x, p.y - size * 3, size * 1.6, COL.gold, COL.ink);
+  }
+  // licznik tłumu gracza
+  if (game.count > 0) {
+    const p = proj(game.x, 1.5, game.z + crowdRadius() * 0.45);
+    if (p) badge(String(game.count), p.x, p.y - 18, 22, COL.blue, '#fff');
+  }
+  // wyskakujące napisy
+  const base = proj(game.x, 2.2, game.z);
+  if (base) {
+    for (const q of game.popups) {
+      const t = q.t;
+      const s = t < 0.12 ? 0.5 + (t / 0.12) * 0.5 : 1;
+      ctx.globalAlpha = t > 0.8 ? Math.max(0, 1 - (t - 0.8) / 0.35) : 1;
+      outlinedText(q.text, base.x, base.y - 40 - t * 70, (q.big ? 38 : 34) * s, q.color === COL.gold ? COL.gold : '#fff', q.color === COL.gold ? COL.ink : q.color);
+    }
+    ctx.globalAlpha = 1;
+  }
+  // podpowiedź sterowania
+  if (game.state === 'play' && game.time < 3.2) {
+    ctx.globalAlpha = Math.min(1, (3.2 - game.time) * 2) * (0.75 + 0.25 * Math.sin(game.time * 6));
+    outlinedText('←  Przeciągnij, aby sterować  →', W / 2, H * 0.9, clamp(W * 0.05, 15, 24), '#fff', COL.ink);
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  if (game.flash > 0) {
+    ctx.fillStyle = 'rgba(255,61,79,' + (game.flash * 0.45).toFixed(3) + ')';
+    ctx.fillRect(0, 0, W, H);
+  }
+}
+
+// ---------- Dźwięk (WebAudio, bez plików) ----------
+let actx = null, master = null, noiseBuf = null, muted = false;
+const sfxLast = {};
+function initAudio() {
+  try {
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      actx = new AC();
+      master = actx.createGain();
+      master.gain.value = 0.45;
+      master.connect(actx.destination);
+      noiseBuf = actx.createBuffer(1, actx.sampleRate * 0.4, actx.sampleRate);
+      const d = noiseBuf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (actx.state === 'suspended') actx.resume();
+  } catch (e) { actx = null; }
+}
+function tone(freq, dur, type, vol, slideTo, delay) {
+  const t0 = actx.currentTime + (delay || 0);
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq, t0);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(master);
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+function noise(dur, vol, freq) {
+  const t0 = actx.currentTime;
+  const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  src.buffer = noiseBuf;
+  f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = 0.8;
+  g.gain.setValueAtTime(vol, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f); f.connect(g); g.connect(master);
+  src.start(t0); src.stop(t0 + dur + 0.02);
+}
+function sfx(name) {
+  if (!actx || muted || actx.state !== 'running') return;
+  const now = performance.now();
+  const gap = { shot: 75, hit: 70, saw: 120, clash: 300 }[name] || 0;
+  if (gap && now - (sfxLast[name] || 0) < gap) return;
+  sfxLast[name] = now;
+  switch (name) {
+    case 'shot': tone(880 + Math.random() * 200, 0.05, 'square', 0.035, 440); break;
+    case 'hit': noise(0.07, 0.12, 1800); break;
+    case 'clash': noise(0.25, 0.25, 700); tone(160, 0.2, 'sawtooth', 0.08, 80); break;
+    case 'good': tone(520, 0.1, 'triangle', 0.2, 780); tone(780, 0.14, 'triangle', 0.18, 1170, 0.08); break;
+    case 'bad': tone(300, 0.25, 'sawtooth', 0.12, 110); break;
+    case 'upgrade': [523, 659, 784, 1046].forEach((f, i) => tone(f, 0.12, 'square', 0.07, 0, i * 0.07)); break;
+    case 'saw': noise(0.12, 0.18, 3200); break;
+    case 'stomp': tone(90, 0.35, 'sine', 0.5, 40); noise(0.3, 0.3, 300); break;
+    case 'boss': tone(200, 0.5, 'sawtooth', 0.12, 60); noise(0.5, 0.3, 500); break;
+    case 'win': [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 0.18, 'triangle', 0.16, 0, i * 0.1)); break;
+    case 'lose': [392, 330, 262, 196].forEach((f, i) => tone(f, 0.22, 'triangle', 0.14, 0, i * 0.14)); break;
+  }
+}
+
+// ---------- Sterowanie ----------
+const keys = { left: false, right: false };
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'ArrowLeft' || e.code === 'KeyA') { keys.left = true; if (game.state === 'play') e.preventDefault(); }
+  else if (e.code === 'ArrowRight' || e.code === 'KeyD') { keys.right = true; if (game.state === 'play') e.preventDefault(); }
+  else if (e.code === 'KeyM') toggleSound();
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+  else if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+});
+window.addEventListener('blur', () => { keys.left = keys.right = false; drag = null; });
+
+let drag = null;
+function metersPerPixel() { return (2 * TRACK_HALF) / Math.min(W * 0.94, H * 0.6); }
+canvas.addEventListener('pointerdown', (e) => {
+  if (game.state !== 'play') return;
+  drag = { id: e.pointerId, x: e.clientX, tx: game.targetX };
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignoruj */ }
+  e.preventDefault();
+});
+canvas.addEventListener('pointermove', (e) => {
+  if (game.state !== 'play') return;
+  if (drag && e.pointerId === drag.id) {
+    game.targetX = drag.tx + (e.clientX - drag.x) * metersPerPixel() * 1.2;
+  } else if (!drag && e.pointerType === 'mouse' && e.buttons === 0) {
+    // mysz bez wciśnięcia: tłum podąża za kursorem
+    game.targetX = (e.clientX - view.cx) * metersPerPixel();
+  }
+});
+const endDrag = (e) => { if (drag && e.pointerId === drag.id) drag = null; };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+
+// ---------- Interfejs ----------
+const $ = (id) => document.getElementById(id);
+const ui = {
+  hud: $('hud'), start: $('startScreen'), end: $('endScreen'),
+  score: $('hudScoreVal'), level: $('hudLevel'), weapon: $('hudWeaponName'), progress: $('hudProgress'),
+  startBest: $('startBest'), startBtn: $('startBtn'), sound: $('soundBtn'),
+  endTitle: $('endTitle'), endSub: $('endSub'), survivors: $('statSurvivors'), kills: $('statKills'),
+  endScore: $('statScore'), isNew: $('statNew'), endBest: $('endBest'), next: $('nextBtn'), retry: $('retryBtn'),
+};
+const hudCache = { score: -1, level: -1, weapon: '', prog: -1 };
+function weaponLabel() {
+  return WEAPONS[game.weaponTier].name + (game.rateMul > 1 ? ' +' + Math.round((game.rateMul - 1) * 100) + '%' : '');
+}
+function updateHud(force) {
+  if (force || hudCache.score !== game.score) { hudCache.score = game.score; ui.score.textContent = game.score; }
+  if (force || hudCache.level !== game.level) { hudCache.level = game.level; ui.level.textContent = 'Poziom ' + game.level; }
+  const wl = weaponLabel();
+  if (force || hudCache.weapon !== wl) { hudCache.weapon = wl; ui.weapon.textContent = wl; }
+  const prog = Math.round(clamp(game.z / game.length, 0, 1) * 1000) / 10;
+  if (force || hudCache.prog !== prog) { hudCache.prog = prog; ui.progress.style.width = prog + '%'; }
+}
+
+function showStart() {
+  ui.start.hidden = false;
+  ui.end.hidden = true;
+  ui.hud.hidden = true;
+  ui.startBest.textContent = 'Rekord: ' + save.best + ' · Poziom ' + game.level;
+  try { ui.startBtn.focus({ preventScroll: true }); } catch (e) { /* ignoruj */ }
+}
+function beginPlay(level) {
+  initAudio();
+  startLevel(level);
+  game.state = 'play';
+  ui.start.hidden = true;
+  ui.end.hidden = true;
+  ui.hud.hidden = false;
+  updateHud(true);
+}
+function showEnd() {
+  const win = game.state === 'win';
+  const isNew = game.score > save.best;
+  if (isNew) save.best = game.score;
+  if (win) save.level = Math.max(save.level, game.level + 1);
+  writeSave();
+  ui.endTitle.textContent = win ? 'Zwycięstwo!' : 'Porażka';
+  ui.endTitle.className = 'result-title ' + (win ? 'win' : 'lose');
+  ui.endSub.textContent = win
+    ? 'Poziom ' + game.level + ' ukończony'
+    : (game.boss && game.boss.state === 'fight' ? 'Boss okazał się silniejszy' : 'Twój tłum został rozbity');
+  ui.survivors.textContent = game.count;
+  ui.kills.textContent = game.kills;
+  ui.endScore.textContent = game.score;
+  ui.isNew.hidden = !isNew || game.score === 0;
+  ui.endBest.textContent = 'Rekord: ' + save.best;
+  ui.next.hidden = !win;
+  ui.hud.hidden = true;
+  ui.end.hidden = false;
+  try { (win ? ui.next : ui.retry).focus({ preventScroll: true }); } catch (e) { /* ignoruj */ }
+}
+function toggleSound() {
+  muted = !muted;
+  ui.sound.setAttribute('aria-pressed', String(muted));
+  ui.sound.title = muted ? 'Włącz dźwięk (M)' : 'Wycisz (M)';
+  ui.sound.classList.toggle('off', muted);
+  if (!muted) initAudio();
+}
+
+ui.startBtn.addEventListener('click', () => beginPlay(game.level));
+ui.retry.addEventListener('click', () => beginPlay(game.level));
+ui.next.addEventListener('click', () => beginPlay(game.level + 1));
+ui.sound.addEventListener('click', toggleSound);
+
+// ---------- Pętla gry ----------
+let lastT = performance.now();
+function frame(now) {
+  let dt = (now - lastT) / 1000;
+  lastT = now;
+  if (!(dt > 0)) dt = 0;
+  dt = Math.min(dt, 1 / 30);
+  update(dt);
+  render();
+  if (game.state !== 'menu') updateHud(false);
+  requestAnimationFrame(frame);
+}
+
+resize();
+buildBackground();
+window.addEventListener('resize', () => { resize(); buildBackground(); });
+startLevel(game.level);
+showStart();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
