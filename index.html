@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Astro Miner Idle</title>
+<style>
+  :root{
+    --bg-0:#05060f;
+    --bg-1:#0a0e1e;
+    --bg-2:#111834;
+    --panel:#121a33;
+    --panel-2:#1a2444;
+    --border:#2a3968;
+    --neon-cyan:#39f6e5;
+    --neon-pink:#ff3ec8;
+    --neon-purple:#9b5cff;
+    --neon-yellow:#ffd83c;
+    --text-0:#eaf0ff;
+    --text-1:#9fb0d9;
+    --text-2:#657099;
+    --danger:#ff4d6d;
+    --good:#3cffa0;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0; padding:0; height:100%; overflow:hidden;
+    background:var(--bg-0);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    color:var(--text-0);
+    touch-action:manipulation;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-touch-callout:none;
+  }
+  body{
+    background:
+      radial-gradient(circle at 20% 10%, rgba(155,92,255,0.12), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(57,246,229,0.10), transparent 45%),
+      linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, var(--bg-2));
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:520px;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+
+  /* ---------- TOP BAR ---------- */
+  #topbar{
+    padding:10px 14px 8px 14px;
+    background:rgba(10,14,30,0.7);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+    z-index:20;
+  }
+  #crystalRow{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  #crystalIcon{ font-size:20px; filter:drop-shadow(0 0 6px var(--neon-cyan)); }
+  #crystalCount{
+    font-size:26px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    color:var(--neon-cyan);
+    text-shadow:0 0 12px rgba(57,246,229,0.55);
+  }
+  #cpsRow{
+    font-size:12px;
+    color:var(--text-1);
+    margin-top:2px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  #cpsRow b{ color:var(--neon-purple); }
+  #darkMatterRow{
+    font-size:12px;
+    color:var(--neon-pink);
+    margin-top:2px;
+  }
+  #boostBadge{
+    display:none;
+    font-size:11px;
+    color:var(--bg-0);
+    background:var(--neon-yellow);
+    padding:2px 8px;
+    border-radius:10px;
+    font-weight:700;
+    margin-left:6px;
+  }
+
+  /* ---------- MAIN CLICK AREA ---------- */
+  #mainStage{
+    position:relative;
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    min-height:0;
+  }
+  #stars{
+    position:absolute; inset:0;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, #ffffff55 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 80%, #ffffff44 50%, transparent 51%),
+      radial-gradient(2px 2px at 70% 30%, #ffffff66 50%, transparent 51%),
+      radial-gradient(1px 1px at 85% 60%, #ffffff33 50%, transparent 51%),
+      radial-gradient(1px 1px at 50% 50%, #ffffff44 50%, transparent 51%),
+      radial-gradient(2px 2px at 20% 65%, #ffffff55 50%, transparent 51%),
+      radial-gradient(1px 1px at 90% 15%, #ffffff44 50%, transparent 51%);
+    background-repeat:repeat;
+    background-size:300px 300px;
+    opacity:0.6;
+    pointer-events:none;
+  }
+  #planetWrap{
+    position:relative;
+    width:min(62vw, 260px);
+    height:min(62vw, 260px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #planetRing{
+    position:absolute; inset:-14px;
+    border-radius:50%;
+    border:2px dashed rgba(57,246,229,0.25);
+    animation:spin 40s linear infinite;
+  }
+  #planetRing2{
+    position:absolute; inset:-30px;
+    border-radius:50%;
+    border:1px solid rgba(255,62,200,0.18);
+    animation:spin 60s linear infinite reverse;
+  }
+  @keyframes spin{ from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  #planet{
+    width:100%; height:100%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 32% 28%, #6f5cff 0%, #3a2a9e 35%, #1c1450 65%, #0c0a2a 100%);
+    box-shadow:
+      0 0 40px rgba(155,92,255,0.55),
+      0 0 90px rgba(57,246,229,0.25),
+      inset -20px -20px 60px rgba(0,0,0,0.55),
+      inset 10px 10px 40px rgba(255,255,255,0.08);
+    cursor:pointer;
+    position:relative;
+    transition:transform 0.08s ease-out;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #planet::before{
+    content:"";
+    position:absolute; inset:8%;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 70% 70%, rgba(255,62,200,0.25), transparent 60%),
+      radial-gradient(circle at 25% 75%, rgba(57,246,229,0.18), transparent 55%);
+  }
+  #planetEmoji{
+    font-size:min(18vw, 78px);
+    filter:drop-shadow(0 0 14px rgba(255,255,255,0.35));
+    position:relative;
+    z-index:2;
+    pointer-events:none;
+  }
+  #planet.pressed{ transform:scale(0.94); }
+
+  .floatText{
+    position:absolute;
+    font-weight:800;
+    color:var(--neon-cyan);
+    text-shadow:0 0 8px rgba(57,246,229,0.8), 0 0 2px #000;
+    pointer-events:none;
+    animation:floatUp 0.9s ease-out forwards;
+    z-index:30;
+    font-size:18px;
+  }
+  @keyframes floatUp{
+    0%{ transform:translate(-50%, 0) scale(0.8); opacity:1; }
+    15%{ transform:translate(-50%, -10px) scale(1.1); opacity:1; }
+    100%{ transform:translate(-50%, -90px) scale(1); opacity:0; }
+  }
+
+  #clickPowerHint{
+    position:absolute;
+    bottom:8px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:12px;
+    color:var(--text-2);
+  }
+
+  /* ---------- TABS ---------- */
+  #tabbar{
+    display:flex;
+    background:rgba(10,14,30,0.9);
+    border-top:1px solid var(--border);
+    z-index:20;
+  }
+  .tabBtn{
+    flex:1;
+    background:none;
+    border:none;
+    color:var(--text-2);
+    padding:10px 4px 8px 4px;
+    font-size:11px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    font-weight:600;
+    letter-spacing:0.3px;
+  }
+  .tabBtn .ic{ font-size:19px; }
+  .tabBtn.active{ color:var(--neon-cyan); }
+  .tabBtn.active .ic{ filter:drop-shadow(0 0 6px var(--neon-cyan)); }
+
+  /* ---------- PANELS ---------- */
+  #panelArea{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    top:0;
+    background:linear-gradient(180deg, rgba(6,8,20,0.0), rgba(6,8,20,0.97) 18%);
+    transform:translateY(100%);
+    transition:transform 0.28s cubic-bezier(.2,.8,.2,1);
+    z-index:40;
+    display:flex;
+    flex-direction:column;
+  }
+  #panelArea.open{ transform:translateY(0%); }
+  #panelHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 16px 8px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  #panelTitle{ font-size:17px; font-weight:800; letter-spacing:0.4px; }
+  #panelClose{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--text-0);
+    width:32px; height:32px;
+    border-radius:10px;
+    font-size:16px;
+    line-height:1;
+  }
+  #panelBody{
+    flex:1;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:12px 14px 90px 14px;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px 12px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card.locked{ opacity:0.45; filter:grayscale(0.4); }
+  .card .glowline{
+    position:absolute; left:0; top:0; bottom:0; width:3px;
+    background:linear-gradient(180deg,var(--neon-cyan),var(--neon-purple));
+  }
+  .cardIcon{
+    font-size:28px;
+    width:46px; height:46px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--panel-2);
+    border-radius:12px;
+    border:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .cardBody{ flex:1; min-width:0; }
+  .cardName{ font-size:14.5px; font-weight:700; }
+  .cardDesc{ font-size:11.5px; color:var(--text-1); margin-top:1px; }
+  .cardStats{ font-size:11px; color:var(--text-2); margin-top:3px; }
+  .cardStats b{ color:var(--good); }
+  .buyBtn{
+    flex-shrink:0;
+    background:linear-gradient(135deg, var(--neon-purple), #5433c9);
+    border:none;
+    color:#fff;
+    padding:10px 12px;
+    border-radius:10px;
+    font-weight:800;
+    font-size:12.5px;
+    min-width:78px;
+    box-shadow:0 3px 0 #3a2290, 0 0 14px rgba(155,92,255,0.35);
+    transition:transform 0.08s, box-shadow 0.08s;
+  }
+  .buyBtn:active{ transform:translateY(2px); box-shadow:0 1px 0 #3a2290; }
+  .buyBtn:disabled{
+    background:#333a52;
+    color:#77809e;
+    box-shadow:none;
+    opacity:0.7;
+  }
+  .buyBtn .cost{ display:block; font-size:11px; font-weight:700; }
+  .buyBtn .own{ display:block; font-size:10px; opacity:0.85; margin-top:1px; }
+
+  .upgradeBtn{
+    background:linear-gradient(135deg, var(--neon-cyan), #1c9e93);
+    box-shadow:0 3px 0 #106b64, 0 0 14px rgba(57,246,229,0.3);
+  }
+  .upgradeBtn:disabled{ background:#333a52; box-shadow:none; }
+  .upgradeBtn.bought{ background:#233; }
+
+  #prestigeCard{
+    background:linear-gradient(145deg, #24123f, #150b2c);
+    border:1px solid var(--neon-pink);
+    border-radius:16px;
+    padding:16px;
+    text-align:center;
+    margin-bottom:14px;
+  }
+  #prestigeCard h3{
+    margin:0 0 6px 0;
+    color:var(--neon-pink);
+    text-shadow:0 0 10px rgba(255,62,200,0.5);
+    font-size:16px;
+  }
+  #prestigeCard p{ margin:4px 0; font-size:12.5px; color:var(--text-1); }
+  #prestigeGainPreview{ font-size:20px; font-weight:800; color:var(--neon-yellow); margin:8px 0; }
+  #prestigeBtn{
+    background:linear-gradient(135deg, var(--neon-pink), #8f1f6e);
+    border:none;
+    color:#fff;
+    padding:12px 20px;
+    border-radius:12px;
+    font-weight:800;
+    font-size:14px;
+    box-shadow:0 4px 0 #6b1650, 0 0 20px rgba(255,62,200,0.4);
+    width:100%;
+  }
+  #prestigeBtn:disabled{ background:#333a52; box-shadow:none; color:#77809e; }
+  #prestigeBtn:active:not(:disabled){ transform:translateY(3px); box-shadow:0 1px 0 #6b1650; }
+
+  .sectionLabel{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:var(--text-2);
+    margin:14px 4px 8px 4px;
+    font-weight:700;
+  }
+
+  .settingsBtn{
+    width:100%;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text-0);
+    padding:13px;
+    border-radius:12px;
+    margin-bottom:10px;
+    font-size:14px;
+    font-weight:700;
+    text-align:left;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .settingsBtn.danger{ color:var(--danger); border-color:rgba(255,77,109,0.4); }
+  .settingsBtn .ic{ font-size:18px; }
+
+  .adBtn{
+    width:100%;
+    background:linear-gradient(135deg, var(--neon-yellow), #c99a00);
+    border:none;
+    color:#141118;
+    padding:14px;
+    border-radius:14px;
+    font-weight:800;
+    font-size:14.5px;
+    margin-bottom:12px;
+    box-shadow:0 4px 0 #8a6800, 0 0 18px rgba(255,216,60,0.35);
+  }
+  .adBtn:active{ transform:translateY(3px); box-shadow:0 1px 0 #8a6800; }
+  .adBtn:disabled{ background:#333a52; color:#77809e; box-shadow:none; }
+  .adBtn small{ display:block; font-weight:600; font-size:11px; margin-top:2px; opacity:0.85; }
+
+  /* ---------- MODAL ---------- */
+  #modalOverlay{
+    position:absolute; inset:0;
+    background:rgba(3,4,10,0.78);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  #modalOverlay.show{ display:flex; }
+  #modalBox{
+    background:var(--panel);
+    border:1px solid var(--neon-cyan);
+    border-radius:18px;
+    padding:22px 20px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 0 40px rgba(57,246,229,0.25);
+  }
+  #modalBox h2{
+    margin:0 0 10px 0;
+    color:var(--neon-cyan);
+    font-size:19px;
+    text-shadow:0 0 10px rgba(57,246,229,0.5);
+  }
+  #modalBox p{ font-size:13.5px; color:var(--text-1); margin:6px 0; line-height:1.5; }
+  #modalBox .highlight{ color:var(--neon-yellow); font-weight:800; }
+  #modalBtnRow{ display:flex; gap:8px; margin-top:16px; }
+  #modalBtnRow button{
+    flex:1;
+    padding:12px 8px;
+    border-radius:12px;
+    border:none;
+    font-weight:800;
+    font-size:13px;
+  }
+  #modalCollect{
+    background:var(--panel-2);
+    color:var(--text-0);
+    border:1px solid var(--border) !important;
+  }
+  #modalDouble{
+    background:linear-gradient(135deg, var(--neon-yellow), #c99a00);
+    color:#141118;
+  }
+
+  #toast{
+    position:absolute;
+    left:50%;
+    top:14px;
+    transform:translateX(-50%) translateY(-40px);
+    background:var(--panel-2);
+    border:1px solid var(--neon-cyan);
+    color:var(--text-0);
+    padding:9px 16px;
+    border-radius:30px;
+    font-size:12.5px;
+    font-weight:700;
+    z-index:200;
+    opacity:0;
+    transition:transform 0.25s ease, opacity 0.25s ease;
+    white-space:nowrap;
+    max-width:90%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  #toast.show{ transform:translateX(-50%) translateY(0); opacity:1; }
+
+  ::-webkit-scrollbar{ width:0; height:0; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div id="crystalRow">
+      <span id="crystalIcon">💎</span>
+      <span id="crystalCount">0</span>
+      <span id="boostBadge">2x BOOST</span>
+    </div>
+    <div id="cpsRow">
+      <span>Na sekundę: <b id="cpsValue">0</b></span>
+      <span>Za klik: <b id="clickValue">1</b></span>
+    </div>
+    <div id="darkMatterRow">🌌 Ciemna Materia: <b id="darkMatterCount">0</b> (+<span id="darkMatterBonus">0</span>% produkcji)</div>
+  </div>
+
+  <div id="mainStage">
+    <div id="stars"></div>
+    <div id="planetWrap">
+      <div id="planetRing2"></div>
+      <div id="planetRing"></div>
+      <div id="planet">
+        <div id="planetEmoji">🪐</div>
+      </div>
+    </div>
+    <div id="clickPowerHint">Dotknij planetę, aby wydobywać kryształy</div>
+  </div>
+
+  <div id="tabbar">
+    <button class="tabBtn active" data-tab="mine">
+      <span class="ic">⛏️</span><span>Wydobycie</span>
+    </button>
+    <button class="tabBtn" data-tab="upgrades">
+      <span class="ic">🧬</span><span>Ulepszenia</span>
+    </button>
+    <button class="tabBtn" data-tab="prestige">
+      <span class="ic">🚀</span><span>Sonda</span>
+    </button>
+    <button class="tabBtn" data-tab="boost">
+      <span class="ic">⚡</span><span>Boosty</span>
+    </button>
+    <button class="tabBtn" data-tab="settings">
+      <span class="ic">⚙️</span><span>Ustawienia</span>
+    </button>
+  </div>
+
+  <!-- MINE / BUILDINGS PANEL -->
+  <div id="panelArea">
+    <div id="panelHeader">
+      <div id="panelTitle">Panel</div>
+      <button id="panelClose">✕</button>
+    </div>
+    <div id="panelBody"></div>
+  </div>
+
+  <div id="modalOverlay">
+    <div id="modalBox"></div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   ASTRO MINER IDLE - rdzeń gry
+   ========================================================= */
+
+const SAVE_KEY = "astroMinerIdle_save_v1";
+const TICK_MS = 100; // aktualizacja logiki co 100ms (delta-time based)
+const AUTOSAVE_MS = 10000;
+const MAX_OFFLINE_SECONDS = 8 * 3600; // limit 8h progresu offline
+
+/* ---------- DEFINICJE BUDYNKÓW (GENERATORY) ---------- */
+const BUILDING_DEFS = [
+  { id:"autodrill",   name:"Autodrill",          icon:"🔧", baseCost:15,        baseCps:0.1,   desc:"Prosty automatyczny wiertak górniczy." },
+  { id:"drone",       name:"Mining Drone",       icon:"🛰️", baseCost:100,       baseCps:1,     desc:"Dron eksploatujący powierzchnię planety." },
+  { id:"sublaser",    name:"Sub-Surface Laser",  icon:"🔦", baseCost:1100,      baseCps:8,     desc:"Laser wydobywczy tnący pod powierzchnię." },
+  { id:"orbitalrig",  name:"Orbital Rig",        icon:"🛸", baseCost:12000,     baseCps:47,    desc:"Platforma orbitalna strzelająca wiązkami wydobywczymi." },
+  { id:"dyson",       name:"Dyson Harvester",    icon:"☀️", baseCost:130000,    baseCps:260,   desc:"Kolektor energii gwiazdy zasilający całą flotę." },
+  { id:"blackholemine", name:"Singularity Miner",baseCost:1400000,  baseCps:1400,  icon:"🕳️", desc:"Wydobywa materię z granicy horyzontu zdarzeń." },
+  { id:"quantumforge",  name:"Quantum Forge",    baseCost:20000000, baseCps:7800,  icon:"⚛️", desc:"Kuźnia kwantowa syntetyzująca kryształy z próżni." },
+];
+
+/* ---------- DEFINICJE ULEPSZEŃ ---------- */
+// type: "click_mult" | "click_add" | "building_mult" | "global_mult"
+const UPGRADE_DEFS = [
+  { id:"click2",  name:"Wzmocniona Wiertarka Ręczna", icon:"👊", cost:50,     type:"click_mult", value:2, target:null, desc:"Podwaja moc kliknięcia.", req:{crystals:25} },
+  { id:"click3",  name:"Neuro-Rękawice Górnicze",     icon:"🧤", cost:1000,   type:"click_mult", value:2, target:null, desc:"Podwaja moc kliknięcia ponownie.", req:{crystals:500} },
+  { id:"click4",  name:"Egzoszkielet Kopacza",        icon:"🦾", cost:50000,  type:"click_mult", value:3, target:null, desc:"Potraja moc kliknięcia.", req:{crystals:20000} },
+  { id:"clickcps",name:"Synchronizacja Neuralna",     icon:"🧠", cost:250000, type:"click_from_cps", value:0.05, target:null, desc:"Klik zyskuje +5% obecnej produkcji/s.", req:{crystals:100000} },
+
+  { id:"drill50", name:"Ulepszony Wiertak",           icon:"🔩", cost:500,    type:"building_mult", value:1.5, target:"autodrill", desc:"Autodrill: +50% produkcji.", req:{building:"autodrill", count:5} },
+  { id:"drone50", name:"Rojowa Koordynacja Dronów",   icon:"📡", cost:5000,   type:"building_mult", value:1.5, target:"drone", desc:"Mining Drone: +50% produkcji.", req:{building:"drone", count:5} },
+  { id:"laser50", name:"Skupiona Wiązka Lasera",      icon:"💠", cost:60000,  type:"building_mult", value:1.5, target:"sublaser", desc:"Sub-Surface Laser: +50% produkcji.", req:{building:"sublaser", count:5} },
+  { id:"rig50",   name:"Wzmocniona Platforma",        icon:"🧱", cost:700000, type:"building_mult", value:1.5, target:"orbitalrig", desc:"Orbital Rig: +50% produkcji.", req:{building:"orbitalrig", count:5} },
+  { id:"dyson50", name:"Chłodzenie Kolektora",        icon:"❄️", cost:8000000,type:"building_mult", value:1.5, target:"dyson", desc:"Dyson Harvester: +50% produkcji.", req:{building:"dyson", count:5} },
+
+  { id:"global10",name:"Zoptymalizowana Logistyka",   icon:"📦", cost:100000,  type:"global_mult", value:1.1, target:null, desc:"+10% do całej produkcji.", req:{crystals:50000} },
+  { id:"global25",name:"Kwantowy Rdzeń Zasilający",   icon:"🔋", cost:5000000, type:"global_mult", value:1.25, target:null, desc:"+25% do całej produkcji.", req:{crystals:2000000} },
+  { id:"global50",name:"Galaktyczna Sieć Handlowa",   icon:"🌐", cost:80000000,type:"global_mult", value:1.5, target:null, desc:"+50% do całej produkcji.", req:{crystals:30000000} },
+];
+
+/* ---------- STAN GRY ---------- */
+let state = {
+  crystals: 0,
+  totalCrystalsEarned: 0,
+  totalClicks: 0,
+  clickBasePower: 1,
+  buildings: {},      // id -> count
+  upgrades: {},        // id -> bought(bool)
+  darkMatter: 0,
+  lifetimeCrystalsForPrestige: 0, // suma zebrana od ostatniego prestiżu (do liczenia nagrody)
+  boostUntil: 0,       // timestamp ms - koniec boosta 2x
+  lastSaveTime: Date.now(),
+  createdAt: Date.now(),
+};
+
+BUILDING_DEFS.forEach(b => state.buildings[b.id] = 0);
+UPGRADE_DEFS.forEach(u => state.upgrades[u.id] = false);
+
+/* ---------- FORMATOWANIE LICZB ---------- */
+const SUFFIXES = ["","k","M","B","T","Qa","Qi","Sx","Sp","Oc","No","Dc"];
+function formatNumber(num){
+  if (num === null || num === undefined || isNaN(num)) return "0";
+  const neg = num < 0;
+  num = Math.abs(num);
+  if (num < 1000) {
+    let out = (Number.isInteger(num)) ? num.toString() : num.toFixed(num < 10 ? 2 : 1);
+    return (neg?"-":"") + out;
+  }
+  let tier = Math.floor(Math.log10(num) / 3);
+  if (tier >= SUFFIXES.length) tier = SUFFIXES.length - 1;
+  let scaled = num / Math.pow(1000, tier);
+  let str = scaled < 10 ? scaled.toFixed(2) : (scaled < 100 ? scaled.toFixed(1) : scaled.toFixed(0));
+  return (neg?"-":"") + str + SUFFIXES[tier];
+}
+function formatInt(num){
+  return formatNumber(Math.floor(num));
+}
+
+/* ---------- KOSZTY / PRODUKCJA ---------- */
+function buildingCost(def, ownedCount){
+  return Math.ceil(def.baseCost * Math.pow(1.15, ownedCount));
+}
+
+function buildingMultiplierFromUpgrades(buildingId){
+  let mult = 1;
+  UPGRADE_DEFS.forEach(u => {
+    if (u.type === "building_mult" && u.target === buildingId && state.upgrades[u.id]) {
+      mult *= u.value;
+    }
+  });
+  return mult;
+}
+
+function globalMultiplier(){
+  let mult = 1;
+  UPGRADE_DEFS.forEach(u => {
+    if (u.type === "global_mult" && state.upgrades[u.id]) mult *= u.value;
+  });
+  // Dark matter bonus: +10% per unit
+  mult *= (1 + state.darkMatter * 0.10);
+  // Rewarded ad boost
+  if (Date.now() < state.boostUntil) mult *= 2;
+  return mult;
+}
+
+function buildingBaseCps(def){
+  return def.baseCps * state.buildings[def.id] * buildingMultiplierFromUpgrades(def.id);
+}
+
+function totalCpsRaw(){
+  let sum = 0;
+  BUILDING_DEFS.forEach(def => { sum += buildingBaseCps(def); });
+  return sum;
+}
+
+function totalCps(){
+  return totalCpsRaw() * globalMultiplier();
+}
+
+function clickPower(){
+  let power = state.clickBasePower;
+  UPGRADE_DEFS.forEach(u => {
+    if (u.type === "click_mult" && state.upgrades[u.id]) power *= u.value;
+  });
+  UPGRADE_DEFS.forEach(u => {
+    if (u.type === "click_from_cps" && state.upgrades[u.id]) power += totalCpsRaw() * u.value;
+  });
+  return power * globalMultiplier();
+}
+
+/* ---------- PRESTIŻ ---------- */
+const PRESTIGE_MIN_LIFETIME = 1000000; // 1M kryształów zebranych aby móc zrobić pierwszy prestiż
+
+function darkMatterGainPreview(){
+  // Formula: sqrt(lifetime / 1e6) daje ciemną materię, zaokrąglone w dół
+  let dm = Math.floor(Math.sqrt(state.lifetimeCrystalsForPrestige / 1000000));
+  return Math.max(0, dm);
+}
+
+function canPrestige(){
+  return darkMatterGainPreview() >= 1;
+}
+
+function doPrestige(){
+  const gain = darkMatterGainPreview();
+  if (gain < 1) return;
+  state.darkMatter += gain;
+  state.crystals = 0;
+  state.lifetimeCrystalsForPrestige = 0;
+  BUILDING_DEFS.forEach(def => state.buildings[def.id] = 0);
+  // Upgrades zostają zresetowane razem z budynkami (świeży start), ale click power bazowy zostaje
+  UPGRADE_DEFS.forEach(u => state.upgrades[u.id] = false);
+  saveGame();
+  renderAll();
+  showToast("🚀 Sonda wystrzelona! +" + formatInt(gain) + " Ciemnej Materii");
+}
+
+/* ---------- KLIKANIE ---------- */
+const planetEl = document.getElementById("planet");
+const mainStage = document.getElementById("mainStage");
+
+function handleMine(clientX, clientY){
+  const power = clickPower();
+  addCrystals(power, false);
+  state.totalClicks++;
+  spawnFloatText(clientX, clientY, "+" + formatNumber(power));
+  planetEl.classList.add("pressed");
+  setTimeout(() => planetEl.classList.remove("pressed"), 90);
+}
+
+planetEl.addEventListener("pointerdown", function(e){
+  e.preventDefault();
+  const rect = mainStage.getBoundingClientRect();
+  const x = (e.clientX !== undefined ? e.clientX : rect.left + rect.width/2) - rect.left;
+  const y = (e.clientY !== undefined ? e.clientY : rect.top + rect.height/2) - rect.top;
+  handleMine(x, y);
+}, {passive:false});
+
+function spawnFloatText(x, y, text){
+  const el = document.createElement("div");
+  el.className = "floatText";
+  el.textContent = text;
+  const jitterX = (Math.random() - 0.5) * 50;
+  el.style.left = (x + jitterX) + "px";
+  el.style.top = (y - 10) + "px";
+  mainStage.appendChild(el);
+  setTimeout(() => el.remove(), 950);
+}
+
+function addCrystals(amount, isPassive){
+  state.crystals += amount;
+  state.totalCrystalsEarned += amount;
+  state.lifetimeCrystalsForPrestige += amount;
+}
+
+/* ---------- GŁÓWNA PĘTLA GRY (delta-time) ---------- */
+let lastTickTime = performance.now();
+function gameLoop(now){
+  const deltaMs = now - lastTickTime;
+  if (deltaMs >= TICK_MS) {
+    const deltaSeconds = deltaMs / 1000;
+    lastTickTime = now;
+    const cps = totalCps();
+    if (cps > 0) addCrystals(cps * deltaSeconds, true);
+    renderHUD();
+  }
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
+
+/* ---------- RENDEROWANIE HUD ---------- */
+const crystalCountEl = document.getElementById("crystalCount");
+const cpsValueEl = document.getElementById("cpsValue");
+const clickValueEl = document.getElementById("clickValue");
+const darkMatterCountEl = document.getElementById("darkMatterCount");
+const darkMatterBonusEl = document.getElementById("darkMatterBonus");
+const boostBadgeEl = document.getElementById("boostBadge");
+
+function renderHUD(){
+  crystalCountEl.textContent = formatNumber(state.crystals);
+  cpsValueEl.textContent = formatNumber(totalCps());
+  clickValueEl.textContent = formatNumber(clickPower());
+  darkMatterCountEl.textContent = formatInt(state.darkMatter);
+  darkMatterBonusEl.textContent = (state.darkMatter * 10);
+  if (Date.now() < state.boostUntil) {
+    boostBadgeEl.style.display = "inline-block";
+  } else {
+    boostBadgeEl.style.display = "none";
+  }
+}
+
+/* ---------- PANELE / TABY ---------- */
+const panelArea = document.getElementById("panelArea");
+const panelTitle = document.getElementById("panelTitle");
+const panelBody = document.getElementById("panelBody");
+const panelClose = document.getElementById("panelClose");
+const tabButtons = document.querySelectorAll(".tabBtn");
+let currentTab = null;
+
+const TAB_TITLES = {
+  mine: "⛏️ Koparki i Generatory",
+  upgrades: "🧬 Drzewko Ulepszeń",
+  prestige: "🚀 Sonda Kosmiczna",
+  boost: "⚡ Boosty i Nagrody",
+  settings: "⚙️ Ustawienia",
+};
+
+tabButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const tab = btn.getAttribute("data-tab");
+    if (currentTab === tab && panelArea.classList.contains("open")) {
+      closePanel();
+      return;
+    }
+    openTab(tab);
+  });
+});
+
+panelClose.addEventListener("click", closePanel);
+
+function openTab(tab){
+  currentTab = tab;
+  tabButtons.forEach(b => b.classList.toggle("active", b.getAttribute("data-tab") === tab));
+  panelTitle.textContent = TAB_TITLES[tab] || "Panel";
+  renderPanel(tab);
+  panelArea.classList.add("open");
+}
+function closePanel(){
+  panelArea.classList.remove("open");
+}
+
+function renderPanel(tab){
+  if (tab === "mine") renderBuildingsPanel();
+  else if (tab === "upgrades") renderUpgradesPanel();
+  else if (tab === "prestige") renderPrestigePanel();
+  else if (tab === "boost") renderBoostPanel();
+  else if (tab === "settings") renderSettingsPanel();
+}
+
+/* --- Panel: budynki --- */
+function renderBuildingsPanel(){
+  panelBody.innerHTML = "";
+  BUILDING_DEFS.forEach(def => {
+    const owned = state.buildings[def.id];
+    const cost = buildingCost(def, owned);
+    const canAfford = state.crystals >= cost;
+    const cps = buildingBaseCps(def);
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="glowline"></div>
+      <div class="cardIcon">${def.icon}</div>
+      <div class="cardBody">
+        <div class="cardName">${def.name} <span style="color:var(--text-2); font-weight:600;">x${owned}</span></div>
+        <div class="cardDesc">${def.desc}</div>
+        <div class="cardStats">Produkuje: <b>${formatNumber(cps)}</b>/s &middot; Baza: ${formatNumber(def.baseCps)}/s szt.</div>
+      </div>
+      <button class="buyBtn" ${canAfford ? "" : "disabled"}>
+        <span class="cost">${formatNumber(cost)} 💎</span>
+        <span class="own">Kup 1</span>
+      </button>
+    `;
+    const btn = card.querySelector(".buyBtn");
+    btn.addEventListener("click", () => buyBuilding(def.id));
+    panelBody.appendChild(card);
+  });
+}
+
+function buyBuilding(id){
+  const def = BUILDING_DEFS.find(b => b.id === id);
+  const owned = state.buildings[id];
+  const cost = buildingCost(def, owned);
+  if (state.crystals >= cost) {
+    state.crystals -= cost;
+    state.buildings[id]++;
+    renderBuildingsPanel();
+    renderHUD();
+  }
+}
+
+/* --- Panel: ulepszenia --- */
+function upgradeRequirementMet(u){
+  if (!u.req) return true;
+  if (u.req.crystals !== undefined && state.totalCrystalsEarned < u.req.crystals) return false;
+  if (u.req.building !== undefined && state.buildings[u.req.building] < u.req.count) return false;
+  return true;
+}
+
+function renderUpgradesPanel(){
+  panelBody.innerHTML = "";
+  let anyVisible = false;
+  UPGRADE_DEFS.forEach(u => {
+    const bought = state.upgrades[u.id];
+    const unlocked = upgradeRequirementMet(u);
+    if (!unlocked && bought) return;
+    if (!unlocked && !bought) {
+      // pokaż zablokowane, ale delikatnie, żeby gracz wiedział co go czeka
+      anyVisible = true;
+      const card = document.createElement("div");
+      card.className = "card locked";
+      card.innerHTML = `
+        <div class="cardIcon">🔒</div>
+        <div class="cardBody">
+          <div class="cardName">${u.name}</div>
+          <div class="cardDesc">${u.desc}</div>
+          <div class="cardStats">Wymagane: ${upgradeReqText(u)}</div>
+        </div>
+      `;
+      panelBody.appendChild(card);
+      return;
+    }
+    anyVisible = true;
+    const cost = u.cost;
+    const canAfford = state.crystals >= cost && !bought;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="glowline"></div>
+      <div class="cardIcon">${u.icon}</div>
+      <div class="cardBody">
+        <div class="cardName">${u.name}</div>
+        <div class="cardDesc">${u.desc}</div>
+      </div>
+      <button class="buyBtn upgradeBtn ${bought ? 'bought' : ''}" ${(!canAfford || bought) ? "disabled" : ""}>
+        <span class="cost">${bought ? "KUPIONO" : formatNumber(cost) + " 💎"}</span>
+      </button>
+    `;
+    const btn = card.querySelector(".buyBtn");
+    if (!bought) btn.addEventListener("click", () => buyUpgrade(u.id));
+    panelBody.appendChild(card);
+  });
+  if (!anyVisible) {
+    panelBody.innerHTML = `<div class="card"><div class="cardBody"><div class="cardDesc">Brak dostępnych ulepszeń. Wydobywaj więcej kryształów!</div></div></div>`;
+  }
+}
+
+function upgradeReqText(u){
+  if (u.req.crystals !== undefined) return formatNumber(u.req.crystals) + " kryształów zebranych łącznie";
+  if (u.req.building !== undefined) {
+    const def = BUILDING_DEFS.find(b => b.id === u.req.building);
+    return `${u.req.count}x ${def.name}`;
+  }
+  return "?";
+}
+
+function buyUpgrade(id){
+  const u = UPGRADE_DEFS.find(x => x.id === id);
+  if (state.upgrades[id]) return;
+  if (state.crystals >= u.cost) {
+    state.crystals -= u.cost;
+    state.upgrades[id] = true;
+    renderUpgradesPanel();
+    renderHUD();
+    showToast("✅ Ulepszenie zakupione: " + u.name);
+  }
+}
+
+/* --- Panel: prestiż --- */
+function renderPrestigePanel(){
+  const gain = darkMatterGainPreview();
+  const ready = canPrestige();
+  panelBody.innerHTML = `
+    <div id="prestigeCard">
+      <h3>🌌 Sonda Kosmiczna</h3>
+      <p>Wystrzel sondę w głąb kosmosu, aby zamienić swój dotychczasowy postęp w <b>Ciemną Materię</b>.</p>
+      <p>Resetujesz Kryształy i wszystkie Koparki, ale Ciemna Materia daje <b>trwały +10% bonus</b> do całej produkcji za każdą sztukę.</p>
+      <div id="prestigeGainPreview">+${formatInt(gain)} 🌌</div>
+      <p style="font-size:11px;">Łącznie zebrano od ostatniego resetu: ${formatNumber(state.lifetimeCrystalsForPrestige)} 💎</p>
+      <button id="prestigeBtn" ${ready ? "" : "disabled"}>
+        ${ready ? "WYSTRZEL SONDĘ" : "Potrzeba więcej kryształów (min. " + formatNumber(PRESTIGE_MIN_LIFETIME) + ")"}
+      </button>
+    </div>
+    <div class="sectionLabel">Twoje bonusy</div>
+    <div class="card">
+      <div class="cardIcon">🌌</div>
+      <div class="cardBody">
+        <div class="cardName">Ciemna Materia: ${formatInt(state.darkMatter)}</div>
+        <div class="cardDesc">Bonus produkcji: +${state.darkMatter * 10}%</div>
+      </div>
+    </div>
+  `;
+  document.getElementById("prestigeBtn").addEventListener("click", () => {
+    if (!canPrestige()) return;
+    confirmPrestige();
+  });
+}
+
+function confirmPrestige(){
+  const gain = darkMatterGainPreview();
+  showModal({
+    title: "Potwierdź reset",
+    lines: [
+      `Zresetujesz Kryształy i wszystkie Koparki.`,
+      `Otrzymasz <span class="highlight">+${formatInt(gain)} Ciemnej Materii</span>.`
+    ],
+    buttons: [
+      { id:"cancel", label:"Anuluj", cls:"modalCollect" },
+      { id:"confirm", label:"Wystrzel sondę 🚀", cls:"modalDouble" },
+    ]
+  }, (choice) => {
+    if (choice === "confirm") {
+      doPrestige();
+      openTab("prestige");
+    }
+  });
+}
+
+/* --- Panel: boost / reklamy --- */
+function renderBoostPanel(){
+  const boosted = Date.now() < state.boostUntil;
+  const remainMin = boosted ? Math.ceil((state.boostUntil - Date.now())/60000) : 0;
+  panelBody.innerHTML = `
+    <div class="sectionLabel">Darmowe Boosty</div>
+    <button id="adBoostBtn" class="adBtn" ${boosted ? "disabled" : ""}>
+      ${boosted ? ("🚀 Boost aktywny jeszcze " + remainMin + " min") : "📺 Darmowy Boost 2x na 4 godziny"}
+      <small>Obejrzyj krótką reklamę z nagrodą, aby podwoić całą produkcję</small>
+    </button>
+    <div class="sectionLabel">Status</div>
+    <div class="card">
+      <div class="cardIcon">⚡</div>
+      <div class="cardBody">
+        <div class="cardName">Aktualny mnożnik globalny</div>
+        <div class="cardDesc">x${globalMultiplier().toFixed(2)} (Ciemna Materia + Ulepszenia + Boost)</div>
+      </div>
+    </div>
+  `;
+  document.getElementById("adBoostBtn").addEventListener("click", () => {
+    if (boosted) return;
+    showRewardedAd(() => {
+      state.boostUntil = Date.now() + 4 * 3600 * 1000;
+      renderBoostPanel();
+      renderHUD();
+      showToast("⚡ Boost 2x aktywowany na 4 godziny!");
+    });
+  });
+}
+
+/**
+ * ==========================================================
+ * HOOK POD SDK REKLAM (AdMob / AppLovin MAX / IronSource itp.)
+ * ==========================================================
+ * W wersji produkcyjnej pod Capacitor podmień ciało tej funkcji
+ * na wywołanie natywnego SDK reklam z nagrodą, np.:
+ *
+ *   AdMob.prepareRewardVideoAd({ adId: 'ca-app-pub-xxx/yyy' })
+ *     .then(() => AdMob.showRewardVideoAd())
+ *     .then(() => onSuccess())
+ *     .catch(err => showToast("Reklama niedostępna, spróbuj później"));
+ *
+ * Obecnie (wersja web/demo) symulujemy natychmiastowy sukces.
+ */
+function showRewardedAd(onSuccess){
+  showToast("📺 Odtwarzanie reklamy z nagrodą...");
+  setTimeout(() => {
+    onSuccess();
+  }, 600);
+}
+
+/* --- Panel: ustawienia --- */
+function renderSettingsPanel(){
+  panelBody.innerHTML = `
+    <div class="sectionLabel">Zapis gry</div>
+    <button class="settingsBtn" id="btnManualSave"><span class="ic">💾</span> Zapisz grę teraz</button>
+    <div class="sectionLabel">Statystyki</div>
+    <div class="card">
+      <div class="cardBody">
+        <div class="cardStats">Łącznie zebrane kryształy: <b>${formatNumber(state.totalCrystalsEarned)}</b></div>
+        <div class="cardStats">Łączna liczba kliknięć: <b>${formatNumber(state.totalClicks)}</b></div>
+        <div class="cardStats">Ciemna Materia: <b>${formatInt(state.darkMatter)}</b></div>
+      </div>
+    </div>
+    <div class="sectionLabel">Strefa niebezpieczna</div>
+    <button class="settingsBtn danger" id="btnResetGame"><span class="ic">🗑️</span> Pełny reset danych (testy)</button>
+  `;
+  document.getElementById("btnManualSave").addEventListener("click", () => {
+    saveGame();
+    showToast("💾 Gra zapisana!");
+  });
+  document.getElementById("btnResetGame").addEventListener("click", () => {
+    showModal({
+      title:"Na pewno?",
+      lines:["Ta operacja <span class='highlight'>usunie cały postęp</span> włącznie z Ciemną Materią.", "Tej operacji nie można cofnąć."],
+      buttons:[
+        { id:"cancel", label:"Anuluj", cls:"modalCollect" },
+        { id:"confirm", label:"Usuń wszystko", cls:"modalDouble" },
+      ]
+    }, (choice) => {
+      if (choice === "confirm") {
+        localStorage.removeItem(SAVE_KEY);
+        location.reload();
+      }
+    });
+  });
+}
+
+/* ---------- MODAL GENERYCZNY ---------- */
+const modalOverlay = document.getElementById("modalOverlay");
+const modalBox = document.getElementById("modalBox");
+
+function showModal(config, callback){
+  modalBox.innerHTML = `
+    <h2>${config.title}</h2>
+    ${config.lines.map(l => `<p>${l}</p>`).join("")}
+    <div id="modalBtnRow"></div>
+  `;
+  const row = modalBox.querySelector("#modalBtnRow");
+  config.buttons.forEach(b => {
+    const btn = document.createElement("button");
+    btn.textContent = b.label;
+    btn.id = b.cls;
+    btn.addEventListener("click", () => {
+      hideModal();
+      if (callback) callback(b.id);
+    });
+    row.appendChild(btn);
+  });
+  modalOverlay.classList.add("show");
+}
+function hideModal(){
+  modalOverlay.classList.remove("show");
+}
+
+/* ---------- TOAST ---------- */
+let toastTimer = null;
+function showToast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+/* ---------- ZAPIS / ODCZYT ---------- */
+function saveGame(){
+  state.lastSaveTime = Date.now();
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  } catch(e){
+    console.warn("Nie udało się zapisać gry:", e);
+  }
+}
+
+function loadGame(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const loaded = JSON.parse(raw);
+    // Scal z domyślnym stanem, aby nowe pola (nowe budynki/ulepszenia) miały wartości domyślne
+    state = Object.assign({}, state, loaded);
+    state.buildings = Object.assign({}, state.buildings, loaded.buildings || {});
+    state.upgrades = Object.assign({}, state.upgrades, loaded.upgrades || {});
+    return true;
+  } catch(e){
+    console.warn("Błąd wczytywania zapisu:", e);
+    return false;
+  }
+}
+
+/* ---------- OFFLINE PROGRESS ---------- */
+let pendingOfflineGain = 0;
+
+function computeOfflineProgress(){
+  const now = Date.now();
+  const elapsedSeconds = Math.max(0, (now - state.lastSaveTime) / 1000);
+  if (elapsedSeconds < 30) return null; // pomiń bardzo krótkie przerwy
+  const cappedSeconds = Math.min(elapsedSeconds, MAX_OFFLINE_SECONDS);
+  const cps = totalCps();
+  const gain = cps * cappedSeconds;
+  return { elapsedSeconds, cappedSeconds, gain };
+}
+
+function showOfflineModal(info){
+  const hours = info.elapsedSeconds / 3600;
+  let timeText;
+  if (hours < 1) timeText = Math.round(info.elapsedSeconds / 60) + " min";
+  else timeText = hours.toFixed(1) + " godz.";
+
+  const cappedNote = info.cappedSeconds < info.elapsedSeconds
+    ? `<p style="font-size:11px;">(Zyski ograniczone do maks. ${MAX_OFFLINE_SECONDS/3600}h nieobecności)</p>` : "";
+
+  modalBox.innerHTML = `
+    <h2>👋 Witaj z powrotem, Górniku!</h2>
+    <p>Nie było Cię <span class="highlight">${timeText}</span>.</p>
+    <p>Twoje koparki zebrały <span class="highlight">${formatNumber(info.gain)} Kryształów</span>!</p>
+    ${cappedNote}
+    <div id="modalBtnRow">
+      <button id="modalCollect">Odbierz</button>
+      <button id="modalDouble">📺 Podwój zyski (reklama)</button>
+    </div>
+  `;
+  document.getElementById("modalCollect").addEventListener("click", () => {
+    addCrystals(info.gain, true);
+    hideModal();
+    renderHUD();
+  });
+  document.getElementById("modalDouble").addEventListener("click", () => {
+    showRewardedAd(() => {
+      addCrystals(info.gain * 2, true);
+      hideModal();
+      renderHUD();
+      showToast("📺 Zyski offline podwojone!");
+    });
+  });
+  modalOverlay.classList.add("show");
+}
+
+/* ---------- INICJALIZACJA ---------- */
+function renderAll(){
+  renderHUD();
+  if (currentTab) renderPanel(currentTab);
+}
+
+function init(){
+  const hadSave = loadGame();
+  renderHUD();
+
+  if (hadSave) {
+    const offlineInfo = computeOfflineProgress();
+    if (offlineInfo && offlineInfo.gain > 0) {
+      showOfflineModal(offlineInfo);
+    }
+  }
+
+  // Domyślnie otwarty panel koparek na starcie (ergonomia mobile)
+  // Panel pozostaje zamknięty dopóki gracz nie kliknie zakładki - zgodnie z layoutem mobile-first.
+
+  setInterval(() => {
+    saveGame();
+  }, AUTOSAVE_MS);
+
+  window.addEventListener("beforeunload", saveGame);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") saveGame();
+  });
+
+  // Odśwież panele co sekundę, aby przyciski kup/odblokuj aktualizowały się na żywo
+  setInterval(() => {
+    if (currentTab === "mine") renderBuildingsPanel();
+    else if (currentTab === "upgrades") renderUpgradesPanel();
+    else if (currentTab === "prestige") renderPrestigePanel();
+    else if (currentTab === "boost") renderBoostPanel();
+  }, 1000);
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>
