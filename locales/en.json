@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "Lakszmi Ambasada Piękna – Beauty Salon in Toruń | Price List & Booking",
+    "description": "Lakszmi Ambasada Piękna in Toruń: facial treatments, manicure and pedicure, brow and lash styling, permanent makeup and aesthetic medicine. See our price list and book an appointment."
+  },
+  "a11y": {
+    "skip": "Skip to content",
+    "menu_open": "Open menu",
+    "menu_close": "Close menu",
+    "lang": "Choose language",
+    "home": "Lakszmi Ambasada Piękna – home page"
+  },
+  "nav": {
+    "about": "About us",
+    "pricing": "Price List",
+    "gallery": "Results",
+    "reviews": "Reviews",
+    "contact": "Contact"
+  },
+  "cta": {
+    "book": "Book an Appointment",
+    "pricing": "View price list",
+    "call": "Call us",
+    "directions": "Get directions"
+  },
+  "hero": {
+    "eyebrow": "Beauty salon · Toruń",
+    "title": "You deserve to feel beautiful",
+    "lead": "Professional cosmetology, beauty styling and aesthetic medicine in an intimate setting. Every treatment is tailored to your skin and your needs.",
+    "badge_1": "Experienced cosmetologist",
+    "badge_2": "Personal consultation",
+    "badge_3": "Central Toruń"
+  },
+  "about": {
+    "eyebrow": "About us",
+    "title": "An embassy of your beauty",
+    "p1": "Lakszmi Ambasada Piękna is run by experienced cosmetologist Anna Jankowska-Słomczewska. We combine expertise, precision and attention to detail to deliver natural, long-lasting results.",
+    "p2": "We offer facial treatments, manicure and pedicure, brow and lash styling, permanent makeup and aesthetic medicine – always following a thorough consultation.",
+    "f1_title": "Personal approach",
+    "f1_text": "A treatment plan tailored to your skin, lifestyle and expectations.",
+    "f2_title": "Safety first",
+    "f2_text": "Sterilised tools, proven products and the highest hygiene standards.",
+    "f3_title": "Natural results",
+    "f3_text": "We enhance your beauty rather than change it."
+  },
+  "pricing": {
+    "eyebrow": "Treatments",
+    "title": "Price List",
+    "lead": "Choose a category or search for a treatment. Prices are in Polish złoty (PLN).",
+    "search_label": "Search treatments",
+    "search_placeholder": "E.g. manicure, brows, lips…",
+    "all": "All",
+    "empty": "No treatments match your search.",
+    "on_request": "price on request",
+    "currency": "PLN",
+    "results": "Treatments: {count}",
+    "note": "This price list is for information only. The final scope and price are agreed during your consultation.",
+    "categories": {
+      "face": "Face Treatments",
+      "nails": "Manicure & Pedicure",
+      "brows": "Brows & Lashes",
+      "makeup": "Makeup",
+      "pmu": "Permanent Makeup",
+      "aesthetic": "Aesthetic Medicine"
+    },
+    "items": {
+      "face_massage": { "name": "Face, Neck & Décolleté Massage", "desc": "A relaxing, lifting massage that boosts microcirculation and skin firmness." },
+      "face_cleansing": { "name": "Deep Cleansing Facial", "desc": "Thorough skin cleansing with hydration and a mask matched to your skin type." },
+      "face_peel": { "name": "Chemical Peel", "desc": "Acid exfoliation to even out skin tone and texture." },
+      "face_mesotherapy": { "name": "Microneedling Mesotherapy", "desc": "Stimulates skin renewal and delivers active ingredients." },
+      "mani_hybrid": { "name": "Hybrid (Gel Polish) Manicure", "desc": "Nail and cuticle care finished with long-lasting gel polish." },
+      "mani_classic": { "name": "Classic Manicure", "desc": "Nail and cuticle care finished with regular polish." },
+      "hybrid_removal": { "name": "Gel Polish Removal", "desc": "Safe removal with nail plate conditioning." },
+      "pedi_classic": { "name": "Classic Pedicure", "desc": "Foot and nail care including callus removal." },
+      "pedi_hybrid": { "name": "Hybrid (Gel Polish) Pedicure", "desc": "Pedicure finished with long-lasting gel polish." },
+      "brow_shaping": { "name": "Eyebrow Shaping", "desc": "Precise shaping tailored to your facial features." },
+      "brow_henna_powder": { "name": "Powder Brow Henna", "desc": "A soft, powdery brow effect lasting up to several weeks." },
+      "brow_lamination": { "name": "Brow Lamination", "desc": "Sets and styles brow hairs for a fuller, denser look." },
+      "lash_lift": { "name": "Lash Lift", "desc": "Curls and nourishes your natural lashes." },
+      "lash_tint": { "name": "Lash Tint", "desc": "Darkens lashes for a more defined look." },
+      "makeup_day": { "name": "Day Makeup", "desc": "Natural makeup that enhances your features." },
+      "makeup_evening": { "name": "Evening / Occasion Makeup", "desc": "Long-wearing, defined makeup for special occasions." },
+      "makeup_bridal": { "name": "Bridal Makeup", "desc": "Bridal makeup including a trial session before the big day." },
+      "pmu_brows": { "name": "Permanent Brow Makeup", "desc": "Powder or hair-stroke technique, matched to your features." },
+      "pmu_lips": { "name": "Permanent Lip Makeup", "desc": "Defines the lip contour and enhances natural colour." },
+      "pmu_eyeliner": { "name": "Permanent Eyeliner", "desc": "Lash line enhancement or a decorative liner." },
+      "pmu_touchup": { "name": "Permanent Makeup Touch-up", "desc": "Pigment refresh to maintain your results." },
+      "lip_augmentation": { "name": "Hyaluronic Acid Lip Augmentation", "desc": "Shapes and hydrates the lips while keeping natural proportions." },
+      "ha_wrinkles": { "name": "Hyaluronic Acid Wrinkle Filler", "desc": "Smooths folds and static wrinkles." },
+      "skin_booster": { "name": "Skin Booster / Bio-stimulator", "desc": "Deep hydration and improved skin quality." }
+    }
+  },
+  "gallery": {
+    "eyebrow": "Transformations",
+    "title": "Before & After",
+    "lead": "Drag the slider to compare the results.",
+    "before": "Before",
+    "after": "After",
+    "slider": "Before and after comparison: {name}",
+    "items": {
+      "brows": "Permanent brow makeup",
+      "lips": "Lip augmentation",
+      "nails": "Hybrid manicure"
+    }
+  },
+  "reviews": {
+    "eyebrow": "Reviews",
+    "title": "What our clients say",
+    "items": {
+      "r1": { "text": "True professionalism and great attention to detail. My brows look natural – exactly as I wanted.", "author": "Salon client", "service": "Permanent brow makeup" },
+      "r2": { "text": "A wonderful atmosphere and expert advice. After the facial massage my skin looks well-rested.", "author": "Salon client", "service": "Facial massage" },
+      "r3": { "text": "My lips look natural and subtle. I felt safe from the consultation to the treatment.", "author": "Salon client", "service": "Lip augmentation" }
+    }
+  },
+  "contact": {
+    "eyebrow": "Contact",
+    "title": "Visit us in Toruń",
+    "address_label": "Address",
+    "phone_label": "Phone",
+    "hours_label": "Opening hours",
+    "hours": "By appointment only – book by phone or online.",
+    "map_title": "Map to Lakszmi Ambasada Piękna beauty salon",
+    "map_load": "Show map"
+  },
+  "footer": {
+    "tagline": "You deserve to feel beautiful.",
+    "rights": "All rights reserved."
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "Lakszmi Ambasada Piękna – Kosmetikstudio in Toruń | Preisliste & Terminbuchung",
+    "description": "Lakszmi Ambasada Piękna in Toruń: Gesichtsbehandlungen, Maniküre und Pediküre, Augenbrauen- und Wimpernstyling, Permanent Make-up und ästhetische Medizin. Preisliste ansehen und Termin buchen."
+  },
+  "a11y": {
+    "skip": "Zum Inhalt springen",
+    "menu_open": "Menü öffnen",
+    "menu_close": "Menü schließen",
+    "lang": "Sprache wählen",
+    "home": "Lakszmi Ambasada Piękna – Startseite"
+  },
+  "nav": {
+    "about": "Über uns",
+    "pricing": "Preisliste",
+    "gallery": "Ergebnisse",
+    "reviews": "Bewertungen",
+    "contact": "Kontakt"
+  },
+  "cta": {
+    "book": "Termin buchen",
+    "pricing": "Zur Preisliste",
+    "call": "Anrufen",
+    "directions": "Route planen"
+  },
+  "hero": {
+    "eyebrow": "Kosmetikstudio · Toruń",
+    "title": "Du verdienst es, schön zu sein",
+    "lead": "Professionelle Kosmetologie, Beauty-Styling und ästhetische Medizin in persönlicher Atmosphäre. Jede Behandlung wird individuell auf Ihre Haut und Ihre Wünsche abgestimmt.",
+    "badge_1": "Erfahrene Kosmetologin",
+    "badge_2": "Individuelle Beratung",
+    "badge_3": "Im Zentrum von Toruń"
+  },
+  "about": {
+    "eyebrow": "Über uns",
+    "title": "Die Botschaft Ihrer Schönheit",
+    "p1": "Lakszmi Ambasada Piękna wird von der erfahrenen Kosmetologin Anna Jankowska-Słomczewska geführt. Wir verbinden Fachwissen, Präzision und Liebe zum Detail für natürliche, langanhaltende Ergebnisse.",
+    "p2": "Wir bieten Gesichtsbehandlungen, Maniküre und Pediküre, Augenbrauen- und Wimpernstyling, Permanent Make-up sowie ästhetische Medizin an – stets nach einer ausführlichen Beratung.",
+    "f1_title": "Individuelle Betreuung",
+    "f1_text": "Ein Behandlungsplan, abgestimmt auf Ihre Haut, Ihren Alltag und Ihre Erwartungen.",
+    "f2_title": "Sicherheit",
+    "f2_text": "Sterilisierte Instrumente, bewährte Produkte und höchste Hygienestandards.",
+    "f3_title": "Natürliche Ergebnisse",
+    "f3_text": "Wir unterstreichen Ihre Schönheit, statt sie zu verändern."
+  },
+  "pricing": {
+    "eyebrow": "Behandlungen",
+    "title": "Preisliste",
+    "lead": "Wählen Sie eine Kategorie oder suchen Sie nach einer Behandlung. Preise in Polnischen Złoty (PLN).",
+    "search_label": "Behandlung suchen",
+    "search_placeholder": "Z. B. Maniküre, Augenbrauen, Lippen…",
+    "all": "Alle",
+    "empty": "Keine passende Behandlung gefunden.",
+    "on_request": "Preis auf Anfrage",
+    "currency": "PLN",
+    "results": "Behandlungen: {count}",
+    "note": "Die Preisliste dient nur zur Information. Umfang und Endpreis werden im Beratungsgespräch festgelegt.",
+    "categories": {
+      "face": "Gesichtsbehandlungen",
+      "nails": "Maniküre & Pediküre",
+      "brows": "Augenbrauen & Wimpern",
+      "makeup": "Make-up",
+      "pmu": "Permanent Make-up",
+      "aesthetic": "Ästhetische Medizin"
+    },
+    "items": {
+      "face_massage": { "name": "Gesichts-, Hals- und Dekolletémassage", "desc": "Entspannende, straffende Massage zur Förderung der Mikrozirkulation und Hautspannkraft." },
+      "face_cleansing": { "name": "Tiefenreinigung des Gesichts", "desc": "Gründliche Hautreinigung mit Feuchtigkeitspflege und einer auf den Hauttyp abgestimmten Maske." },
+      "face_peel": { "name": "Chemisches Peeling", "desc": "Fruchtsäurepeeling für ein ebenmäßiges Hautbild." },
+      "face_mesotherapy": { "name": "Microneedling-Mesotherapie", "desc": "Regt die Hauterneuerung an und schleust Wirkstoffe ein." },
+      "mani_hybrid": { "name": "Maniküre mit Hybridlack (Shellac)", "desc": "Nagel- und Nagelhautpflege mit langhaltendem Hybrid-/Gellack." },
+      "mani_classic": { "name": "Klassische Maniküre", "desc": "Nagel- und Nagelhautpflege mit klassischem Nagellack." },
+      "hybrid_removal": { "name": "Entfernung von Hybridlack", "desc": "Schonende Entfernung mit Pflege der Nagelplatte." },
+      "pedi_classic": { "name": "Klassische Pediküre", "desc": "Fuß- und Nagelpflege inkl. Hornhautentfernung." },
+      "pedi_hybrid": { "name": "Pediküre mit Hybridlack (Shellac)", "desc": "Pediküre mit langhaltendem Hybrid-/Gellack." },
+      "brow_shaping": { "name": "Augenbrauen zupfen & formen", "desc": "Präzise Formgebung, abgestimmt auf Ihre Gesichtszüge." },
+      "brow_henna_powder": { "name": "Puder-Henna für Augenbrauen", "desc": "Sanfter Puder-Effekt, der bis zu mehrere Wochen hält." },
+      "brow_lamination": { "name": "Brow Lamination", "desc": "Formt und fixiert die Härchen für volle, dichte Augenbrauen." },
+      "lash_lift": { "name": "Wimpernlifting", "desc": "Schwung und Pflege für Ihre Naturwimpern." },
+      "lash_tint": { "name": "Wimpern färben", "desc": "Dunklere Wimpern für einen ausdrucksstarken Blick." },
+      "makeup_day": { "name": "Tages-Make-up", "desc": "Natürliches Make-up, das Ihre Vorzüge betont." },
+      "makeup_evening": { "name": "Abend- / Anlass-Make-up", "desc": "Ausdrucksstarkes, langhaltendes Make-up für besondere Anlässe." },
+      "makeup_bridal": { "name": "Braut-Make-up", "desc": "Braut-Make-up inklusive Probetermin vor der Hochzeit." },
+      "pmu_brows": { "name": "Permanent Make-up Augenbrauen", "desc": "Puder- oder Härchentechnik, passend zu Ihrem Typ." },
+      "pmu_lips": { "name": "Permanent Make-up Lippen", "desc": "Betont Lippenkontur und natürliche Lippenfarbe." },
+      "pmu_eyeliner": { "name": "Permanent Make-up Lidstrich", "desc": "Wimpernkranzverdichtung oder dekorativer Lidstrich." },
+      "pmu_touchup": { "name": "Nachbehandlung Permanent Make-up", "desc": "Auffrischung der Pigmentierung zum Erhalt des Ergebnisses." },
+      "lip_augmentation": { "name": "Lippenaufspritzung mit Hyaluronsäure", "desc": "Formt und befeuchtet die Lippen bei natürlichen Proportionen." },
+      "ha_wrinkles": { "name": "Faltenunterspritzung mit Hyaluronsäure", "desc": "Glättet Falten und statische Linien." },
+      "skin_booster": { "name": "Skinbooster / Biostimulator", "desc": "Intensive Feuchtigkeit und verbesserte Hautqualität." }
+    }
+  },
+  "gallery": {
+    "eyebrow": "Verwandlungen",
+    "title": "Vorher & Nachher",
+    "lead": "Bewegen Sie den Regler, um das Ergebnis zu vergleichen.",
+    "before": "Vorher",
+    "after": "Nachher",
+    "slider": "Vorher-Nachher-Vergleich: {name}",
+    "items": {
+      "brows": "Permanent Make-up Augenbrauen",
+      "lips": "Lippenaufspritzung",
+      "nails": "Hybrid-Maniküre"
+    }
+  },
+  "reviews": {
+    "eyebrow": "Bewertungen",
+    "title": "Das sagen unsere Kundinnen",
+    "items": {
+      "r1": { "text": "Absolute Professionalität und viel Liebe zum Detail. Meine Augenbrauen sehen natürlich aus – genau wie gewünscht.", "author": "Kundin des Studios", "service": "Permanent Make-up Augenbrauen" },
+      "r2": { "text": "Wunderbare Atmosphäre und kompetente Beratung. Nach der Gesichtsmassage wirkt meine Haut erholt.", "author": "Kundin des Studios", "service": "Gesichtsmassage" },
+      "r3": { "text": "Meine Lippen sehen natürlich und dezent aus. Ich habe mich von der Beratung bis zur Behandlung sicher gefühlt.", "author": "Kundin des Studios", "service": "Lippenaufspritzung" }
+    }
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Besuchen Sie uns in Toruń",
+    "address_label": "Adresse",
+    "phone_label": "Telefon",
+    "hours_label": "Öffnungszeiten",
+    "hours": "Termine nur nach Vereinbarung – telefonisch oder online.",
+    "map_title": "Anfahrtskarte zum Kosmetikstudio Lakszmi Ambasada Piękna",
+    "map_load": "Karte anzeigen"
+  },
+  "footer": {
+    "tagline": "Du verdienst es, schön zu sein.",
+    "rights": "Alle Rechte vorbehalten."
+  }
+}

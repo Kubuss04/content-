@@ -1,0 +1,66 @@
+{
+  "_comment": "Struktura cennika. Nazwy usług są w plikach /locales/*.json (klucz pricing.items.<id>). price = cena w PLN, null = cena do uzupełnienia (wyświetlana jako 'cena w salonie'). verified=false oznacza pozycję do potwierdzenia z aktualnym cennikiem salonu.",
+  "currency": "PLN",
+  "categories": [
+    {
+      "id": "face",
+      "icon": "face",
+      "items": [
+        { "id": "face_massage", "price": 130, "verified": true },
+        { "id": "face_cleansing", "price": null, "verified": false },
+        { "id": "face_peel", "price": null, "verified": false },
+        { "id": "face_mesotherapy", "price": null, "verified": false }
+      ]
+    },
+    {
+      "id": "nails",
+      "icon": "nails",
+      "items": [
+        { "id": "mani_hybrid", "price": 140, "verified": true },
+        { "id": "mani_classic", "price": null, "verified": false },
+        { "id": "hybrid_removal", "price": null, "verified": false },
+        { "id": "pedi_classic", "price": null, "verified": false },
+        { "id": "pedi_hybrid", "price": null, "verified": false }
+      ]
+    },
+    {
+      "id": "brows",
+      "icon": "eye",
+      "items": [
+        { "id": "brow_shaping", "price": 35, "verified": true },
+        { "id": "brow_henna_powder", "price": null, "verified": false },
+        { "id": "brow_lamination", "price": null, "verified": false },
+        { "id": "lash_lift", "price": null, "verified": false },
+        { "id": "lash_tint", "price": null, "verified": false }
+      ]
+    },
+    {
+      "id": "makeup",
+      "icon": "brush",
+      "items": [
+        { "id": "makeup_day", "price": null, "verified": false },
+        { "id": "makeup_evening", "price": null, "verified": false },
+        { "id": "makeup_bridal", "price": null, "verified": false }
+      ]
+    },
+    {
+      "id": "pmu",
+      "icon": "pen",
+      "items": [
+        { "id": "pmu_brows", "price": null, "verified": false },
+        { "id": "pmu_lips", "price": null, "verified": false },
+        { "id": "pmu_eyeliner", "price": null, "verified": false },
+        { "id": "pmu_touchup", "price": null, "verified": false }
+      ]
+    },
+    {
+      "id": "aesthetic",
+      "icon": "drop",
+      "items": [
+        { "id": "lip_augmentation", "price": 700, "verified": true },
+        { "id": "ha_wrinkles", "price": null, "verified": false },
+        { "id": "skin_booster", "price": null, "verified": false }
+      ]
+    }
+  ]
+}

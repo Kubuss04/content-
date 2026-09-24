@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "Lakszmi Ambasada Piękna – salon kosmetyczny Toruń | Cennik i rezerwacja",
+    "description": "Lakszmi Ambasada Piękna w Toruniu: zabiegi na twarz, manicure i pedicure, stylizacja brwi i rzęs, makijaż permanentny, medycyna estetyczna. Sprawdź cennik i zarezerwuj wizytę."
+  },
+  "a11y": {
+    "skip": "Przejdź do treści",
+    "menu_open": "Otwórz menu",
+    "menu_close": "Zamknij menu",
+    "lang": "Wybierz język",
+    "home": "Lakszmi Ambasada Piękna – strona główna"
+  },
+  "nav": {
+    "about": "O nas",
+    "pricing": "Cennik",
+    "gallery": "Efekty",
+    "reviews": "Opinie",
+    "contact": "Kontakt"
+  },
+  "cta": {
+    "book": "Zarezerwuj wizytę",
+    "pricing": "Zobacz cennik",
+    "call": "Zadzwoń",
+    "directions": "Wyznacz trasę"
+  },
+  "hero": {
+    "eyebrow": "Salon kosmetyczny · Toruń",
+    "title": "Piękno Ci się należy",
+    "lead": "Profesjonalna kosmetologia, stylizacja i medycyna estetyczna w kameralnej atmosferze. Każdy zabieg dobieramy indywidualnie do Twojej skóry i potrzeb.",
+    "badge_1": "Doświadczona kosmetolog",
+    "badge_2": "Indywidualna konsultacja",
+    "badge_3": "Centrum Torunia"
+  },
+  "about": {
+    "eyebrow": "O nas",
+    "title": "Ambasada Twojego piękna",
+    "p1": "Lakszmi Ambasada Piękna to salon prowadzony przez doświadczoną kosmetolog Annę Jankowską-Słomczewską. Łączymy wiedzę, precyzję i troskę o każdy detal, aby efekt był naturalny i trwały.",
+    "p2": "Oferujemy zabiegi na twarz, manicure i pedicure, stylizację brwi i rzęs, makijaż permanentny oraz zabiegi medycyny estetycznej – zawsze po rzetelnej konsultacji.",
+    "f1_title": "Indywidualne podejście",
+    "f1_text": "Plan zabiegów dopasowany do Twojej skóry, stylu życia i oczekiwań.",
+    "f2_title": "Bezpieczeństwo",
+    "f2_text": "Sterylne narzędzia, sprawdzone preparaty i najwyższe standardy higieny.",
+    "f3_title": "Naturalny efekt",
+    "f3_text": "Podkreślamy Twoje piękno, zamiast je zmieniać."
+  },
+  "pricing": {
+    "eyebrow": "Oferta",
+    "title": "Cennik",
+    "lead": "Wybierz kategorię lub wyszukaj zabieg. Ceny podane w złotych polskich.",
+    "search_label": "Szukaj zabiegu",
+    "search_placeholder": "Np. manicure, brwi, usta…",
+    "all": "Wszystkie",
+    "empty": "Nie znaleźliśmy zabiegu pasującego do wyszukiwania.",
+    "on_request": "cena w salonie",
+    "currency": "zł",
+    "results": "Liczba zabiegów: {count}",
+    "note": "Cennik ma charakter informacyjny. Ostateczny zakres i cenę zabiegu ustalamy podczas konsultacji.",
+    "categories": {
+      "face": "Zabiegi na twarz",
+      "nails": "Manicure i pedicure",
+      "brows": "Oprawa oczu",
+      "makeup": "Makijaż",
+      "pmu": "Makijaż permanentny",
+      "aesthetic": "Medycyna estetyczna"
+    },
+    "items": {
+      "face_massage": { "name": "Masaż twarzy, szyi i dekoltu", "desc": "Relaksujący i liftingujący masaż poprawiający mikrokrążenie i napięcie skóry." },
+      "face_cleansing": { "name": "Oczyszczanie twarzy", "desc": "Głębokie oczyszczenie skóry z nawilżeniem i maską dobraną do cery." },
+      "face_peel": { "name": "Peeling chemiczny", "desc": "Złuszczanie kwasami, wyrównanie kolorytu i tekstury skóry." },
+      "face_mesotherapy": { "name": "Mezoterapia mikroigłowa", "desc": "Stymulacja odnowy skóry i wprowadzenie składników aktywnych." },
+      "mani_hybrid": { "name": "Manicure hybrydowy", "desc": "Opracowanie paznokci i skórek, trwały lakier hybrydowy." },
+      "mani_classic": { "name": "Manicure klasyczny", "desc": "Opracowanie paznokci i skórek, malowanie klasycznym lakierem." },
+      "hybrid_removal": { "name": "Usunięcie lakieru hybrydowego", "desc": "Bezpieczne usunięcie stylizacji z odżywieniem płytki." },
+      "pedi_classic": { "name": "Pedicure klasyczny", "desc": "Pielęgnacja stóp i paznokci, usunięcie zrogowaceń." },
+      "pedi_hybrid": { "name": "Pedicure hybrydowy", "desc": "Pedicure z trwałym lakierem hybrydowym." },
+      "brow_shaping": { "name": "Regulacja brwi", "desc": "Precyzyjne nadanie kształtu dopasowanego do rysów twarzy." },
+      "brow_henna_powder": { "name": "Henna pudrowa brwi", "desc": "Efekt delikatnego, pudrowego makijażu brwi utrzymujący się do kilku tygodni." },
+      "brow_lamination": { "name": "Laminacja brwi", "desc": "Ułożenie i utrwalenie włosków dla efektu pełnych, gęstych brwi." },
+      "lash_lift": { "name": "Lifting rzęs", "desc": "Podkręcenie i odżywienie naturalnych rzęs." },
+      "lash_tint": { "name": "Henna rzęs", "desc": "Przyciemnienie rzęs dla wyrazistego spojrzenia." },
+      "makeup_day": { "name": "Makijaż dzienny", "desc": "Naturalny makijaż podkreślający urodę." },
+      "makeup_evening": { "name": "Makijaż wieczorowy / okolicznościowy", "desc": "Wyrazisty, trwały makijaż na wyjątkowe okazje." },
+      "makeup_bridal": { "name": "Makijaż ślubny", "desc": "Makijaż panny młodej z próbą przed uroczystością." },
+      "pmu_brows": { "name": "Makijaż permanentny brwi", "desc": "Metoda pudrowa lub włoskowa, dobrana do typu urody." },
+      "pmu_lips": { "name": "Makijaż permanentny ust", "desc": "Podkreślenie konturu i koloru ust." },
+      "pmu_eyeliner": { "name": "Makijaż permanentny kreski", "desc": "Zagęszczenie linii rzęs lub dekoracyjna kreska." },
+      "pmu_touchup": { "name": "Korekta makijażu permanentnego", "desc": "Dopigmentowanie w ramach utrzymania efektu." },
+      "lip_augmentation": { "name": "Powiększanie ust kwasem hialuronowym", "desc": "Modelowanie i nawilżenie ust z zachowaniem naturalnych proporcji." },
+      "ha_wrinkles": { "name": "Wypełnianie zmarszczek kwasem hialuronowym", "desc": "Wygładzenie bruzd i zmarszczek statycznych." },
+      "skin_booster": { "name": "Stymulator tkankowy / skin booster", "desc": "Głębokie nawilżenie i poprawa jakości skóry." }
+    }
+  },
+  "gallery": {
+    "eyebrow": "Metamorfozy",
+    "title": "Efekty przed i po",
+    "lead": "Przesuń suwak, aby porównać efekt zabiegu.",
+    "before": "Przed",
+    "after": "Po",
+    "slider": "Porównanie przed i po: {name}",
+    "items": {
+      "brows": "Makijaż permanentny brwi",
+      "lips": "Powiększanie ust",
+      "nails": "Manicure hybrydowy"
+    }
+  },
+  "reviews": {
+    "eyebrow": "Opinie",
+    "title": "Co mówią nasze klientki",
+    "items": {
+      "r1": { "text": "Profesjonalizm i ogromna dbałość o szczegóły. Brwi wyglądają naturalnie, dokładnie tak, jak chciałam.", "author": "Klientka salonu", "service": "Makijaż permanentny brwi" },
+      "r2": { "text": "Wspaniała atmosfera i fachowe doradztwo. Po masażu twarzy skóra wygląda na wypoczętą.", "author": "Klientka salonu", "service": "Masaż twarzy" },
+      "r3": { "text": "Usta wyglądają naturalnie i subtelnie. Czułam się bezpiecznie od konsultacji po zabieg.", "author": "Klientka salonu", "service": "Powiększanie ust" }
+    }
+  },
+  "contact": {
+    "eyebrow": "Kontakt",
+    "title": "Odwiedź nas w Toruniu",
+    "address_label": "Adres",
+    "phone_label": "Telefon",
+    "hours_label": "Godziny otwarcia",
+    "hours": "Wizyty po wcześniejszej rezerwacji telefonicznej lub online.",
+    "map_title": "Mapa dojazdu do salonu Lakszmi Ambasada Piękna",
+    "map_load": "Pokaż mapę"
+  },
+  "footer": {
+    "tagline": "Piękno Ci się należy.",
+    "rights": "Wszelkie prawa zastrzeżone."
+  }
+}
