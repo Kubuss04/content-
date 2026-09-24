@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Arteria Showroom</title>
+  <meta name="description" content="Demo immersyjnej strony produktowej: scena 3D w WebGL, płynne przejścia sterowane scrollem, efekt rentgena i szklane panele.">
+  <meta name="theme-color" content="#0b0d0e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Martian+Mono:wdth,wght@75..112.5,300..500&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Mapa importów: w kodzie piszemy `import gsap from 'gsap'`, jak w projekcie z npm, bez żadnego bundlera. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+        "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.15.0/index.js",
+        "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.15.0/ScrollTrigger.js",
+        "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.mjs"
+      }
+    }
+  </script>
+  <script type="module" src="js/main.js" id="app"></script>
+  <script>
+    // Jeśli skrypty się nie wczytają, po chwili pokazujemy statyczną wersję treści.
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('js');
+      function fallback() { if (!root.classList.contains('is-ready')) root.classList.add('is-static'); }
+      document.getElementById('app').addEventListener('error', fallback);
+      setTimeout(fallback, 12000);
+    })();
+  </script>
+</head>
+<body>
+  <div class="loader" aria-hidden="true">
+    <svg class="loader-mark" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="7.5"/><circle class="dot" cx="16" cy="16" r="2.4"/></svg>
+  </div>
+
+  <canvas class="gl" id="gl" aria-hidden="true"></canvas>
+  <div class="gl-fallback" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <nav class="navpill glass" aria-label="Główna">
+      <a class="brand" href="#top" aria-label="Arteria, wróć na początek">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><circle cx="16" cy="16" r="7.5"/><circle class="dot" cx="16" cy="16" r="2.4"/></svg>
+        <span class="brand-word">arteria</span>
+      </a>
+      <div class="seg" role="group" aria-label="Tryb widoku">
+        <button type="button" class="seg-btn is-active" data-view="full" aria-pressed="true">Pełny widok</button>
+        <button type="button" class="seg-btn" data-view="overview" aria-pressed="false">Przegląd</button>
+      </div>
+    </nav>
+    <a class="contact-link glass" href="#kontakt">Kontakt</a>
+  </header>
+
+  <main id="top">
+    <div class="story" id="story">
+      <div class="stage">
+
+        <section class="chapter chapter--sleeve" id="ch-sleeve" aria-labelledby="h-sleeve">
+          <div class="hero-copy">
+            <p class="eyebrow">Osłony i przewody do maszyn</p>
+            <h1 class="hero-title" id="h-sleeve">Tętnice nowoczesnych maszyn</h1>
+            <p class="scroll-hint"><span class="scroll-line" aria-hidden="true"></span>Przewiń, żeby zajrzeć do środka</p>
+          </div>
+
+          <aside class="sectors glass reveal" aria-labelledby="sectors-label">
+            <p class="panel-label" id="sectors-label">Branże</p>
+            <ul class="sector-list">
+              <li><button type="button" data-sector="agri" aria-pressed="true" class="is-active">Maszyny rolnicze</button></li>
+              <li><button type="button" data-sector="construction" aria-pressed="false">Maszyny budowlane</button></li>
+              <li><button type="button" data-sector="electric" aria-pressed="false">Hybrydy i elektryki</button></li>
+              <li><button type="button" data-sector="trucks" aria-pressed="false">Autobusy i ciężarówki</button></li>
+            </ul>
+            <figure class="sector-thumb" data-sector="agri" aria-hidden="true">
+              <figcaption>Maszyny rolnicze</figcaption>
+            </figure>
+          </aside>
+
+          <article class="spec glass reveal" aria-labelledby="p-aorta">
+            <p class="panel-label">Osłona tekstylna</p>
+            <h2 class="spec-name" id="p-aorta">Aorta <span class="nowrap">HT-230</span></h2>
+            <p class="spec-range"><span>−70&nbsp;°C</span><span class="spec-arrow" aria-hidden="true">→</span><span>+230&nbsp;°C</span></p>
+            <div class="tscale" style="--min: -100; --max: 300; --from: -70; --to: 230; --peak: 300" role="img" aria-label="Praca ciągła od −70 do +230 °C, szczytowo do +300 °C">
+              <div class="tscale-track"><span class="tscale-range"></span><span class="tscale-peak"></span></div>
+              <div class="tscale-ticks" aria-hidden="true"><span style="--v: -100">−100</span><span style="--v: 0">0</span><span style="--v: 100">100</span><span style="--v: 200">200</span><span style="--v: 300">300&nbsp;°C</span></div>
+            </div>
+            <ul class="chips">
+              <li>Ø 8–60&nbsp;mm</li>
+              <li>Samogasnąca</li>
+              <li>Szczytowo +300&nbsp;°C</li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="chapter chapter--xray" id="ch-xray" aria-labelledby="h-xray">
+          <div class="chapter-copy reveal">
+            <p class="eyebrow"><span class="eyebrow-num">02</span>Prześwietlenie</p>
+            <h2 class="chapter-title" id="h-xray">Zobacz, co płynie w&nbsp;środku maszyny</h2>
+            <p class="chapter-text">Przewijaj dalej, a&nbsp;skaner odsłoni kolory. Świecące linie to przewody hydrauliczne, czyli tętnice koparki.</p>
+          </div>
+          <aside class="readout glass reveal" aria-label="Wynik skanu">
+            <div class="readout-head">
+              <span class="panel-label">Skan RTG</span>
+              <output class="readout-pct" id="scanPct">0%</output>
+            </div>
+            <div class="readout-bar"><span id="scanBar"></span></div>
+            <dl class="readout-list">
+              <div><dt>Przewody hydrauliczne</dt><dd>6</dd></div>
+              <div><dt>Osłony Aorta HT-230</dt><dd>2</dd></div>
+              <div><dt>Ciśnienie robocze</dt><dd>350&nbsp;bar</dd></div>
+            </dl>
+          </aside>
+        </section>
+
+        <section class="chapter chapter--braid" id="ch-braid" aria-labelledby="h-braid">
+          <h2 class="mega reveal" id="h-braid">Kapilara <span class="nowrap">DX-12</span></h2>
+          <article class="spec glass reveal" aria-label="Parametry Kapilara DX-12">
+            <p class="panel-label">Przewód hydrauliczny w oplocie</p>
+            <p class="spec-lead">Dwa oploty stalowe pod tekstylną koszulką. Zakucia ze stali nierdzewnej 316L.</p>
+            <p class="spec-range"><span>−40&nbsp;°C</span><span class="spec-arrow" aria-hidden="true">→</span><span>+125&nbsp;°C</span></p>
+            <div class="tscale" style="--min: -50; --max: 150; --from: -40; --to: 125; --peak: 125" role="img" aria-label="Praca od −40 do +125 °C">
+              <div class="tscale-track"><span class="tscale-range"></span></div>
+              <div class="tscale-ticks" aria-hidden="true"><span style="--v: -50">−50</span><span style="--v: 0">0</span><span style="--v: 50">50</span><span style="--v: 100">100</span><span style="--v: 150">150&nbsp;°C</span></div>
+            </div>
+            <p class="panel-label panel-label--spaced">Ciśnienie robocze według średnicy</p>
+            <ul class="bars">
+              <li style="--v: 400"><span>DN&nbsp;6</span><i aria-hidden="true"></i><b>400&nbsp;bar</b></li>
+              <li style="--v: 350"><span>DN&nbsp;10</span><i aria-hidden="true"></i><b>350&nbsp;bar</b></li>
+              <li style="--v: 280"><span>DN&nbsp;16</span><i aria-hidden="true"></i><b>280&nbsp;bar</b></li>
+              <li style="--v: 210"><span>DN&nbsp;25</span><i aria-hidden="true"></i><b>210&nbsp;bar</b></li>
+              <li style="--v: 165"><span>DN&nbsp;32</span><i aria-hidden="true"></i><b>165&nbsp;bar</b></li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="chapter chapter--spectrum" id="ch-spectrum" aria-labelledby="h-spectrum">
+          <div class="chapter-copy reveal">
+            <p class="eyebrow"><span class="eyebrow-num">04</span>Kolory</p>
+            <h2 class="chapter-title chapter-title--xl" id="h-spectrum">Każdy kolor. Każda średnica.</h2>
+            <p class="chapter-text">Kodujemy przewody kolorami, żeby serwisant od razu trafił we&nbsp;właściwy obwód.</p>
+            <div class="cta-row">
+              <a class="btn btn--primary" href="#kontakt">Poproś o&nbsp;próbki</a>
+              <button type="button" class="btn btn--ghost" data-goto="sleeve">Wróć na początek</button>
+            </div>
+          </div>
+          <ul class="swatches reveal" aria-label="Kolory standardowe">
+            <li style="--c: #e5361b"><span>Arteria Red</span><code>#E5361B</code></li>
+            <li style="--c: #ff8a1f"><span>Signal Orange</span><code>#FF8A1F</code></li>
+            <li style="--c: #ffc21a"><span>Sun Yellow</span><code>#FFC21A</code></li>
+            <li style="--c: #8fd13a"><span>Lime</span><code>#8FD13A</code></li>
+            <li style="--c: #12b3a0"><span>Teal</span><code>#12B3A0</code></li>
+            <li style="--c: #2f5bff"><span>Cobalt</span><code>#2F5BFF</code></li>
+            <li style="--c: #d23c8c"><span>Magenta</span><code>#D23C8C</code></li>
+          </ul>
+        </section>
+
+      </div>
+    </div>
+
+    <footer class="footer" id="kontakt">
+      <div class="footer-inner">
+        <p class="eyebrow">Kontakt</p>
+        <h2 class="footer-title">Porozmawiajmy o&nbsp;Twojej maszynie.</h2>
+        <div class="contact-row">
+          <span class="email" id="email">kontakt@arteria.example</span>
+          <button type="button" class="btn btn--small" id="copyEmail">Kopiuj adres</button>
+        </div>
+        <p class="footnote">Strona demonstracyjna. Marka Arteria, produkty i&nbsp;parametry są fikcyjne. Grafika powstaje na żywo w&nbsp;WebGL (Three.js), przejściami steruje GSAP ScrollTrigger, a&nbsp;płynny scroll to Lenis.</p>
+      </div>
+    </footer>
+  </main>
+
+  <div class="hotspots" id="hotspots">
+    <button type="button" class="hotspot hotspot--quiet" data-hotspot="sleeve"><span class="hs-ring" aria-hidden="true"></span><span class="hs-label">Aorta HT-230: do +230&nbsp;°C</span></button>
+    <button type="button" class="hotspot" data-hotspot="boom"><span class="hs-ring" aria-hidden="true"></span><span class="hs-label">Wiązka wysięgnika: 4 przewody</span></button>
+    <button type="button" class="hotspot" data-hotspot="loop"><span class="hs-ring" aria-hidden="true"></span><span class="hs-label">Pętla przegubu w&nbsp;osłonie HT-230</span></button>
+    <button type="button" class="hotspot" data-hotspot="bucket"><span class="hs-ring" aria-hidden="true"></span><span class="hs-label">Siłownik łyżki: 2 × DX-12</span></button>
+    <button type="button" class="hotspot" data-hotspot="fitting"><span class="hs-ring" aria-hidden="true"></span><span class="hs-label">Zakucie ze stali 316L</span></button>
+  </div>
+
+  <nav class="progress glass" aria-label="Rozdziały">
+    <button type="button" data-goto="sleeve"><span class="progress-label">Aorta</span><span class="progress-track"><span class="progress-fill"></span></span></button>
+    <button type="button" data-goto="xray"><span class="progress-label">RTG</span><span class="progress-track"><span class="progress-fill"></span></span></button>
+    <button type="button" data-goto="braid"><span class="progress-label">Kapilara</span><span class="progress-track"><span class="progress-fill"></span></span></button>
+    <button type="button" data-goto="spectrum"><span class="progress-label">Kolory</span><span class="progress-track"><span class="progress-fill"></span></span></button>
+  </nav>
+
+  <div class="overview" id="overview" role="dialog" aria-modal="true" aria-labelledby="ov-title" hidden>
+    <div class="overview-panel">
+      <div class="overview-head">
+        <h2 class="overview-title" id="ov-title">Przegląd</h2>
+        <button type="button" class="btn btn--small" data-close>Wróć do pełnego widoku</button>
+      </div>
+      <ol class="ov-grid">
+        <li><button type="button" class="ov-card" data-goto="sleeve"><canvas class="ov-thumb" data-thumb="sleeve" width="640" height="400"></canvas><span class="ov-meta"><span class="ov-num">01</span><span class="ov-name">Aorta HT-230</span><span class="ov-sub">Osłona tekstylna</span></span></button></li>
+        <li><button type="button" class="ov-card" data-goto="xray"><canvas class="ov-thumb" data-thumb="xray" width="640" height="400"></canvas><span class="ov-meta"><span class="ov-num">02</span><span class="ov-name">Prześwietlenie</span><span class="ov-sub">Koparka w&nbsp;RTG</span></span></button></li>
+        <li><button type="button" class="ov-card" data-goto="braid"><canvas class="ov-thumb" data-thumb="braid" width="640" height="400"></canvas><span class="ov-meta"><span class="ov-num">03</span><span class="ov-name">Kapilara DX-12</span><span class="ov-sub">Przewód w&nbsp;oplocie</span></span></button></li>
+        <li><button type="button" class="ov-card" data-goto="spectrum"><canvas class="ov-thumb" data-thumb="spectrum" width="640" height="400"></canvas><span class="ov-meta"><span class="ov-num">04</span><span class="ov-name">Kolory</span><span class="ov-sub">Siedem barw obwodów</span></span></button></li>
+      </ol>
+    </div>
+  </div>
+</body>
+</html>
